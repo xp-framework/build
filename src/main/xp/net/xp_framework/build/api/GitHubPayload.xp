@@ -31,4 +31,17 @@ public class GitHubPayload {
     $m= self::$tag.match($this.ref);
     return $m.length() ? $m.group(0)[1] : null;
   }
+
+  /**
+   * Creates a string representation
+   *
+   */
+  public string toString() {
+    return $this.getClassName() ~ '(' ~ $this.before ~ ' -> ' ~ $this.after ~ ' by ' ~ $this.pusher.name ~ ") {\n" ~
+      '  [created]    ' ~ ($this.created ? 'yes' : 'no') ~ "\n" ~
+      '  [deleted]    ' ~ ($this.deleted ? 'yes' : 'no') ~ "\n" ~
+      '  [commits]    ' ~ xp::stringOf($this.commits, '  ') ~ "\n" ~
+      '  [repository] ' ~ xp::stringOf($this.repository, '  ') ~ "\n" ~
+    '}';
+  }
 }

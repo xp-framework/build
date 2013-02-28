@@ -29,7 +29,25 @@ return GitHubPayload::$tag->matches($this->ref);}
 
 public function getTag(){
 $m=GitHubPayload::$tag->match($this->ref);
-return $m->length()?this($m->group(0),1):NULL;}static function __static() {GitHubPayload::$tag=new Pattern('refs/tags/(.+)');}}xp::$registry['class.GitHubPayload']= 'net.xp_framework.build.api.GitHubPayload';xp::$registry['details.net.xp_framework.build.api.GitHubPayload']= array (
+return $m->length()?this($m->group(0),1):NULL;}
+
+
+
+
+
+
+public function toString(){
+return 
+
+
+
+
+$this->getClassName().'('.$this->before.' -> '.$this->after.' by '.$this->pusher->name.') {
+'.'  [created]    '.($this->created?'yes':'no').'
+'.'  [deleted]    '.($this->deleted?'yes':'no').'
+'.'  [commits]    '.xp::stringOf($this->commits,'  ').'
+'.'  [repository] '.xp::stringOf($this->repository,'  ').'
+'.'}';}static function __static() {GitHubPayload::$tag=new Pattern('refs/tags/(.+)');}}xp::$registry['class.GitHubPayload']= 'net.xp_framework.build.api.GitHubPayload';xp::$registry['details.net.xp_framework.build.api.GitHubPayload']= array (
   0 => 
   array (
     'tag' => 
@@ -146,6 +164,23 @@ return $m->length()?this($m->group(0),1):NULL;}static function __static() {GitHu
       array (
       ),
       4 => 'Gets tag. Returns NULL if no tag exists',
+      5 => 
+      array (
+      ),
+      6 => 
+      array (
+      ),
+    ),
+    'toString' => 
+    array (
+      1 => 
+      array (
+      ),
+      2 => 'string',
+      3 => 
+      array (
+      ),
+      4 => 'Creates a string representation',
       5 => 
       array (
       ),

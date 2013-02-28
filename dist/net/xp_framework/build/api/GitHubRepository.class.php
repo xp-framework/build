@@ -31,10 +31,10 @@ return
 
 
 $this->getClassName().'<'.$this->name.' @ '.$this->master_branch.'>'.'{
-'.' "'.$this->description.'"'.'
-'.' [owner]    '.$this->owner->name.'
-'.' [size]     '.$this->size.'
-'.' [created]  '.xp::stringOf($this->created_at).'
+'.'  "'.$this->description.'"'.'
+'.'  [owner]    '.$this->owner->name.'
+'.'  [size]     '.$this->size.'
+'.'  [created]  '.xp::stringOf($this->created_at).'
 '.'}';}}xp::$registry['class.GitHubRepository']= 'net.xp_framework.build.api.GitHubRepository';xp::$registry['details.net.xp_framework.build.api.GitHubRepository']= array (
   0 => 
   array (
