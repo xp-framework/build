@@ -19,4 +19,17 @@ public class GitHubRepository {
   public int $stargazers;
   public string $description;
   public GitHubUserReference $owner;
+
+  /**
+   * Creates a string representation
+   *
+   */
+  public string toString() {
+    return $this.getClassName() ~ '<' ~ $this.name ~ ' @ ' ~ $this.master_branch ~ '>' ~ "{\n" ~
+      ' "' ~ $this.description ~ '"' ~ "\n" ~
+      ' [owner]    ' ~ xp::stringOf($this.owner) ~ "\n" ~
+      ' [size]     ' ~ $this.size ~ "\n" ~
+      ' [created]  ' ~ $this.created.toString() ~ "\n" ~
+    '}';
+  }
 }
