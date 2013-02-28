@@ -20,7 +20,11 @@ return Response::error(400)->withPayload('Malformed payload: '.$e->compoundMessa
 
 
 if ($payload->created&&($tag=$payload->getTag())) {
-Console::writeLine('Creating release ',$tag,', started by ',$payload->pusher->name);};
+Console::writeLine('Creating release ',$tag,', started by ',$payload->pusher->name);}else {
+
+
+
+Console::writeLine('Ignore ',$payload);};
 
 
 return Response::created();}}xp::$registry['class.WebHook']= 'net.xp_framework.build.api.WebHook';xp::$registry['details.net.xp_framework.build.api.WebHook']= array (

@@ -23,6 +23,8 @@ public class WebHook {
       util.cmd.Console::writeLine('Creating release ', $tag, ', started by ', $payload.pusher.name);
 
       // TBI
+    } else {
+      util.cmd.Console::writeLine('Ignore ', $payload);      
     }
 
     return Response::created();

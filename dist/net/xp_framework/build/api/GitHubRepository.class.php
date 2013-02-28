@@ -17,7 +17,7 @@ public $has_issues;
 public $homepage;
 public $forks;
 public $stargazers;
-public $descriptons;
+public $description;
 public $owner;}xp::$registry['class.GitHubRepository']= 'net.xp_framework.build.api.GitHubRepository';xp::$registry['details.net.xp_framework.build.api.GitHubRepository']= array (
   0 => 
   array (
@@ -133,7 +133,7 @@ public $owner;}xp::$registry['class.GitHubRepository']= 'net.xp_framework.build.
         'type' => 'int',
       ),
     ),
-    'descriptons' => 
+    'description' => 
     array (
       5 => 
       array (

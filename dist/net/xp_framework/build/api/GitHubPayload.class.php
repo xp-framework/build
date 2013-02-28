@@ -1,4 +1,4 @@
-<?php uses('text.regex.Pattern', 'net.xp_framework.build.api.GitHubUserReference', 'net.xp_framework.build.api.GitHubRepository', 'peer.URL', 'text.regex.MatchResult');
+<?php uses('text.regex.Pattern', 'net.xp_framework.build.api.GitHubUserReference', 'net.xp_framework.build.api.GitHubRepository', 'peer.URL', 'net.xp_framework.build.api.GitHubCommit', 'text.regex.MatchResult');
 
  class GitHubPayload extends Object{
 private static $tag;
@@ -106,14 +106,14 @@ return $m->length()?this($m->group(0),1):NULL;}static function __static() {GitHu
     array (
       5 => 
       array (
-        'type' => 'var[]',
+        'type' => 'net.xp_framework.build.api.GitHubCommit[]',
       ),
     ),
     'head_commit' => 
     array (
       5 => 
       array (
-        'type' => 'var',
+        'type' => 'net.xp_framework.build.api.GitHubCommit',
       ),
     ),
   ),

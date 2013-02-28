@@ -12,8 +12,8 @@ public class GitHubPayload {
   public bool $forced;
   public bool $deleted;
   public bool $created;
-  public var[] $commits;
-  public var $head_commit;
+  public GitHubCommit[] $commits;
+  public GitHubCommit $head_commit;
 
   /**
    * Returns whether a tag is referenced

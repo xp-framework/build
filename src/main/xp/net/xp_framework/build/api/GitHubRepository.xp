@@ -17,6 +17,6 @@ public class GitHubRepository {
   public string $homepage;
   public int $forks;
   public int $stargazers;
-  public string $descriptons;
+  public string $description;
   public GitHubUserReference $owner;
 }
