@@ -18,7 +18,24 @@ public $homepage;
 public $forks;
 public $stargazers;
 public $description;
-public $owner;}xp::$registry['class.GitHubRepository']= 'net.xp_framework.build.api.GitHubRepository';xp::$registry['details.net.xp_framework.build.api.GitHubRepository']= array (
+public $owner;
+
+
+
+
+
+public function toString(){
+return 
+
+
+
+
+$this->getClassName().'<'.$this->name.' @ '.$this->master_branch.'>'.'{
+'.' "'.$this->description.'"'.'
+'.' [owner]    '.$this->owner->name.'
+'.' [size]     '.$this->size.'
+'.' [created]  '.xp::stringOf($this->created_at).'
+'.'}';}}xp::$registry['class.GitHubRepository']= 'net.xp_framework.build.api.GitHubRepository';xp::$registry['details.net.xp_framework.build.api.GitHubRepository']= array (
   0 => 
   array (
     'name' => 
@@ -150,6 +167,23 @@ public $owner;}xp::$registry['class.GitHubRepository']= 'net.xp_framework.build.
   ),
   1 => 
   array (
+    'toString' => 
+    array (
+      1 => 
+      array (
+      ),
+      2 => 'string',
+      3 => 
+      array (
+      ),
+      4 => 'Creates a string representation',
+      5 => 
+      array (
+      ),
+      6 => 
+      array (
+      ),
+    ),
   ),
   'class' => 
   array (
