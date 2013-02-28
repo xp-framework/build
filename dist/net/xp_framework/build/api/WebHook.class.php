@@ -1,6 +1,5 @@
-<?php uses('webservices.rest.srv.Response', 'webservices.rest.RestJsonDeserializer', 'io.streams.MemoryInputStream', 'net.xp_framework.build.api.GitHubPayload', 'webservices.json.JsonException', 'util.cmd.Console');
+<?php uses('webservices.rest.srv.Response', 'io.streams.MemoryInputStream', 'webservices.rest.RestJsonDeserializer', 'net.xp_framework.build.api.GitHubPayload', 'util.cmd.Console');
 
-;
 ;
 
 
@@ -14,7 +13,7 @@
 
 public function githubTrigger(MemoryInputStream $in){
 try {
-$payload=create(new RestJsonDeserializer())->deserialize($in,XPClass::forName('net.xp_framework.build.api.GitHubPayload'));} catch(JsonException $e) {
+$payload=create(new RestJsonDeserializer())->deserialize($in,XPClass::forName('net.xp_framework.build.api.GitHubPayload'));} catch(FormatException $e) {
 
 return Response::error(400)->withPayload('Malformed payload: '.$e->compoundMessage());};
 
