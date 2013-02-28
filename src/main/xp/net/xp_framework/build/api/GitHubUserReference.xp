@@ -1,0 +1,7 @@
+package net.xp_framework.build.api;
+
+public class GitHubUserReference {
+  public string $name= null;
+  public string $username;
+  public string $email;
+}

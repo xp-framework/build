@@ -18,7 +18,13 @@ public class WebHook {
       return Response::error(400).withPayload('Malformed payload: ' ~ $e.compoundMessage());
     }
 
-    util.cmd.Console::writeLine($payload);
+    // Created a tag -> trigger
+    if ($payload.created && ($tag= $payload.getTag())) {
+      util.cmd.Console::writeLine('Creating release ', $tag, ', started by ', $payload.pusher.name);
+
+      // TBI
+    }
+
     return Response::created();
   }
 }

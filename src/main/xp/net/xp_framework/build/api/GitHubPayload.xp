@@ -1,15 +1,34 @@
 package net.xp_framework.build.api;
 
 public class GitHubPayload {
-  public var $pusher;
-  public var $before;
-  public var $after;
-  public var $repository;
-  public var $compare;
-  public var $ref;
-  public var $forced;
-  public var $deleted;
-  public var $created;
-  public var $commits;
+  private static var $tag= new text.regex.Pattern('refs/tags/(.+)');
+
+  public GitHubUserReference $pusher;
+  public string $before;
+  public string $after;
+  public GitHubRepository $repository;
+  public peer.URL $compare;
+  public string $ref;
+  public bool $forced;
+  public bool $deleted;
+  public bool $created;
+  public var[] $commits;
   public var $head_commit;
+
+  /**
+   * Returns whether a tag is referenced
+   *
+   */
+  public bool isTag() {
+    return self::$tag.matches($this.ref);
+  }
+
+  /**
+   * Gets tag. Returns NULL if no tag exists
+   *
+   */
+  public bool getTag() {
+    $m= self::$tag.match($this.ref);
+    return $m.length() ? $m.group(0)[1] : null;
+  }
 }

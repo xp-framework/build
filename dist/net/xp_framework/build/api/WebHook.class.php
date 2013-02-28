@@ -18,7 +18,11 @@ $payload=create(new RestJsonDeserializer())->deserialize($in,XPClass::forName('n
 return Response::error(400)->withPayload('Malformed payload: '.$e->compoundMessage());};
 
 
-Console::writeLine($payload);
+
+if ($payload->created&&($tag=$payload->getTag())) {
+Console::writeLine('Creating release ',$tag,', started by ',$payload->pusher->name);};
+
+
 return Response::created();}}xp::$registry['class.WebHook']= 'net.xp_framework.build.api.WebHook';xp::$registry['details.net.xp_framework.build.api.WebHook']= array (
   0 => 
   array (

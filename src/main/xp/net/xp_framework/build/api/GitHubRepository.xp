@@ -1,0 +1,22 @@
+package net.xp_framework.build.api;
+
+public class GitHubRepository {
+  public string $name;
+  public string $master_branch;
+  public util.Date $created_at;
+  public bool $has_wiki;
+  public int $size;
+  public bool $private;
+  public int $watchers;
+  public bool $fork;
+  public peer.URL $url;
+  public int $id;
+  public bool $has_downloads;
+  public int $open_issues;
+  public bool $has_issues;
+  public string $homepage;
+  public int $forks;
+  public int $stargazers;
+  public string $descriptons;
+  public GitHubUserReference $owner;
+}
