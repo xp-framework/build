@@ -20,9 +20,8 @@ return Response::error(400)->withPayload('Malformed payload: '.$e->compoundMessa
 
 
 if ($payload->created&&($tag=$payload->getTag())) {
-Console::writeLine('Creating release ',$tag,', started by ',$payload->pusher->name);}else {
-
-
+Console::writeLine('Creating release ',$tag,', started by ',$payload->pusher->name);
+Console::writeLine('-> ',$payload);}else {
 
 Console::writeLine('Ignore ',$payload);};
 

@@ -1,5 +1,7 @@
 <?php uses('text.regex.Pattern', 'net.xp_framework.build.api.GitHubUserReference', 'net.xp_framework.build.api.GitHubRepository', 'peer.URL', 'net.xp_framework.build.api.GitHubCommit', 'text.regex.MatchResult');
 
+;
+
  class GitHubPayload extends Object{
 private static $tag;
 
@@ -36,6 +38,14 @@ return $m->length()?this($m->group(0),1):NULL;}
 
 
 
+private static function sha($self){if (NULL !== $self && !is("string", $self)) throw new IllegalArgumentException("Argument 1 passed to ".__METHOD__." must be of string, ".xp::typeOf($self)." given");
+return substr($self,0,7);}
+
+
+
+
+
+
 public function toString(){
 return 
 
@@ -43,13 +53,13 @@ return
 
 
 
-$this->getClassName().'('.$this->before.' -> '.$this->after.' by '.$this->pusher->name.') {
+$this->getClassName().'('.GitHubPayload::sha($this->before).'..'.GitHubPayload::sha($this->after).' -> '.$this->ref.' by '.$this->pusher->name.') {
 '.'  [created]    '.($this->created?'yes':'no').'
 '.'  [deleted]    '.($this->deleted?'yes':'no').'
 '.'  [forced]     '.($this->forced?'yes':'no').'
 '.'  [commits]    '.xp::stringOf($this->commits,'  ').'
 '.'  [repository] '.xp::stringOf($this->repository,'  ').'
-'.'}';}static function __static() {GitHubPayload::$tag=new Pattern('refs/tags/(.+)');}}xp::$registry['class.GitHubPayload']= 'net.xp_framework.build.api.GitHubPayload';xp::$registry['details.net.xp_framework.build.api.GitHubPayload']= array (
+'.'}';}static function __static() {GitHubPayload::$tag=new Pattern('refs/tags/(.+)');}static function __import($scope) {xp::$registry["ext"][$scope]["string"]= "GitHubPayload";}}xp::$registry['class.GitHubPayload']= 'net.xp_framework.build.api.GitHubPayload';xp::$registry['details.net.xp_framework.build.api.GitHubPayload']= array (
   0 => 
   array (
     'tag' => 
@@ -166,6 +176,24 @@ $this->getClassName().'('.$this->before.' -> '.$this->after.' by '.$this->pusher
       array (
       ),
       4 => 'Gets tag. Returns NULL if no tag exists',
+      5 => 
+      array (
+      ),
+      6 => 
+      array (
+      ),
+    ),
+    'sha' => 
+    array (
+      1 => 
+      array (
+        0 => 'string',
+      ),
+      2 => 'string',
+      3 => 
+      array (
+      ),
+      4 => 'Creates short SHA display',
       5 => 
       array (
       ),

@@ -1,5 +1,7 @@
 package net.xp_framework.build.api;
 
+import native standard.substr;
+
 public class GitHubPayload {
   private static var $tag= new text.regex.Pattern('refs/tags/(.+)');
 
@@ -33,11 +35,19 @@ public class GitHubPayload {
   }
 
   /**
+   * Creates short SHA display
+   *
+   */
+  private static string sha(this string $self) {
+    return substr($self, 0, 7);
+  }
+
+  /**
    * Creates a string representation
    *
    */
   public string toString() {
-    return $this.getClassName() ~ '(' ~ $this.before ~ ' -> ' ~ $this.after ~ ' by ' ~ $this.pusher.name ~ ") {\n" ~
+    return $this.getClassName() ~ '(' ~ $this.before.sha() ~ '..' ~ $this.after.sha() ~ ' -> ' ~ $this.ref ~ ' by ' ~ $this.pusher.name ~ ") {\n" ~
       '  [created]    ' ~ ($this.created ? 'yes' : 'no') ~ "\n" ~
       '  [deleted]    ' ~ ($this.deleted ? 'yes' : 'no') ~ "\n" ~
       '  [forced]     ' ~ ($this.forced ? 'yes' : 'no') ~ "\n" ~

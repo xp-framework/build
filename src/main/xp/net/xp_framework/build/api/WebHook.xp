@@ -21,8 +21,7 @@ public class WebHook {
     // Created a tag -> trigger
     if ($payload.created && ($tag= $payload.getTag())) {
       util.cmd.Console::writeLine('Creating release ', $tag, ', started by ', $payload.pusher.name);
-
-      // TBI
+      util.cmd.Console::writeLine('-> ', $payload);
     } else {
       util.cmd.Console::writeLine('Ignore ', $payload);      
     }
