@@ -40,6 +40,7 @@ public class GitHubPayload {
     return $this.getClassName() ~ '(' ~ $this.before ~ ' -> ' ~ $this.after ~ ' by ' ~ $this.pusher.name ~ ") {\n" ~
       '  [created]    ' ~ ($this.created ? 'yes' : 'no') ~ "\n" ~
       '  [deleted]    ' ~ ($this.deleted ? 'yes' : 'no') ~ "\n" ~
+      '  [forced]     ' ~ ($this.forced ? 'yes' : 'no') ~ "\n" ~
       '  [commits]    ' ~ xp::stringOf($this.commits, '  ') ~ "\n" ~
       '  [repository] ' ~ xp::stringOf($this.repository, '  ') ~ "\n" ~
     '}';
