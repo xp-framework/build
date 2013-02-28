@@ -59,7 +59,7 @@ return Response::created();}}xp::$registry['class.WebHook']= 'net.xp_framework.b
     array (
       'webservice' => 
       array (
-        'path' => '/releases',
+        'path' => '/hook',
       ),
     ),
     4 => NULL,

@@ -2,7 +2,7 @@ package net.xp_framework.build.api;
 
 import webservices.rest.srv.Response;
 
-[@webservice(path= '/releases')]
+[@webservice(path= '/hook')]
 public class WebHook {
 
   /**

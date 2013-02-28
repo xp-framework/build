@@ -14,9 +14,9 @@ $ xpws
 Then open another shell and:
 
 ```sh
-$ curl -X POST -d @commit-payload.data -H 'Content-Type: application/x-www-form-urlencoded' http://localhost:8080/releases
+$ curl -X POST -d @commit-payload.data -H 'Content-Type: application/x-www-form-urlencoded' http://localhost:8080/hook
 
-$ curl -X POST -d @tag-payload.data -H 'Content-Type: application/x-www-form-urlencoded' http://localhost:8080/releases
+$ curl -X POST -d @tag-payload.data -H 'Content-Type: application/x-www-form-urlencoded' http://localhost:8080/hook
 ```
 
 See also
