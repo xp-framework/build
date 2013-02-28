@@ -1,0 +1,15 @@
+package net.xp_framework.build.api;
+
+public class GitHubPayload {
+  public var $pusher;
+  public var $before;
+  public var $after;
+  public var $repository;
+  public var $compare;
+  public var $ref;
+  public var $forced;
+  public var $deleted;
+  public var $created;
+  public var $commits;
+  public var $head_commit;
+}

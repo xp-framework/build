@@ -1,0 +1,25 @@
+package net.xp_framework.build.api;
+
+import webservices.rest.srv.Response;
+import webservices.rest.RestJsonDeserializer;
+
+[@webservice(path= '/releases')]
+public class WebHook {
+
+  /**
+   * GitHub passes a JSON string as value for the "payload" form variable
+   *
+   * @see https://help.github.com/articles/post-receive-hooks
+   */
+  [@webmethod(verb = 'POST', accepts= 'application/x-www-form-urlencoded'), @$in: param('payload')]
+  public Response githubTrigger(io.streams.MemoryInputStream $in) {
+    try {
+      $payload= new webservices.rest.RestJsonDeserializer().deserialize($in, GitHubPayload::class);
+    } catch (webservices.json.JsonException $e) {
+      return Response::error(400).withPayload('Malformed payload: ' ~ $e.compoundMessage());
+    }
+
+    util.cmd.Console::writeLine($payload);
+    return Response::created();
+  }
+}
