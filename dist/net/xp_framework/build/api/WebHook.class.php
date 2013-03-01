@@ -1,5 +1,6 @@
-<?php uses('webservices.rest.srv.Response', 'io.streams.MemoryInputStream', 'webservices.rest.RestJsonDeserializer', 'net.xp_framework.build.api.GitHubPayload', 'util.cmd.Console', 'net.xp_framework.build.api.GitHubUserReference');
+<?php uses('webservices.rest.srv.Response', 'util.log.LogCategory', 'io.streams.MemoryInputStream', 'webservices.rest.RestJsonDeserializer', 'net.xp_framework.build.api.GitHubPayload', 'net.xp_framework.build.api.GitHubUserReference');
 
+;
 ;
 
 
@@ -8,6 +9,15 @@
 
 
  class WebHook extends Object{
+private $cat;
+
+
+
+
+
+public function setTrace(LogCategory $cat= NULL){
+$this->cat=$cat;}
+
 
 
 
@@ -24,18 +34,47 @@ return Response::error(400)->withPayload('Malformed payload: '.$e->compoundMessa
 
 
 if ($payload->created&&($tag=$payload->getTag())) {
-Console::writeLine('Creating release ',$tag,', started by ',$payload->pusher->name);
-Console::writeLine('-> ',$payload);}else {
+$this->cat&&$this->cat->info('Creating release',$tag,'started by',$payload->pusher->name);}else {
 
-Console::writeLine('Ignore ',$payload);};
+
+$this->cat&&$this->cat->debug('Ignore',$payload);};
 
 
 return Response::created();}}xp::$registry['class.WebHook']= 'net.xp_framework.build.api.WebHook';xp::$registry['details.net.xp_framework.build.api.WebHook']= array (
   0 => 
   array (
+    'cat' => 
+    array (
+      5 => 
+      array (
+        'type' => 'util.log.LogCategory',
+      ),
+    ),
   ),
   1 => 
   array (
+    'setTrace' => 
+    array (
+      1 => 
+      array (
+        0 => 'util.log.LogCategory',
+      ),
+      2 => 'void',
+      3 => 
+      array (
+      ),
+      4 => 'Sets a logger category for debugging',
+      5 => 
+      array (
+        'inject' => 
+        array (
+          'name' => 'trace',
+        ),
+      ),
+      6 => 
+      array (
+      ),
+    ),
     'githubTrigger' => 
     array (
       1 => 

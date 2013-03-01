@@ -1,6 +1,7 @@
 package net.xp_framework.build.api;
 
 import webservices.rest.srv.Response;
+import util.log.LogCategory;
 
 /**
  * Web hook to capture tag creation
@@ -8,6 +9,15 @@ import webservices.rest.srv.Response;
  */
 [@webservice(path= '/hook')]
 public class WebHook {
+  private LogCategory $cat;
+
+  /**
+   * Sets a logger category for debugging
+   */
+  [@inject(name = 'trace')]
+  public void setTrace(LogCategory $cat= null) {
+    $this.cat= $cat;
+  }
 
   /**
    * GitHub passes a JSON string as value for the "payload" form variable
@@ -24,10 +34,10 @@ public class WebHook {
 
     // Created a tag -> trigger
     if ($payload.created && ($tag= $payload.getTag())) {
-      util.cmd.Console::writeLine('Creating release ', $tag, ', started by ', $payload.pusher.name);
-      util.cmd.Console::writeLine('-> ', $payload);
+      $this.cat && $this.cat.info('Creating release', $tag, 'started by', $payload.pusher.name);
+      // TBI
     } else {
-      util.cmd.Console::writeLine('Ignore ', $payload);      
+      $this.cat && $this.cat.debug('Ignore', $payload);
     }
 
     return Response::created();
