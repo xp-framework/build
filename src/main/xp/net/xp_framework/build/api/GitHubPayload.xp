@@ -2,6 +2,11 @@ package net.xp_framework.build.api;
 
 import native standard.substr;
 
+/**
+ * Represents the GitHub Webhook trigger payload
+ *
+ * @see https://help.github.com/articles/post-receive-hooks
+ */
 public class GitHubPayload {
   private static var $tag= new text.regex.Pattern('refs/tags/(.+)');
 

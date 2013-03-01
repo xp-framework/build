@@ -2,6 +2,10 @@
 
 ;
 
+
+
+
+
  class GitHubCommit extends Object{
 public $id;
 public $url;
@@ -128,7 +132,7 @@ $this->getClassName().'<'.$this->id.' @ '.$this->timestamp->toString().' by '.$t
     5 => 
     array (
     ),
-    4 => NULL,
+    4 => 'Represents a GitHub commit.',
   ),
 );
 ?>

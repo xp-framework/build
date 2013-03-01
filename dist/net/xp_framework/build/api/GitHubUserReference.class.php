@@ -1,5 +1,9 @@
 <?php 
 
+
+
+
+
  class GitHubUserReference extends Object{
 public $name= NULL;
 public $username;
@@ -36,7 +40,7 @@ public $email;}xp::$registry['class.GitHubUserReference']= 'net.xp_framework.bui
     5 => 
     array (
     ),
-    4 => NULL,
+    4 => 'Represents a GitHub user reference.',
   ),
 );
 ?>

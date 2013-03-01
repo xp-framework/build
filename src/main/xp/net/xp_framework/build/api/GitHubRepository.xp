@@ -1,5 +1,9 @@
 package net.xp_framework.build.api;
 
+/**
+ * Represents a GitHub repository with a bit of aggregated meta data.
+ *
+ */
 public class GitHubRepository {
   public string $name;
   public string $master_branch;

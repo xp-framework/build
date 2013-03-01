@@ -2,6 +2,11 @@
 
 ;
 
+
+
+
+
+
  class GitHubPayload extends Object{
 private static $tag;
 
@@ -224,7 +229,7 @@ $this->getClassName().'('.GitHubPayload::sha($this->before).'..'.GitHubPayload::
     5 => 
     array (
     ),
-    4 => NULL,
+    4 => 'Represents the GitHub Webhook trigger payload',
   ),
 );
 ?>

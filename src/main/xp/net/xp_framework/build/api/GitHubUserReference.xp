@@ -1,5 +1,9 @@
 package net.xp_framework.build.api;
 
+/**
+ * Represents a GitHub user reference.
+ *
+ */
 public class GitHubUserReference {
   public string $name= null;
   public string $username;

@@ -1,5 +1,9 @@
 <?php uses('util.Date', 'peer.URL', 'net.xp_framework.build.api.GitHubUserReference');
 
+
+
+
+
  class GitHubRepository extends Object{
 public $name;
 public $master_branch;
@@ -190,7 +194,7 @@ $this->getClassName().'<'.$this->name.' @ '.$this->master_branch.'>'.'{
     5 => 
     array (
     ),
-    4 => NULL,
+    4 => 'Represents a GitHub repository with a bit of aggregated meta data.',
   ),
 );
 ?>

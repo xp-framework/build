@@ -2,6 +2,10 @@ package net.xp_framework.build.api;
 
 import native standard.implode;
 
+/**
+ * Represents a GitHub commit.
+ *
+ */
 public class GitHubCommit {
   public string $id;
   public peer.URL $url;
