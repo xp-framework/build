@@ -1,5 +1,7 @@
-<?php uses('webservices.rest.srv.Response', 'util.log.LogCategory', 'io.streams.MemoryInputStream', 'webservices.rest.RestJsonDeserializer', 'net.xp_framework.build.api.GitHubPayload', 'net.xp_framework.build.api.GitHubUserReference');
+<?php uses('webservices.rest.srv.Response', 'webservices.rest.RestFormat', 'util.log.LogCategory', 'io.streams.MemoryInputStream', 'net.xp_framework.build.api.GitHubPayload', 'net.xp_framework.build.api.GitHubUserReference');
 
+;
+;
 ;
 ;
 
@@ -25,9 +27,9 @@ $this->cat=$cat;}
 
 
 
-public function githubTrigger(MemoryInputStream $in){
+public function githubTrigger($in){
 try {
-$payload=cast(create(new RestJsonDeserializer())->deserialize($in,XPClass::forName('net.xp_framework.build.api.GitHubPayload')), 'net.xp_framework.build.api.GitHubPayload');} catch(FormatException $e) {
+$payload=cast(RestFormat::$JSON->read(new MemoryInputStream($in),XPClass::forName('net.xp_framework.build.api.GitHubPayload')), 'net.xp_framework.build.api.GitHubPayload');} catch(FormatException $e) {
 
 return Response::error(400)->withPayload('Malformed payload: '.$e->compoundMessage());};
 
@@ -79,7 +81,7 @@ return Response::created();}}xp::$registry['class.WebHook']= 'net.xp_framework.b
     array (
       1 => 
       array (
-        0 => 'io.streams.MemoryInputStream',
+        0 => 'string',
       ),
       2 => 'webservices.rest.srv.Response',
       3 => 

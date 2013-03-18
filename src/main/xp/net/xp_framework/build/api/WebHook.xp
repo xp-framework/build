@@ -1,7 +1,9 @@
 package net.xp_framework.build.api;
 
 import webservices.rest.srv.Response;
+import webservices.rest.RestFormat;
 import util.log.LogCategory;
+import io.streams.MemoryInputStream;
 
 /**
  * Web hook to capture tag creation
@@ -25,9 +27,9 @@ public class WebHook {
    * @see https://help.github.com/articles/post-receive-hooks
    */
   [@webmethod(verb= 'POST', accepts= 'application/x-www-form-urlencoded'), @$in: param('payload')]
-  public Response githubTrigger(io.streams.MemoryInputStream $in) {
+  public Response githubTrigger(string? $in) {
     try {
-      $payload= new webservices.rest.RestJsonDeserializer().deserialize($in, GitHubPayload::class) as GitHubPayload;
+      $payload= RestFormat::$JSON.read(new MemoryInputStream($in), GitHubPayload::class) as GitHubPayload;
     } catch (FormatException $e) {
       return Response::error(400).withPayload('Malformed payload: ' ~ $e.compoundMessage());
     }
