@@ -308,7 +308,7 @@ public class XarRelease extends AbstractSubscriber {
     try ($miIndex= new File($targetDir, 'meta-inf.ar').getOutputStream()) {
       $this.out.writeLine('---> ', $tsIndex);
       $this.addIndex($miIndex, $release.toString(), 'ChangeLog');
-      $this.addIndex($miIndex, ".\nlib/" ~ $rtArchive.file.getFileName(), 'boot.pth');
+      $this.addIndex($miIndex, "lib/" ~ $rtArchive.file.getFileName() ~ "\n", 'boot.pth');
     }
 
     // Add setup script

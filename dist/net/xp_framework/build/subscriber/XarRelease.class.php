@@ -309,8 +309,8 @@ $dpIndex=create(new File($targetDir,'depend.ar'))->getOutputStream();$··e= NULL;
 
 
 
-$miIndex=create(new File($targetDir,'meta-inf.ar'))->getOutputStream();$··e= NULL; try {$this->out->writeLine('---> ',$tsIndex);$this->addIndex($miIndex,$release->toString(),'ChangeLog');$this->addIndex($miIndex,'.
-lib/'.$rtArchive->file->getFileName(),'boot.pth');} catch (Exception $··e) {}try { $miIndex->close(); } catch (Exception $··i) {}if ($··e) throw $··e;;
+$miIndex=create(new File($targetDir,'meta-inf.ar'))->getOutputStream();$··e= NULL; try {$this->out->writeLine('---> ',$tsIndex);$this->addIndex($miIndex,$release->toString(),'ChangeLog');$this->addIndex($miIndex,'lib/'.$rtArchive->file->getFileName().'
+','boot.pth');} catch (Exception $··e) {}try { $miIndex->close(); } catch (Exception $··i) {}if ($··e) throw $··e;;
 
 
 
