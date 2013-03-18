@@ -53,8 +53,12 @@ return 1;};
 
 
 $this->queue->subscribe($this->destination);
-$this->out->writeLine('Subscribed to ',$this->destination);
-while ($message=$this->queue->receive(2.0)) {
+$this->out->writeLinef(
+'Subscribed to %s using %s timeout',
+$this->destination,
+
+NULL === $this->timeout?'no':$this->timeout.' second(s)');
+while ($message=$this->queue->receive($this->timeout)) {
 
 
 try {
@@ -151,7 +155,7 @@ $this->queue->disconnect();}}xp::$registry['class.net·xp_framework·build·subscri
       3 => 
       array (
       ),
-      4 => 'Sets timeout. Defaults to 1 second, pass "-" for forever',
+      4 => 'Sets timeout. Defaults to 1 second, pass "-" for forever.',
       5 => 
       array (
         'arg' => NULL,
