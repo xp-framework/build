@@ -1,6 +1,6 @@
 XP Build
 ========
-The XP Build system is based on GitHub commit hooks and therefore exists as an API.
+The XP Build system is based on GitHub commit hooks listening for tag creations.
 
 Usage
 -----
@@ -33,9 +33,33 @@ Setup
 -----
 Use `http://webservices.xp-framework.net/hook` as web hook for the repository.
 
+* * *
+
+Internals
+---------
+The system receives a commit hook, which is published to a message queue. 
+The payload is as follows:
+
+```json
+{ 
+  "owner" 	: "thekid",
+  "repo"  	: "xp-experiments", 
+  "tag"   	: "r5.9.0RC3",
+  "version" : "5.9.0RC3",
+  "user"  	: "thekid" 
+}
+```
+
+A subscriber listens to this message queue, downloads the `ChangeLog` and
+a zipfile, and creates the release build, copying the generated files into 
+a specified target directory.
+
 Testing
 -------
-First, fire up our local webserver
+Before you start, check the configuration files contain the correct values 
+and credentials for the services.
+
+First, fire up our local webserver:
 
 ```sh
 $ xpws
