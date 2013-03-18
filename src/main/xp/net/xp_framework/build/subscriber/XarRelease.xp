@@ -1,0 +1,30 @@
+package net.xp_framework.build.subscriber;
+
+import util.Properties;
+import org.codehaus.stomp.StompConnection;
+
+public class XarRelease extends util.cmd.Command {
+  private StompConnection $queue;
+  private string $destination;
+
+  /**
+   * Injects message queue configuration
+   */
+  [@inject(name = 'mq')]
+  public void useMessageQueue(Properties $prop) {
+    $this.queue= new StompConnection($prop.readString('endpoint', 'host'), $prop.readInteger('endpoint', 'port'));
+    $this.queue.connect($prop.readString('endpoint', 'user'), $prop.readString('endpoint', 'pass'));
+    $this.destination= $prop.readString('queue', 'destination');
+  }
+
+  public void run() {
+    $this.queue.subscribe($this.destination);
+    while ($message= $this.queue.receive()) {
+      $this.out.writeLine('Received ', $message);
+    }
+  }
+
+  public void __destruct() {
+    $this.queue.disconnect();
+  }
+}
