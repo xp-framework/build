@@ -4,6 +4,7 @@ import peer.http.HttpConnection;
 import peer.http.HttpConstants;
 import io.Folder;
 import io.File;
+import io.FileUtil;
 import io.archive.zip.ZipFile;
 import io.archive.zip.ZipArchiveReader;
 import io.streams.StreamTransfer;
@@ -310,8 +311,16 @@ public class XarRelease extends AbstractSubscriber {
       $this.addIndex($miIndex, ".\nlib/" ~ $rtArchive.file.getFileName(), 'boot.pth');
     }
 
+    // Add setup script
+    FileUtil::setContents(new File($targetDir, 'setup'), str_replace(
+      '@@VERSION@@', 
+      $version.getNumber(), 
+      FileUtil::getContents(new File('res', $version.getSeries() ~ '-setup.php.in'))
+    ));
+
     // Clean up
     $this.out.writeLine('===> ', $targetDir);
     $tempDir.unlink();
+    $this.out.writeLine('===> Done');
   }
 }
