@@ -1,6 +1,86 @@
 package net.xp_framework.build.subscriber;
 
+import peer.http.HttpConnection;
+import peer.http.HttpConstants;
+import io.Folder;
+import io.File;
+import io.archive.zip.ZipFile;
+import io.archive.zip.ZipArchiveReader;
+import io.streams.StreamTransfer;
+
+import native standard.sprintf;
+import native standard.sscanf;
+import native standard.basename;
+
+/**
+ * Creates the .xar-based releases
+ */
 public class XarRelease extends AbstractSubscriber {
+
+  // The first %s token is replaced with the owner, the second with
+  // the repository, and the third and last with the tag name
+  const string ZIPBALL= 'https://github.com/%s/%s/zipball/%s';
+
+  private Folder $tmp;
+
+  /**
+   * Creates a HTTP connection. Uses a timeout of 10 seconds at github
+   * is a bit slow in responding from while to while
+   */
+  protected HttpConnection connectionTo(string $url) {
+    $conn= new HttpConnection($url);
+    $conn.setConnectTimeout(10.0);
+    return $conn;
+  }
+
+  /**
+   * Fetches a ZIP file
+   */
+  protected ZipArchiveReader zipballOf(string $url, Folder $tempDir) {
+    $headers= [:];
+    do {
+      $this.out.write('===> ', $url, ': ');
+      $response= $this.connectionTo($url, $headers).get();
+      switch ($response.statusCode()) {
+        case HttpConstants::STATUS_OK:
+
+          // Calculate file name
+          if ($disposition= $response.header('Content-Disposition')) {
+            $filename= null;
+            sscanf($disposition[0], 'attachment; filename=%s', $filename);
+          } else {
+            $filename= basename($url);
+          }
+
+          // Download to a temporary location and store there so we will later be
+          // able to reuse it - being nice to github's bandwidth here:)
+          $tmp= new File($tempDir, $filename);
+          if ($tmp.exists() && $tmp.size() == $response.header('Content-Length')[0]) {
+            $this.out.writeLine('Reusing local copy');
+          } else {
+            $this.out.write('Downloading... ');
+            try ($xfr= new StreamTransfer($response.getInputStream(), $tmp.getOutputStream())) {
+              $xfr.transferAll();
+            }
+            $this.out.writeLine('Done');
+          }
+
+          return ZipFile::open($tmp.getInputStream());
+
+        case HttpConstants::STATUS_FOUND: case HttpConstants::STATUS_SEE_OTHER:
+          $this.out.writeLine('Redirect');
+          $headers['Referer']= $url;
+          $url= $response.header('Location')[0];
+          continue;
+
+        default:
+          $this.out.writeLine('Error');
+          throw new IllegalStateException('Unexpected response for ' ~ $url ~ ': ' ~ $response.toString());
+      }
+    } while (1);
+
+    // Unreachable
+  }
 
   /**
    * Handler for messages
@@ -8,5 +88,16 @@ public class XarRelease extends AbstractSubscriber {
   [@handler]
   public void createXarRelease([:string] $build) {
     $this.out.writeLine('Handling ', $build);
+
+    $tempDir= new Folder('tmp');
+    $tempDir.exists() || $tempDir.create(0755);
+
+    $zip= $this.zipballOf(
+      sprintf(self::ZIPBALL, $build['owner'], $build['repo'], $build['tag']),
+      $tempDir
+    );
+
+    // Clean up
+    // $this.tempDir.unlink();
   }
 }
