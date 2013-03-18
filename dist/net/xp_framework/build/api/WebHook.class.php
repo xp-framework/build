@@ -7,6 +7,8 @@
 ;
 ;
 
+;
+
 
 
 
@@ -54,12 +56,14 @@ return Response::error(400)->withPayload('Malformed payload: '.$e->compoundMessa
 
 
 if ($payload->created&&($tag=$payload->getTag())) {
+sscanf($tag,'r%[0-9.]',$version);
 
 
 
 
 
-$message=RestFormat::$JSON->serializer()->serialize(array('owner' => $payload->repository->owner->name,'repo' => $payload->repository->name,'tag' => $tag,'user' => $payload->pusher->name,));
+
+$message=RestFormat::$JSON->serializer()->serialize(array('owner' => $payload->repository->owner->name,'repo' => $payload->repository->name,'tag' => $tag,'version' => $version,'user' => $payload->pusher->name,));
 $this->cat&&$this->cat->info($message);
 $r=$this->queue->send($this->destination,$message);
 $this->cat&&$this->cat->info($r);}else {

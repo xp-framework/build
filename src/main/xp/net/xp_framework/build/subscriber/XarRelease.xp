@@ -7,10 +7,23 @@ import io.File;
 import io.archive.zip.ZipFile;
 import io.archive.zip.ZipArchiveReader;
 import io.streams.StreamTransfer;
+import io.streams.MemoryInputStream;
+import lang.archive.Archive;
+import io.collections.IOCollection;
+import io.collections.FileCollection;
+import io.collections.iterate.FilteredIOCollectionIterator;
+import io.collections.iterate.NegationOfFilter;
+import io.collections.iterate.CollectionFilter;
 
 import native standard.sprintf;
 import native standard.sscanf;
 import native standard.basename;
+import native standard.rtrim;
+import native standard.str_replace;
+import native standard.strtr;
+import native pcre.preg_replace;
+import native pcre.preg_quote;
+import native core.strlen;
 
 /**
  * Creates the .xar-based releases
@@ -83,6 +96,47 @@ public class XarRelease extends AbstractSubscriber {
   }
 
   /**
+   * Adds a file or a string to a given index
+   *
+   * @param   arg either an io.File or a string
+   */
+  protected void addIndex(File $ar, var $arg, string $name= null) {
+    if ($arg instanceof File) {
+      $size= $arg.size();
+      isset($name) || $name= $arg.getFilename();
+      $stream= $arg.getInputStream();
+    } else {
+      $size= strlen($arg);
+      $stream= new MemoryInputStream($arg);
+    }
+
+    $ar.write(sprintf("--%d:%s:--\n", $size, $name));
+    while ($stream.available()) {
+      $ar.write($stream.read());
+    }
+  }
+
+  /**
+   * Add all files from a given collection
+   *
+   * @param   archive - must be opened with ARCHIVE_CREATE
+   */
+  protected void addAll(Archive $archive, IOCollection $collection, string $base) {
+    $iterator= new FilteredIOCollectionIterator(
+      $collection,
+      new NegationOfFilter(new CollectionFilter()),
+      true
+    );
+    $i= 0;
+    while ($iterator.hasNext()) {
+      $uri= $iterator.next().getURI();
+      $urn= strtr(preg_replace('#^(' ~ preg_quote($base, '#') ~ '|/)#', '', $uri), DIRECTORY_SEPARATOR, '/');
+      $archive.add(new File($uri), $urn);
+      $i++ % 10 || $this.out.write('.');
+    }
+  }
+
+  /**
    * Handler for messages
    */
   [@handler]
@@ -92,10 +146,59 @@ public class XarRelease extends AbstractSubscriber {
     $tempDir= new Folder('tmp');
     $tempDir.exists() || $tempDir.create(0755);
 
+    // Download zip file
     $zip= $this.zipballOf(
       sprintf(self::ZIPBALL, $build['owner'], $build['repo'], $build['tag']),
       $tempDir
     );
+
+    // Extract the zip file
+    $this.out.write('---> Exporting [');
+    with ($iter= $zip.iterator()) {
+      $base= rtrim(($iter.next() as io.archive.zip.ZipDirEntry).getName() ~ '/', '/');
+      while ($iter.hasNext()) {
+        $entry= $iter.next();
+        $relative= str_replace($base, '', $entry.getName());
+        if ($entry.isDirectory()) {
+          $folder= new Folder($tempDir, $relative);
+          $folder.exists() || $folder.create(0755);
+        } else {
+          $file= new File($tempDir, $relative);
+          try ($tran= new StreamTransfer($entry.getInputStream(), $file.getOutputStream())) {
+            $tran.transferAll();
+          }
+        }
+        $this.out.write('.');
+      }
+    }
+    delete($zip);
+    $this.out.writeLine(']');
+
+    // Create version
+    $targetDir= new Folder($tempDir, $build['version']);
+    $targetDir.exists() || $targetDir.create(0755);
+    $coreSrc= new Folder($tempDir, 'core', 'src', 'main', 'php');
+    $toolSrc= new Folder($tempDir, 'core', 'tools');
+
+    // tools.ar
+    $tsIndex= new File($targetDir, 'tools.ar');
+    $this.out.writeLine('---> ', $tsIndex);
+    $tsIndex.open(FILE_MODE_WRITE);
+    foreach ($tool in ['class.php', 'web.php', 'xar.php', 'lang.base.php']) {
+      $this.addIndex($tsIndex, new File($toolSrc, $tool), 'tools/' ~ $tool);
+    }
+    $tsIndex.close();
+
+    // xp-rt-[VERSION].xar
+    $rtArchive= new Archive(new File($targetDir, 'xp-rt-' ~ $build['version'] ~ '.xar'));
+    $rtArchive.open(ARCHIVE_CREATE);
+    $rtArchive.addBytes('VERSION', $build['version']);
+    foreach ($package in ['lang', 'xp', 'util', 'io', 'sapi', 'peer', 'rdbms', 'math', 'scriptlet', 'xml', 'remote', 'text', 'unittest', 'webservices', 'img', 'security', 'gui']) {
+      $this.out.write('     >> ', $package, ' [');
+      $this.addAll($rtArchive, new FileCollection(new Folder($coreSrc, $package)), $coreSrc.getURI());
+      $this.out.writeLine(']');
+    }
+    $rtArchive.create();
 
     // Clean up
     // $this.tempDir.unlink();
