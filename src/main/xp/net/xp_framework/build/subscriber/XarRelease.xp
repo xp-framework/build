@@ -19,6 +19,7 @@ import net.xp_framework.build.Version;
 import net.xp_framework.build.Release;
 import net.xp_framework.build.ChangeLog;
 import util.Date;
+import util.Properties;
 
 import native standard.sprintf;
 import native standard.sscanf;
@@ -40,7 +41,15 @@ public class XarRelease extends AbstractSubscriber {
   const string ZIPBALL= 'https://github.com/%s/%s/zipball/%s';
   const string CHANGELOG= 'https://raw.github.com/%s/%s/%s/core/ChangeLog';
 
-  private Folder $tmp;
+  private Folder $target;
+
+  /**
+   * Injects xarrelease configuration
+   */
+  [@inject(name = 'xarrelease')]
+  public void configure(Properties $prop) {
+    $this.target= new Folder($prop.readString('storage', 'folder', 'release'));
+  }
 
   /**
    * Download ChangeLog from github
@@ -169,8 +178,10 @@ public class XarRelease extends AbstractSubscriber {
     }
 
     $ar.write(sprintf("--%d:%s:--\n", $size, $name));
-    while ($stream.available()) {
-      $ar.write($stream.read());
+    try ($stream) {
+      while ($stream.available()) {
+        $ar.write($stream.read());
+      }
     }
   }
 
@@ -238,16 +249,16 @@ public class XarRelease extends AbstractSubscriber {
         $this.out.write('.');
       }
     }
-    delete($zip);
+    $zip.close();
     $this.out.writeLine(']');
 
     // Create version
-    $targetDir= new Folder($tempDir, $version.getNumber());
+    $targetDir= new Folder($this.target, $version.getNumber());
     $targetDir.exists() || $targetDir.create(0755);
 
     // xp-rt-[VERSION].xar
     $coreSrc= new Folder($tempDir, 'core', 'src', 'main', 'php');
-    $rtArchive= new Archive(new File($targetDir, 'xp-rt-' ~ $version.getNumber() ~ '.xar'));
+    $rtArchive= new Archive(new File($tempDir, 'xp-rt-' ~ $version.getNumber() ~ '.xar'));
     $rtArchive.open(ARCHIVE_CREATE);
     $rtArchive.addBytes('VERSION', $version.getNumber());
     foreach ($package in ['lang', 'xp', 'util', 'io', 'sapi', 'peer', 'rdbms', 'math', 'scriptlet', 'xml', 'remote', 'text', 'unittest', 'webservices', 'img', 'security', 'gui']) {
@@ -260,7 +271,7 @@ public class XarRelease extends AbstractSubscriber {
     // xp-test-[VERSION].xar
     $testSrc= new Folder($tempDir, 'core', 'src', 'test', 'php');
     $testRes= new Folder($tempDir, 'core', 'src', 'test', 'resources');
-    $utArchive= new Archive(new File($targetDir, 'xp-test-' ~ $version.getNumber() ~ '.xar'));
+    $utArchive= new Archive(new File($tempDir, 'xp-test-' ~ $version.getNumber() ~ '.xar'));
     $utArchive.open(ARCHIVE_CREATE);
     foreach ($origin in [$testSrc, $testRes]) {
       $this.out.write('     >> ', $origin, ' [');
@@ -300,6 +311,7 @@ public class XarRelease extends AbstractSubscriber {
     }
 
     // Clean up
-    // $this.tempDir.unlink();
+    $this.out.writeLine('===> ', $targetDir);
+    $tempDir.unlink();
   }
 }
