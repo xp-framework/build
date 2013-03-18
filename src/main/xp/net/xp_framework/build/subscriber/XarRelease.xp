@@ -14,6 +14,7 @@ import io.collections.FileCollection;
 import io.collections.iterate.FilteredIOCollectionIterator;
 import io.collections.iterate.NegationOfFilter;
 import io.collections.iterate.CollectionFilter;
+import net.xp_framework.build.Version;
 
 import native standard.sprintf;
 import native standard.sscanf;
@@ -102,9 +103,10 @@ public class XarRelease extends AbstractSubscriber {
    */
   protected void addIndex(io.streams.FileOutputStream $ar, var $arg, string $name= null) {
     if ($arg instanceof File) {
-      $size= $arg.size();
-      isset($name) || $name= $arg.getFilename();
-      $stream= $arg.getInputStream();
+      $f= $arg as File?;
+      $size= $f.size();
+      isset($name) || $name= $f.getFilename();
+      $stream= $f.getInputStream();
     } else {
       $size= strlen($arg);
       $stream= new MemoryInputStream($arg);
@@ -141,7 +143,8 @@ public class XarRelease extends AbstractSubscriber {
    */
   [@handler]
   public void createXarRelease([:string] $build) {
-    $this.out.writeLine('Handling ', $build);
+    $version= new Version($build['version']);
+    $this.out.writeLine('===> ', $version);
 
     $tempDir= new Folder('tmp');
     $tempDir.exists() || $tempDir.create(0755);
@@ -175,14 +178,14 @@ public class XarRelease extends AbstractSubscriber {
     $this.out.writeLine(']');
 
     // Create version
-    $targetDir= new Folder($tempDir, $build['version']);
+    $targetDir= new Folder($tempDir, $version.getNumber());
     $targetDir.exists() || $targetDir.create(0755);
 
     // xp-rt-[VERSION].xar
     $coreSrc= new Folder($tempDir, 'core', 'src', 'main', 'php');
-    $rtArchive= new Archive(new File($targetDir, 'xp-rt-' ~ $build['version'] ~ '.xar'));
+    $rtArchive= new Archive(new File($targetDir, 'xp-rt-' ~ $version.getNumber() ~ '.xar'));
     $rtArchive.open(ARCHIVE_CREATE);
-    $rtArchive.addBytes('VERSION', $build['version']);
+    $rtArchive.addBytes('VERSION', $version.getNumber());
     foreach ($package in ['lang', 'xp', 'util', 'io', 'sapi', 'peer', 'rdbms', 'math', 'scriptlet', 'xml', 'remote', 'text', 'unittest', 'webservices', 'img', 'security', 'gui']) {
       $this.out.write('     >> ', $coreSrc, ' & ', $package, ' [');
       $this.addAll($rtArchive, new FileCollection(new Folder($coreSrc, $package)), $coreSrc.getURI());
@@ -193,7 +196,7 @@ public class XarRelease extends AbstractSubscriber {
     // xp-test-[VERSION].xar
     $testSrc= new Folder($tempDir, 'core', 'src', 'test', 'php');
     $testRes= new Folder($tempDir, 'core', 'src', 'test', 'resources');
-    $utArchive= new Archive(new File($targetDir, 'xp-test-' ~ $build['version'] ~ '.xar'));
+    $utArchive= new Archive(new File($targetDir, 'xp-test-' ~ $version.getNumber() ~ '.xar'));
     $utArchive.open(ARCHIVE_CREATE);
     foreach ($origin in [$testSrc, $testRes]) {
       $this.out.write('     >> ', $origin, ' [');
@@ -222,7 +225,7 @@ public class XarRelease extends AbstractSubscriber {
     // Index: Dependencies
     try ($dpIndex= new File($targetDir, 'depend.ar').getOutputStream()) {
       $this.out.writeLine('---> ', $dpIndex);
-      $this.addIndex($dpIndex, new File('res', '5.9-depend.ini'));
+      $this.addIndex($dpIndex, new File('res', $version.getSeries() ~ '-depend.ini'), 'depend.ini');
     }
 
     // Index: Meta information

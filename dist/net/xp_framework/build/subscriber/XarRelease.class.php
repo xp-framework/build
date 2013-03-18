@@ -1,5 +1,6 @@
-<?php uses('peer.http.HttpConnection', 'peer.http.HttpConstants', 'io.Folder', 'io.File', 'io.archive.zip.ZipFile', 'io.archive.zip.ZipArchiveReader', 'io.streams.StreamTransfer', 'io.streams.MemoryInputStream', 'lang.archive.Archive', 'io.collections.IOCollection', 'io.collections.FileCollection', 'io.collections.iterate.FilteredIOCollectionIterator', 'io.collections.iterate.NegationOfFilter', 'io.collections.iterate.CollectionFilter', 'net.xp_framework.build.subscriber.AbstractSubscriber', 'io.streams.StringWriter', 'peer.http.HttpResponse', 'io.streams.FileOutputStream', 'io.collections.IOElement', 'io.archive.zip.ZipIterator', 'io.archive.zip.ZipDirEntry', 'io.archive.zip.ZipEntry');
+<?php uses('peer.http.HttpConnection', 'peer.http.HttpConstants', 'io.Folder', 'io.File', 'io.archive.zip.ZipFile', 'io.archive.zip.ZipArchiveReader', 'io.streams.StreamTransfer', 'io.streams.MemoryInputStream', 'lang.archive.Archive', 'io.collections.IOCollection', 'io.collections.FileCollection', 'io.collections.iterate.FilteredIOCollectionIterator', 'io.collections.iterate.NegationOfFilter', 'io.collections.iterate.CollectionFilter', 'net.xp_framework.build.subscriber.Version', 'net.xp_framework.build.subscriber.AbstractSubscriber', 'io.streams.StringWriter', 'peer.http.HttpResponse', 'io.streams.FileOutputStream', 'io.streams.InputStream', 'io.collections.IOElement', 'io.archive.zip.ZipIterator', 'io.archive.zip.ZipDirEntry', 'io.archive.zip.ZipEntry');
 
+;
 ;
 ;
 ;
@@ -102,9 +103,10 @@ throw new IllegalStateException('Unexpected response for '.$url.': '.$response->
 
 protected function addIndex(FileOutputStream $ar,$arg,$name= NULL){if (NULL !== $arg && !is("var", $arg)) throw new IllegalArgumentException("Argument 2 passed to ".__METHOD__." must be of var, ".xp::typeOf($arg)." given");if (NULL !== $name && !is("string", $name)) throw new IllegalArgumentException("Argument 3 passed to ".__METHOD__." must be of string, ".xp::typeOf($name)." given");
 if ($arg instanceof File) {
-$size=$arg->size();
-isset($name)||$name=$arg->getFilename();
-$stream=$arg->getInputStream();}else {
+$f=$arg;
+$size=$f->size();
+isset($name)||$name=$f->getFilename();
+$stream=$f->getInputStream();}else {
 
 $size=strlen($arg);
 $stream=new MemoryInputStream($arg);};
@@ -141,7 +143,8 @@ $i++%10||$this->out->write('.');};}
 
 
 public function createXarRelease(array $build){
-$this->out->writeLine('Handling ',$build);
+$version=new Version($build['version']);
+$this->out->writeLine('===> ',$version);
 
 $tempDir=new Folder('tmp');
 $tempDir->exists()||$tempDir->create(493);
@@ -175,14 +178,14 @@ delete($zip);
 $this->out->writeLine(']');
 
 
-$targetDir=new Folder($tempDir,$build['version']);
+$targetDir=new Folder($tempDir,$version->getNumber());
 $targetDir->exists()||$targetDir->create(493);
 
 
 $coreSrc=new Folder($tempDir,'core','src','main','php');
-$rtArchive=new Archive(new File($targetDir,'xp-rt-'.$build['version'].'.xar'));
+$rtArchive=new Archive(new File($targetDir,'xp-rt-'.$version->getNumber().'.xar'));
 $rtArchive->open(ARCHIVE_CREATE);
-$rtArchive->addBytes('VERSION',$build['version']);
+$rtArchive->addBytes('VERSION',$version->getNumber());
 foreach (array('lang','xp','util','io','sapi','peer','rdbms','math','scriptlet','xml','remote','text','unittest','webservices','img','security','gui',) as $package) {
 $this->out->write('     >> ',$coreSrc,' & ',$package,' [');
 $this->addAll($rtArchive,new FileCollection(new Folder($coreSrc,$package)),$coreSrc->getURI());
@@ -193,7 +196,7 @@ $rtArchive->create();
 
 $testSrc=new Folder($tempDir,'core','src','test','php');
 $testRes=new Folder($tempDir,'core','src','test','resources');
-$utArchive=new Archive(new File($targetDir,'xp-test-'.$build['version'].'.xar'));
+$utArchive=new Archive(new File($targetDir,'xp-test-'.$version->getNumber().'.xar'));
 $utArchive->open(ARCHIVE_CREATE);
 foreach (array($testSrc,$testRes,) as $origin) {
 $this->out->write('     >> ',$origin,' [');
@@ -223,7 +226,7 @@ $tsIndex=create(new File($targetDir,'tools.ar'))->getOutputStream();$··e= NULL; 
 
 
 
-$dpIndex=create(new File($targetDir,'depend.ar'))->getOutputStream();$··e= NULL; try {$this->out->writeLine('---> ',$dpIndex);$this->addIndex($dpIndex,new File('res','5.9-depend.ini'));} catch (Exception $··e) {}try { $dpIndex->close(); } catch (Exception $··i) {}if ($··e) throw $··e;;
+$dpIndex=create(new File($targetDir,'depend.ar'))->getOutputStream();$··e= NULL; try {$this->out->writeLine('---> ',$dpIndex);$this->addIndex($dpIndex,new File('res',$version->getSeries().'-depend.ini'),'depend.ini');} catch (Exception $··e) {}try { $dpIndex->close(); } catch (Exception $··i) {}if ($··e) throw $··e;;
 
 
 
