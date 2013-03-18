@@ -56,7 +56,7 @@ public class WebHook {
 
     // Created a tag -> trigger
     if ($payload.created && ($tag= $payload.getTag())) {
-      sscanf($tag, 'r%[0-9.]', $version);
+      sscanf($tag, 'r%[0-9A-Za-z.~]', $version);
       $message= RestFormat::$JSON.serializer().serialize([
         owner   : $payload.repository.owner.name,
         repo    : $payload.repository.name,

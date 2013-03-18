@@ -56,7 +56,7 @@ return Response::error(400)->withPayload('Malformed payload: '.$e->compoundMessa
 
 
 if ($payload->created&&($tag=$payload->getTag())) {
-sscanf($tag,'r%[0-9.]',$version);
+sscanf($tag,'r%[0-9A-Za-z.~]',$version);
 
 
 
