@@ -1,0 +1,71 @@
+package net.xp_framework.build.subscriber;
+
+import util.Properties;
+import org.codehaus.stomp.StompConnection;
+import io.streams.MemoryInputStream;
+import webservices.rest.RestFormat;
+
+package abstract class AbstractSubscriber extends util.cmd.Command {
+  private StompConnection $queue;
+  private string $destination;
+
+  /**
+   * Injects message queue configuration
+   */
+  [@inject(name = 'mq')]
+  public void useMessageQueue(Properties $prop) {
+    $this.queue= new StompConnection($prop.readString('endpoint', 'host'), $prop.readInteger('endpoint', 'port'));
+    $this.queue.connect($prop.readString('endpoint', 'user'), $prop.readString('endpoint', 'pass'));
+    $this.destination= $prop.readString('queue', 'destination');
+  }
+
+  /**
+   * Find handler method
+   *
+   * @return the method, or NULL if none is found
+   */
+  protected lang.reflect.Method findHandler() {
+    foreach ($m in $this.getClass().getMethods()) {
+      if ($m.hasAnnotation('handler')) return $m;
+    }
+    return null;
+  }
+
+  /**
+   * Listens
+   */
+  public int run() {
+
+    // Create handler mapping
+    if (!($handler= $this.findHandler())) {
+      $this.err.writeLine('No handler method found in ', $this);
+      return 1;
+    }
+
+    // Subscribe and listen
+    $this.queue.subscribe($this.destination);
+    $this.out.writeLine('Subscribed to ', $this.destination);
+    while ($message= $this.queue.receive(2.0)) {
+
+      // Handle
+      try {
+        $r= $handler.invoke($this, [RestFormat::$JSON.read(
+          new MemoryInputStream($message.getBody()),
+          $handler.getParameter(0).getType()
+        )]);
+        $this.out.writeLine($r);
+      } catch (lang.reflect.TargetInvocationException $e) {
+        $this.err.writeLine('*** ', $e);
+      }
+    }
+    $this.out.writeLine('Finished listening');
+    return 0;
+  }
+
+  /**
+   * Destructor. Closes connection to MQ
+   */
+  public void __destruct() {
+    $this.queue.disconnect();
+  }
+}
