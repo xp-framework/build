@@ -1,0 +1,90 @@
+package net.xp_framework.build;
+
+import util.Date;
+
+import native standard.sprintf;
+import native standard.str_replace;
+
+/**
+ * Represents a release
+ */
+public class Release {
+  protected Version $version;
+  protected string $revision;
+  protected Date $date;
+  protected string $notes;
+  
+  /**
+   * Set version
+   */
+  public void setVersion(Version $version= null) {
+    $this.version= $version;
+  }
+
+  /**
+   * Get version
+   */
+  public Version getVersion() {
+    return $this.version;
+  }
+
+  /**
+   * Set revision
+   */
+  public void setRevision(string $revision) {
+    $this.revision= $revision;
+  }
+
+  /**
+   * Get revision
+   */
+  public string getRevision() {
+    return $this.revision;
+  }
+
+  /**
+   * Set date
+   *
+   * @param   util.Date date
+   */
+  public void setDate(Date $date) {
+    $this.date= $date;
+  }
+
+  /**
+   * Get date
+   */
+  public Date getDate() {
+    return $this.date;
+  }
+
+  /**
+   * Set notes
+   */
+  public void setNotes(string $notes) {
+    $this.notes= $notes;
+  }
+
+  /**
+   * Get notes
+   */
+  public string getNotes() {
+    return $this.notes;
+  }
+
+  /**
+   * Returns a string representation
+   *
+   * @return  string
+   */
+  public string toString() {
+    return sprintf(
+      "%s<%s %s @ %s> {\n  %s\n}",
+      $this.getClassName(),
+      null === $this.version ? '?.?.?' : $this.version.getNumber(),
+      $this.revision,
+      xp::stringOf($this.date),
+      str_replace("\n", "\n  ", $this.notes)
+    );
+  }
+}

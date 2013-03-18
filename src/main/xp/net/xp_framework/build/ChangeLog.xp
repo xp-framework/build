@@ -1,0 +1,40 @@
+package net.xp_framework.build;
+
+/**
+ * Represents the changelog
+ */
+public class ChangeLog {
+  protected var $releases= new Release[] {};
+  
+  /**
+   * Adds a release
+   */
+  public Release addRelease(Release $release) {
+    $this.releases[]= $release;
+    return $release;
+  }
+  
+  /**
+   * Finds a release with a specific version
+   */
+  public Release findRelease(Version $version= null) {
+    foreach ($release in $this.releases) {
+      $cmp= $release.getVersion();
+      if (
+        (null === $cmp && null === $version) ||
+        (null !== $cmp && $cmp.equals($version))
+      ) return $release;
+    }
+    return null;
+  }
+
+  /**
+   * Finds a release with a specific version
+   */
+  public Release getRelease(Version $version= null) throws lang.ElementNotFoundException {
+    if (null === ($release= $this.findRelease($version))) {
+      throw new ElementNotFoundException('No release with version ' ~ xp::stringOf($version));
+    }
+    return $release;
+  }
+}
