@@ -8,6 +8,7 @@
 $package= 'net.xp_framework.build.subscriber';abstract  class net·xp_framework·build·subscriber·AbstractSubscriber extends Command{
 private $queue;
 private $destination;
+private $timeout;
 
 
 
@@ -29,6 +30,14 @@ foreach ($this->getClass()->getMethods() as $m) {
 if ($m->hasAnnotation('handler')) {return $m;};};
 
 return NULL;}
+
+
+
+
+
+
+public function setTimeout($t= '1.0'){if (NULL !== $t && !is("string", $t)) throw new IllegalArgumentException("Argument 1 passed to ".__METHOD__." must be of string, ".xp::typeOf($t)." given");
+$this->timeout='-' === $t?NULL:(double)$t;}
 
 
 
@@ -83,6 +92,13 @@ $this->queue->disconnect();}}xp::$registry['class.net·xp_framework·build·subscri
         'type' => 'string',
       ),
     ),
+    'timeout' => 
+    array (
+      5 => 
+      array (
+        'type' => 'double',
+      ),
+    ),
   ),
   1 => 
   array (
@@ -120,6 +136,25 @@ $this->queue->disconnect();}}xp::$registry['class.net·xp_framework·build·subscri
       4 => 'Find handler method',
       5 => 
       array (
+      ),
+      6 => 
+      array (
+      ),
+    ),
+    'setTimeout' => 
+    array (
+      1 => 
+      array (
+        0 => 'string',
+      ),
+      2 => 'void',
+      3 => 
+      array (
+      ),
+      4 => 'Sets timeout. Defaults to 1 second, pass "-" for forever',
+      5 => 
+      array (
+        'arg' => NULL,
       ),
       6 => 
       array (

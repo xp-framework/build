@@ -8,6 +8,7 @@ import webservices.rest.RestFormat;
 package abstract class AbstractSubscriber extends util.cmd.Command {
   private StompConnection $queue;
   private string $destination;
+  private double $timeout;
 
   /**
    * Injects message queue configuration
@@ -29,6 +30,14 @@ package abstract class AbstractSubscriber extends util.cmd.Command {
       if ($m.hasAnnotation('handler')) return $m;
     }
     return null;
+  }
+
+  /**
+   * Sets timeout. Defaults to 1 second, pass "-" for forever.
+   */
+  [@arg]
+  public void setTimeout(string $t= '1.0') {
+    $this.timeout= '-' === $t ? null : $t as double;
   }
 
   /**
