@@ -1,4 +1,4 @@
-<?php uses('peer.http.HttpConnection', 'peer.http.HttpConstants', 'io.Folder', 'io.File', 'io.archive.zip.ZipFile', 'io.archive.zip.ZipArchiveReader', 'io.streams.StreamTransfer', 'io.streams.MemoryInputStream', 'lang.archive.Archive', 'io.collections.IOCollection', 'io.collections.FileCollection', 'io.collections.iterate.FilteredIOCollectionIterator', 'io.collections.iterate.NegationOfFilter', 'io.collections.iterate.CollectionFilter', 'net.xp_framework.build.subscriber.AbstractSubscriber', 'io.streams.StringWriter', 'peer.http.HttpResponse', 'io.collections.IOElement', 'io.archive.zip.ZipIterator', 'io.archive.zip.ZipDirEntry', 'io.archive.zip.ZipEntry');
+<?php uses('peer.http.HttpConnection', 'peer.http.HttpConstants', 'io.Folder', 'io.File', 'io.archive.zip.ZipFile', 'io.archive.zip.ZipArchiveReader', 'io.streams.StreamTransfer', 'io.streams.MemoryInputStream', 'lang.archive.Archive', 'io.collections.IOCollection', 'io.collections.FileCollection', 'io.collections.iterate.FilteredIOCollectionIterator', 'io.collections.iterate.NegationOfFilter', 'io.collections.iterate.CollectionFilter', 'net.xp_framework.build.subscriber.AbstractSubscriber', 'io.streams.StringWriter', 'peer.http.HttpResponse', 'io.streams.FileOutputStream', 'io.collections.IOElement', 'io.archive.zip.ZipIterator', 'io.archive.zip.ZipDirEntry', 'io.archive.zip.ZipEntry');
 
 ;
 ;
@@ -100,7 +100,7 @@ throw new IllegalStateException('Unexpected response for '.$url.': '.$response->
 
 
 
-protected function addIndex(File $ar,$arg,$name= NULL){if (NULL !== $arg && !is("var", $arg)) throw new IllegalArgumentException("Argument 2 passed to ".__METHOD__." must be of var, ".xp::typeOf($arg)." given");if (NULL !== $name && !is("string", $name)) throw new IllegalArgumentException("Argument 3 passed to ".__METHOD__." must be of string, ".xp::typeOf($name)." given");
+protected function addIndex(FileOutputStream $ar,$arg,$name= NULL){if (NULL !== $arg && !is("var", $arg)) throw new IllegalArgumentException("Argument 2 passed to ".__METHOD__." must be of var, ".xp::typeOf($arg)." given");if (NULL !== $name && !is("string", $name)) throw new IllegalArgumentException("Argument 3 passed to ".__METHOD__." must be of string, ".xp::typeOf($name)." given");
 if ($arg instanceof File) {
 $size=$arg->size();
 isset($name)||$name=$arg->getFilename();
@@ -177,28 +177,61 @@ $this->out->writeLine(']');
 
 $targetDir=new Folder($tempDir,$build['version']);
 $targetDir->exists()||$targetDir->create(493);
+
+
 $coreSrc=new Folder($tempDir,'core','src','main','php');
-$toolSrc=new Folder($tempDir,'core','tools');
-
-
-$tsIndex=new File($targetDir,'tools.ar');
-$this->out->writeLine('---> ',$tsIndex);
-$tsIndex->open(FILE_MODE_WRITE);
-foreach (array('class.php','web.php','xar.php','lang.base.php',) as $tool) {
-$this->addIndex($tsIndex,new File($toolSrc,$tool),'tools/'.$tool);};
-
-$tsIndex->close();
-
-
 $rtArchive=new Archive(new File($targetDir,'xp-rt-'.$build['version'].'.xar'));
 $rtArchive->open(ARCHIVE_CREATE);
 $rtArchive->addBytes('VERSION',$build['version']);
 foreach (array('lang','xp','util','io','sapi','peer','rdbms','math','scriptlet','xml','remote','text','unittest','webservices','img','security','gui',) as $package) {
-$this->out->write('     >> ',$package,' [');
+$this->out->write('     >> ',$coreSrc,' & ',$package,' [');
 $this->addAll($rtArchive,new FileCollection(new Folder($coreSrc,$package)),$coreSrc->getURI());
 $this->out->writeLine(']');};
 
-$rtArchive->create();}}xp::$registry['class.XarRelease']= 'net.xp_framework.build.subscriber.XarRelease';xp::$registry['details.net.xp_framework.build.subscriber.XarRelease']= array (
+$rtArchive->create();
+
+
+$testSrc=new Folder($tempDir,'core','src','test','php');
+$testRes=new Folder($tempDir,'core','src','test','resources');
+$utArchive=new Archive(new File($targetDir,'xp-test-'.$build['version'].'.xar'));
+$utArchive->open(ARCHIVE_CREATE);
+foreach (array($testSrc,$testRes,) as $origin) {
+$this->out->write('     >> ',$origin,' [');
+$this->addAll($utArchive,new FileCollection($origin),$origin->getURI());
+$this->out->writeLine(']');};
+
+$utArchive->create();
+
+
+
+
+
+
+
+$clIndex=create(new File($targetDir,'lib.ar'))->getOutputStream();$··e= NULL; try {$this->out->writeLine('---> ',$clIndex);foreach (array($rtArchive,$utArchive,) as $entry) {$this->addIndex($clIndex,$entry->file,'lib/'.$entry->file->getFilename());};} catch (Exception $··e) {}try { $clIndex->close(); } catch (Exception $··i) {}if ($··e) throw $··e;;
+
+
+$toolSrc=new Folder($tempDir,'core','tools');
+
+
+
+
+
+$tsIndex=create(new File($targetDir,'tools.ar'))->getOutputStream();$··e= NULL; try {$this->out->writeLine('---> ',$tsIndex);foreach (array('class.php','web.php','xar.php','lang.base.php',) as $tool) {$this->addIndex($tsIndex,new File($toolSrc,$tool),'tools/'.$tool);};} catch (Exception $··e) {}try { $tsIndex->close(); } catch (Exception $··i) {}if ($··e) throw $··e;;
+
+
+
+
+
+$dpIndex=create(new File($targetDir,'depend.ar'))->getOutputStream();$··e= NULL; try {$this->out->writeLine('---> ',$dpIndex);$this->addIndex($dpIndex,new File('res','5.9-depend.ini'));} catch (Exception $··e) {}try { $dpIndex->close(); } catch (Exception $··i) {}if ($··e) throw $··e;;
+
+
+
+
+
+
+$miIndex=create(new File($targetDir,'meta-inf.ar'))->getOutputStream();$··e= NULL; try {$this->out->writeLine('---> ',$tsIndex);$this->addIndex($miIndex,'.
+lib/'.$rtArchive->file->getFileName(),'boot.pth');} catch (Exception $··e) {}try { $miIndex->close(); } catch (Exception $··i) {}if ($··e) throw $··e;;}}xp::$registry['class.XarRelease']= 'net.xp_framework.build.subscriber.XarRelease';xp::$registry['details.net.xp_framework.build.subscriber.XarRelease']= array (
   0 => 
   array (
     'tmp' => 
@@ -253,7 +286,7 @@ is a bit slow in responding from while to while',
     array (
       1 => 
       array (
-        0 => 'io.File',
+        0 => 'io.streams.FileOutputStream',
         1 => 'var',
         2 => 'string',
       ),

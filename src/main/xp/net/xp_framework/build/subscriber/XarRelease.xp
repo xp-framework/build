@@ -100,7 +100,7 @@ public class XarRelease extends AbstractSubscriber {
    *
    * @param   arg either an io.File or a string
    */
-  protected void addIndex(File $ar, var $arg, string $name= null) {
+  protected void addIndex(io.streams.FileOutputStream $ar, var $arg, string $name= null) {
     if ($arg instanceof File) {
       $size= $arg.size();
       isset($name) || $name= $arg.getFilename();
@@ -177,28 +177,60 @@ public class XarRelease extends AbstractSubscriber {
     // Create version
     $targetDir= new Folder($tempDir, $build['version']);
     $targetDir.exists() || $targetDir.create(0755);
-    $coreSrc= new Folder($tempDir, 'core', 'src', 'main', 'php');
-    $toolSrc= new Folder($tempDir, 'core', 'tools');
-
-    // tools.ar
-    $tsIndex= new File($targetDir, 'tools.ar');
-    $this.out.writeLine('---> ', $tsIndex);
-    $tsIndex.open(FILE_MODE_WRITE);
-    foreach ($tool in ['class.php', 'web.php', 'xar.php', 'lang.base.php']) {
-      $this.addIndex($tsIndex, new File($toolSrc, $tool), 'tools/' ~ $tool);
-    }
-    $tsIndex.close();
 
     // xp-rt-[VERSION].xar
+    $coreSrc= new Folder($tempDir, 'core', 'src', 'main', 'php');
     $rtArchive= new Archive(new File($targetDir, 'xp-rt-' ~ $build['version'] ~ '.xar'));
     $rtArchive.open(ARCHIVE_CREATE);
     $rtArchive.addBytes('VERSION', $build['version']);
     foreach ($package in ['lang', 'xp', 'util', 'io', 'sapi', 'peer', 'rdbms', 'math', 'scriptlet', 'xml', 'remote', 'text', 'unittest', 'webservices', 'img', 'security', 'gui']) {
-      $this.out.write('     >> ', $package, ' [');
+      $this.out.write('     >> ', $coreSrc, ' & ', $package, ' [');
       $this.addAll($rtArchive, new FileCollection(new Folder($coreSrc, $package)), $coreSrc.getURI());
       $this.out.writeLine(']');
     }
     $rtArchive.create();
+
+    // xp-test-[VERSION].xar
+    $testSrc= new Folder($tempDir, 'core', 'src', 'test', 'php');
+    $testRes= new Folder($tempDir, 'core', 'src', 'test', 'resources');
+    $utArchive= new Archive(new File($targetDir, 'xp-test-' ~ $build['version'] ~ '.xar'));
+    $utArchive.open(ARCHIVE_CREATE);
+    foreach ($origin in [$testSrc, $testRes]) {
+      $this.out.write('     >> ', $origin, ' [');
+      $this.addAll($utArchive, new FileCollection($origin), $origin.getURI());
+      $this.out.writeLine(']');
+    }
+    $utArchive.create();
+
+    // Index: Libraries
+    try ($clIndex= new File($targetDir, 'lib.ar').getOutputStream()) {
+      $this.out.writeLine('---> ', $clIndex);
+      foreach ($entry in [$rtArchive, $utArchive]) {
+        $this.addIndex($clIndex, $entry.file, 'lib/' ~ $entry.file.getFilename());
+      }
+    }
+
+    // Index: Tools
+    $toolSrc= new Folder($tempDir, 'core', 'tools');
+    try ($tsIndex= new File($targetDir, 'tools.ar').getOutputStream()) {
+      $this.out.writeLine('---> ', $tsIndex);
+      foreach ($tool in ['class.php', 'web.php', 'xar.php', 'lang.base.php']) {
+        $this.addIndex($tsIndex, new File($toolSrc, $tool), 'tools/' ~ $tool);
+      }
+    }
+
+    // Index: Dependencies
+    try ($dpIndex= new File($targetDir, 'depend.ar').getOutputStream()) {
+      $this.out.writeLine('---> ', $dpIndex);
+      $this.addIndex($dpIndex, new File('res', '5.9-depend.ini'));
+    }
+
+    // Index: Meta information
+    try ($miIndex= new File($targetDir, 'meta-inf.ar').getOutputStream()) {
+      $this.out.writeLine('---> ', $tsIndex);
+      //$this.addIndex($miIndex, $release.toString(), 'ChangeLog');
+      $this.addIndex($miIndex, ".\nlib/" ~ $rtArchive.file.getFileName(), 'boot.pth');
+    }
 
     // Clean up
     // $this.tempDir.unlink();
