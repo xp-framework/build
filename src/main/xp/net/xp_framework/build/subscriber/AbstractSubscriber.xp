@@ -36,8 +36,8 @@ package abstract class AbstractSubscriber extends util.cmd.Command {
    * Sets timeout. Defaults to 1 second, pass "-" for forever.
    */
   [@arg]
-  public void setTimeout(string $t= '1.0') {
-    $this.timeout= '-' === $t ? null : $t as double;
+  public void setTimeout(string? $t= '1.0') {
+    $this.timeout= null === $t ? null : $t as double;
   }
 
   /**

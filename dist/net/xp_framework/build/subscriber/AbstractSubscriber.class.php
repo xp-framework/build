@@ -36,8 +36,8 @@ return NULL;}
 
 
 
-public function setTimeout($t= '1.0'){if (NULL !== $t && !is("string", $t)) throw new IllegalArgumentException("Argument 1 passed to ".__METHOD__." must be of string, ".xp::typeOf($t)." given");
-$this->timeout='-' === $t?NULL:(double)$t;}
+public function setTimeout($t= '1.0'){
+$this->timeout=NULL === $t?NULL:(double)$t;}
 
 
 
