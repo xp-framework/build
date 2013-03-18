@@ -1,0 +1,107 @@
+package net.xp_framework.build.subscriber;
+
+import native standard.sprintf;
+import native standard.sscanf;
+
+/**
+ * Version
+ */
+public class Version {
+  protected var[] $parts;
+  protected int $rc= 0;
+  protected string $branch= null;
+  
+  /**
+   * Constructor
+   */
+  public __construct(string? $number= null) {
+    if ($number === null) return;
+
+    $this.parts= sscanf($number, '%d.%d.%d%s') as var[];
+    if ($this.parts.length < 3) {
+      throw new IllegalArgumentException('Cannot parse "' ~ $number ~ '": ' ~ xp::stringOf($this.parts));
+    }
+    
+    if (null === $this.parts[3]) {
+      // Head release, e.g. 5.8.0
+    } else if ('~' === $this.parts[3][0]) {
+      // Branch release, e.g. 5.8.0~unicode or 5.8.0~unicodeRC1
+      sscanf($this.parts[3], '~%[a-z]RC%d', $this.branch, $this.rc);
+    } else {
+      // Release candidate, e.g. 5.8.0RC5
+      sscanf($this.parts[3], 'RC%d', $this.rc);
+    }
+  }
+  
+  /**
+   * Returns version number
+   */
+  public string getNumber() {
+    return sprintf(
+      '%d.%d.%d%s%s', 
+      $this.parts[0], 
+      $this.parts[1], 
+      $this.parts[2], 
+      $this.branch ? '~' ~ $this.branch : '',
+      $this.rc > 0 ? 'RC' ~ $this.rc : ''
+    );
+  }
+
+  /**
+   * Returns the series (major.minor)
+   */
+  public string getSeries() {
+    return sprintf('%d.%d', $this.parts[0], $this.parts[1]);
+  }
+
+  /**
+   * Returns whether this is a release candidate
+   */
+  public bool isReleaseCandidate() {
+    return $this.rc > 0;
+  }
+
+  /**
+   * Gets release version if this is a release candidate
+   */
+  public self getReleaseVersion() {
+    if ($this.rc <= 0) {
+      throw new IllegalStateException('This is not a release candidate');
+    }
+    
+    // 5.10.0RC1        -> 5.10.0
+    // 5.8.0~unicodeRC1 -> 5.8.0~unicode
+    $r= new self();
+    $r.parts= $this.parts;
+    $r.branch= $this.branch;
+    $r.rc= 0;
+    return $r;
+  }
+
+  /**
+   * Returns a string representation
+   */
+  public string toString() {
+    return sprintf(
+      '%s<%d.%d.%d%s%s>',
+      $this.getClassName(),
+      $this.parts[0],
+      $this.parts[1],
+      $this.parts[2],
+      $this.branch ? ', ' ~ $this.branch ~ ' branch' : '',
+      $this.rc ? ', release candidate #' ~ $this.rc : ''
+    );
+  }
+
+  /**
+   * Checks whether another object is equal to this
+   */
+  public bool equals(var $cmp) {
+    return (
+      $cmp instanceof self && 
+      $this.parts === $cmp.parts && 
+      $this.rc === $cmp.rc &&
+      $this.branch === $cmp.branch
+    );
+  }
+}
