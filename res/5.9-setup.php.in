@@ -1,0 +1,669 @@
+<?php
+/* This file is part of the XP framework
+ *
+ * $Id: setup.php.in 571 2010-12-17 18:20:07Z friebe $ 
+ */
+
+  define('VERSION',    '@@VERSION@@');
+  define('BASE_URL',   'http://xp-framework.net/downloads/releases/');
+  define('TARGET_DIR', getcwd().DIRECTORY_SEPARATOR);
+
+  // {{{ println(string* args)
+  function println() {
+    foreach (func_get_args() as $a) { echo $a; }
+    echo PHP_EOL;
+  }
+  // }}}  
+
+  // {{{ halt(bool force)
+  function halt($force= FALSE) {
+    if ($force) {
+      println('    >> Ignoring, -f[orce] passed');
+    } else {
+      exit(1);
+    }
+  }
+  // }}}  
+
+  // {{{ ardl(string proxy, string url, string targetdir)
+  function ardl($proxy, $url, $targetdir, $permissions= -1) {
+    static $pw= 10;
+
+    if ($proxy) {
+      println('---> ', $url, ' via ', $proxy);
+      $u= parse_url($proxy);
+      $request= sprintf(
+        "GET %s HTTP/1.0\r\nHost: %s\r\n\r\n",
+        $url.'.ar',
+        $u['host']
+      );
+    } else {
+      println('---> ', $url);
+      $u= parse_url($url);
+      $request= sprintf(
+        "GET %s HTTP/1.0\r\nHost: %s\r\n\r\n",
+        $u['path'].'.ar',
+        $u['host']
+      );
+    }
+    $fd= fsockopen($u['host'], isset($u['port']) ? $u['port'] : 80, $errno, $errstr);
+    if (!$fd) {
+      println('*** Failed (#', $errno, ': ', $errstr, ' ***');
+      return FALSE;
+    }
+
+    // Send HTTP request
+    fputs($fd, $request);
+    
+    // Read HTTP response
+    $status= fgets($fd, 1024);
+    sscanf($status, "HTTP/1.%*d %d %[^\r]", $code, $message);
+    if (200 != $code) {
+      println('*** Failed (HTTP ', $code, ': ', $message, ' ***');
+      return FALSE;
+    }
+    do {
+      if (FALSE === ($header= fgets($fd, 1024))) return FALSE;
+      if ('' === ($header= rtrim($header))) break;
+    } while ($header);
+    
+    while ($line= fgets($fd, 0xFF)) {
+      if (2 != sscanf($line, '--%d:%[^:]--', $length, $filename)) continue;
+
+      printf(
+        '---> %s (%.2f kB) [%s]%s', 
+        $filename, 
+        $length / 1024,
+        str_repeat('.', $pw),
+        str_repeat("\x08", $pw+ 1)
+      );
+
+      $target= $targetdir.DIRECTORY_SEPARATOR.$filename;
+      $ft= fopen($target, 'wb');
+      if (!$ft) {
+        println('*** I/O Error w/ ', $filename, ' ***');
+        return FALSE;
+      }
+      
+      $s= 0; $c= 0;
+      while ($s < $length) {
+        $s+= fwrite($ft, fread($fd, min(0x1000, $length- $s)));
+
+        // Update progress
+        $d= ceil(($s / $length) * $pw);
+        if ($d == $c) continue;
+        echo str_repeat('#', $d- $c); flush();
+        $c= $d;
+      }
+      fclose($ft);
+
+      // Change permissions if requested
+      if (-1 != $permissions) {
+        chmod($target, fileperms($target) | $permissions);
+      }
+
+      println();
+    }
+    fclose($fd);
+    return TRUE;
+  }
+  // }}}
+  
+  // {{{ which(string command [, bool ext])
+  function which($command, $ext= FALSE) {
+    if ('/' === $command{0} || ':' === $command{1}) {
+      $search= array('');
+    } else {
+      $search= array();
+      foreach (explode(PATH_SEPARATOR, getenv('PATH')) as $path) {
+        $search[]= rtrim($path, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR;
+      }
+    }
+    $extensions= array('');
+    $ext && $extensions+= explode(PATH_SEPARATOR, getenv('PATHEXT'));
+    foreach ($search as $path) {
+      foreach ($extensions as $ext) {
+        if (file_exists($q= $path.$command.$ext)) return realpath($q);
+      }
+    }
+    return NULL;
+  }
+  // }}}
+
+  // {{{ inpath(string dir)
+  function inpath($dir) {
+    $realpath= realpath($dir);
+    foreach (explode(PATH_SEPARATOR, getenv('PATH')) as $path) {
+      if (realpath($path) == $realpath) return TRUE;
+    }
+    return FALSE;
+  }
+  // }}}
+
+  // {{{ usage()
+  function usage() {
+    println('*** Usage: setup -d <runner-dir> [-b <php-bin>] [-p <proxy-url>] [-e <runner-env>] [-f]');
+    println('- d <runner-dir>: Path to where XP runners should be installed');
+    println('- b <php-bin>   : Path to PHP binary (default: `which php5 || php)`');
+    println('- p <proxy-url> : HTTP proxy to use (default: none), e.g. http://proxy.example.com:3128/');
+    println('- e <runner-env>: Runner environment to use (default: auto-detect)');
+    println('- f             : Force continuation even if prerequisite checks fail');
+    return 1;
+  }
+  // }}}
+  
+  // {{{ findfiles(string base, callable predicate)
+  function findfiles($base, $predicate) {
+    $r= array();
+    $base= rtrim($base, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR;
+    $d= opendir($base);
+    while ($f= readdir($d)) {
+      if ('.' === $f || '..' === $f) continue;    // Ignore self and parent
+      
+      $q= $base.$f;
+      if (is_dir($q)) {
+        $r= array_merge($r, findfiles($q, $predicate));
+      } else {
+        if (!call_user_func($predicate, $q)) continue;
+        $r[]= $q;
+      }
+    }
+    closedir($d);
+    return $r;
+  }
+  // }}}
+
+  // {{{ tz* functions
+  function tzini() {
+    if (!($r= ini_get('date.timezone'))) {
+      return NULL;
+    }
+    return $r;
+  }
+
+  function tzenv() {
+    if (!($r= getenv('TZ'))) {
+      return NULL;
+    }
+    return $r;
+  }
+  
+  function tzzoneinfo() {
+    static $zid= '/usr/share/zoneinfo/';
+    static $lct= '/etc/localtime';
+
+    if (!file_exists($lct) || !is_dir($zid)) {
+      return NULL;
+    }
+    
+    // If /etc/localtime is a link, it's easy: Just see what it links 
+    // to (e.g. -> /usr/share/zoneinfo/Europe/Berlin). Otherwise try 
+    // the hard way, trying to find what /etc/localtime might be a copy 
+    // of. See also http://bugs.sun.com/view_bug.do?bug_id=6456628
+    if (is_link($lct)) {
+      $results= array(readlink($lct));
+    } else {
+      $md5= md5_file($lct);
+      $results= findfiles($zid, create_function('$q', '{
+        return md5_file($q) === "'.$md5.'";
+      }'));
+    }   
+    
+    $tr= array($zid => '', 'posix/' => '', 'right/' => '');
+    switch (sizeof($results)) {
+      case 0: return NULL;
+      case 1: break;
+      default: {
+        println('*** Ambiguous ', $lct,', may be any of {'.implode(', ', $results).'}');
+        foreach ($results as $i => $result) {
+          $tz= strtr($result, $tr);
+          if (!timezone_open($tz)) continue;
+          println('*** Picking #', $i + 1, ' (', $tz, ')');
+          return $tz;
+        }
+        // Fall through intentionally, just use first one
+      }
+    }
+    return strtr($results[0], $tr);
+  }
+  
+  function tzsysinfo() {
+    static $clk= '/etc/sysconfig/clock';
+    
+    if (!file_exists($clk)) {
+      return NULL;
+    }
+    
+    foreach (file($clk) as $line) {
+      if (2 !== sscanf($line, "%[^=]=%[^\r]", $key, $value)) continue;
+      if ('ZONE' === trim($key)) return strtr(trim($value), array(
+        '"'   => '',
+        '\''  => '',
+        '_'   => ' ', // Redhat: ZONE="America/Los_Angeles"
+      ));
+    }
+    return NULL;
+  }
+
+  function tzconfd() {
+    static $clk= '/etc/conf.d/clock';
+    
+    if (!file_exists($clk)) {
+      return NULL;
+    }
+    
+    foreach (file($clk) as $line) {
+      if (2 !== sscanf($line, "%[^=]=%[^\r]", $key, $value)) continue;
+      if ('TIMEZONE' === trim($key)) return strtr(trim($value), array(
+        '"'   => '',
+        '\''  => ''
+      ));
+    }
+    return NULL;
+  }
+  
+  function tzdate() {
+    $r= exec('date "+%Z"', $output, $exitcode);
+    if (0 !== $exitcode) {
+      println(implode(PHP_EOL, $output));
+      return NULL;
+    }
+    return $r;
+  }
+
+  function tzetc() {
+    if (!file_exists('/etc/timezone')) {
+      return NULL;
+    }
+    return trim(file_get_contents('/etc/timezone'));
+  }
+  
+  function tzwindows() {
+    static $tzmap= array(
+      'AUS Central Standard Time' => 'Australia/Darwin',
+      'AUS Eastern Standard Time' => 'Australia/Sydney',
+      'Afghanistan Standard Time' => 'Asia/Kabul',
+      'Alaskan Standard Time' => 'America/Anchorage',
+      'Arab Standard Time' => 'Asia/Riyadh',
+      'Arabian Standard Time' => 'Asia/Dubai',
+      'Arabic Standard Time' => 'Asia/Baghdad',
+      'Argentina Standard Time' => 'America/Buenos_Aires',
+      'Armenian Standard Time' => 'Asia/Yerevan',
+      'Atlantic Standard Time' => 'America/Halifax',
+      'Azerbaijan Standard Time' => 'Asia/Baku',
+      'Azores Standard Time' => 'Atlantic/Azores',
+      'Bangladesh Standard Time' => 'Asia/Dhaka',
+      'Canada Central Standard Time' => 'America/Regina',
+      'Cape Verde Standard Time' => 'Atlantic/Cape_Verde',
+      'Caucasus Standard Time' => 'Asia/Yerevan',
+      'Cen. Australia Standard Time' => 'Australia/Adelaide',
+      'Central America Standard Time' => 'America/Guatemala',
+      'Central Asia Standard Time' => 'Asia/Almaty',
+      'Central Brazilian Standard Time' => 'America/Cuiaba',
+      'Central Europe Standard Time' => 'Europe/Budapest',
+      'Central European Standard Time' => 'Europe/Warsaw',
+      'Central Pacific Standard Time' => 'Pacific/Guadalcanal',
+      'Central Standard Time' => 'America/Chicago',
+      'Central Standard Time (Mexico)' => 'America/Mexico_City',
+      'China Standard Time' => 'Asia/Shanghai',
+      'Dateline Standard Time' => 'Etc/GMT+12',
+      'E. Africa Standard Time' => 'Africa/Nairobi',
+      'E. Australia Standard Time' => 'Australia/Brisbane',
+      'E. Europe Standard Time' => 'Europe/Minsk',
+      'E. South America Standard Time' => 'America/Sao_Paulo',
+      'Eastern Standard Time' => 'America/New_York',
+      'Egypt Standard Time' => 'Africa/Cairo',
+      'Ekaterinburg Standard Time' => 'Asia/Yekaterinburg',
+      'FLE Standard Time' => 'Europe/Kiev',
+      'Fiji Standard Time' => 'Pacific/Fiji',
+      'GMT Standard Time' => 'Europe/London',
+      'GTB Standard Time' => 'Europe/Istanbul',
+      'Georgian Standard Time' => 'Asia/Tbilisi',
+      'Greenland Standard Time' => 'America/Godthab',
+      'Greenwich Standard Time' => 'Atlantic/Reykjavik',
+      'Hawaiian Standard Time' => 'Pacific/Honolulu',
+      'India Standard Time' => 'Asia/Calcutta',
+      'Iran Standard Time' => 'Asia/Tehran',
+      'Israel Standard Time' => 'Asia/Jerusalem',
+      'Jordan Standard Time' => 'Asia/Amman',
+      'Kamchatka Standard Time' => 'Asia/Kamchatka',
+      'Korea Standard Time' => 'Asia/Seoul',
+      'Mauritius Standard Time' => 'Indian/Mauritius',
+      'Mexico Standard Time' => 'America/Mexico_City',
+      'Mexico Standard Time 2' => 'America/Chihuahua',
+      'Mid-Atlantic Standard Time' => 'Etc/GMT+2',
+      'Middle East Standard Time' => 'Asia/Beirut',
+      'Montevideo Standard Time' => 'America/Montevideo',
+      'Morocco Standard Time' => 'Africa/Casablanca',
+      'Mountain Standard Time' => 'America/Denver',
+      'Mountain Standard Time (Mexico)' => 'America/Chihuahua',
+      'Myanmar Standard Time' => 'Asia/Rangoon',
+      'N. Central Asia Standard Time' => 'Asia/Novosibirsk',
+      'Namibia Standard Time' => 'Africa/Windhoek',
+      'Nepal Standard Time' => 'Asia/Katmandu',
+      'New Zealand Standard Time' => 'Pacific/Auckland',
+      'Newfoundland Standard Time' => 'America/St_Johns',
+      'North Asia East Standard Time' => 'Asia/Irkutsk',
+      'North Asia Standard Time' => 'Asia/Krasnoyarsk',
+      'Pacific SA Standard Time' => 'America/Santiago',
+      'Pacific Standard Time' => 'America/Los_Angeles',
+      'Pacific Standard Time (Mexico)' => 'America/Santa_Isabel',
+      'Pakistan Standard Time' => 'Asia/Karachi',
+      'Paraguay Standard Time' => 'America/Asuncion',
+      'Romance Standard Time' => 'Europe/Paris',
+      'Russian Standard Time' => 'Europe/Moscow',
+      'SA Eastern Standard Time' => 'America/Cayenne',
+      'SA Pacific Standard Time' => 'America/Bogota',
+      'SA Western Standard Time' => 'America/La_Paz',
+      'SE Asia Standard Time' => 'Asia/Bangkok',
+      'Samoa Standard Time' => 'Pacific/Apia',
+      'Singapore Standard Time' => 'Asia/Singapore',
+      'South Africa Standard Time' => 'Africa/Johannesburg',
+      'Sri Lanka Standard Time' => 'Asia/Colombo',
+      'Syria Standard Time' => 'Asia/Damascus',
+      'Taipei Standard Time' => 'Asia/Taipei',
+      'Tasmania Standard Time' => 'Australia/Hobart',
+      'Tokyo Standard Time' => 'Asia/Tokyo',
+      'Tonga Standard Time' => 'Pacific/Tongatapu',
+      'US Eastern Standard Time' => 'Etc/GMT+5',
+      'US Mountain Standard Time' => 'America/Phoenix',
+      'UTC' => 'Etc/GMT',
+      'UTC+12' => 'Etc/GMT-12',
+      'UTC-02' => 'Etc/GMT+2',
+      'UTC-11' => 'Etc/GMT+11',
+      'Ulaanbaatar Standard Time' => 'Asia/Ulaanbaatar',
+      'Venezuela Standard Time' => 'America/Caracas',
+      'Vladivostok Standard Time' => 'Asia/Vladivostok',
+      'W. Australia Standard Time' => 'Australia/Perth',
+      'W. Central Africa Standard Time' => 'Africa/Lagos',
+      'W. Europe Standard Time' => 'Europe/Berlin',
+      'West Asia Standard Time' => 'Asia/Tashkent',
+      'West Pacific Standard Time' => 'Pacific/Port_Moresby',
+      'Yakutsk Standard Time' => 'Asia/Yakutsk',
+    );
+
+    // Detect timezone. Could be done with winmgmts://./root/cimv2
+    // -> InstancesOf(Win32_TimeZone) but that returns the localized
+    // name!. Instead, use tzutil and the mapping table generated from
+    // http://unicode.org/repos/cldr/trunk/common/supplemental/windowsZones.xml
+    $r= exec('tzutil.exe /g', $output, $exitcode);
+    if (0 !== $exitcode) {
+      println(implode(PHP_EOL, $output));
+      return NULL;
+    } else if (!isset($tzmap[$r])) {
+      println('*** Cannot map Windows timezone ', $r, ' ***');
+      return NULL;
+    }
+    return $tzmap[$r];
+  }
+
+  function tzdetect() {
+    return date_default_timezone_get();
+  }
+  // }}}
+
+  // {{{ main
+  error_reporting(E_ALL);
+  $bin= $runtime= $runners= $proxy= NULL;
+  $warnings= array();
+  $uname= php_uname();
+  $force= FALSE;
+  println('===> Setup for ', VERSION, ' @ ', $uname);
+
+  // Parse command line arguments  
+  for ($i= 0; $i < $argc; $i++) {
+    switch ($argv[$i]) {
+      case '-d': $bin= $argv[++$i]; break;
+      case '-b': $runtime= $argv[++$i]; break;
+      case '-e': $runners= $argv[++$i]; break;
+      case '-p': $proxy= $argv[++$i]; break;
+      case '-f': $force= TRUE; break;
+      case '-?': case '--help': usage() && exit(1);
+    }
+  }
+  if (!$bin) usage() && exit(1);
+
+  // Runner path: Check whether "bin" exists and is in PATH
+  if (!is_dir($bin)) {
+    $warnings[]= 'Bindir '.$bin.' does not exist, created it for you';
+  }
+  if (!inpath($bin)) {
+    $warnings[]= 'Bindir '.$bin.' is not in PATH, you might want to consider adding it!';
+  }
+
+  // Check for PHP runtime
+  if ($runtime) {
+    if (!($resolved= which($runtime, TRUE))) {
+      println('*** Could not find specified runtime ', $runtime, ' ***');
+      exit(1);
+    }
+    $runtime= $resolved;
+  } else {
+    if (!($runtime= which('php5', TRUE))) {
+      if (!($runtime= which('php', TRUE))) {
+        println('*** PHP command not in path (', getenv('PATH'), ') ***');
+        exit(1);
+      }
+    }
+  }
+      
+  // Detect environment
+  println('===> Environment');
+  switch (TRUE) {
+    case TRUE == preg_match('/^([A-Z]+)BSD/i', $uname):
+      println('---> BSD');
+      $runners= $runners ? $runners : 'bsd';
+      $tz= array('ini', 'zoneinfo', 'env', 'date', 'detect');
+      break;
+
+    case TRUE == preg_match('/^Windows/i', $uname):
+      println('---> Windows');
+      
+      // For Windows runners: Verify .NET version
+      if (!$runners) {
+        $d= dir(getenv('SYSTEMROOT').'/Microsoft.NET/Framework');
+        $versions= array();
+        while ($entry= $d->read()) {
+          if (sscanf($entry, 'v%d.%d.%s', $major, $minor, $patch) > 1) {
+            $versions[]= substr($entry, 1);
+          }
+        }
+        $d->close();
+        if (!version_compare(max($versions), '2.0', 'gt')) {
+          println('*** .NET Framework 2.0 or greater required, found [', implode(', ', $versions), ']');
+          exit(1);
+        }
+        $runners= 'windows';
+      }
+
+      $tz= array('ini', 'windows', 'detect');
+      break;
+    
+    default:
+      println('---> Un*x');
+      $runners= $runners ? $runners : 'unix';
+      $tz= array('ini', 'etc', 'confd', 'sysinfo', 'zoneinfo', 'date', 'detect');
+      break;
+  }
+  println('---> Using ', $runners, ' runners');
+  
+  // Calculate timezone
+  $timezone= NULL;
+  foreach ($tz as $provider) {
+    $timezone= call_user_func('tz'.$provider);
+    if (NULL === $timezone) {
+      println('*** Cannot determine timezone via ', $provider, ' ***');
+      continue;
+    } else if (!@date_default_timezone_set($timezone)) {
+      println('*** Invalid ', $provider, ' provided timezone ', $timezone, ' ***');
+      $timezone= NULL;
+      continue;
+    }
+    println('---> Using ', $provider, ' provided timezone ', $timezone);
+    break;
+  }
+
+  // Download dependencies
+  ardl($proxy, BASE_URL.VERSION.'/depend', TARGET_DIR) || exit(1);
+  $depend= parse_ini_file(TARGET_DIR.'depend.ini', TRUE);
+  
+  // Found it, execute
+  $extensions= array();
+  $proc= proc_open('"'.$runtime.'"', array(array('pipe', 'r'), array('pipe', 'w'), array('pipe', 'w')), $pipes);
+  if (!$proc) {
+    println('*** PHP executable ', $runtime, ' could not be forked ***');
+    exit(1); 
+  }
+  
+  // Gather information
+  fwrite($pipes[0], '<?php
+    echo "\0";
+    echo phpversion(), " ", PHP_SAPI, "\n"; 
+    echo serialize(array(
+      "ext" => array_flip(array_map("strtolower", get_loaded_extensions())), 
+      "ini" => ini_get_all()
+    ));
+  ?>');
+  fclose($pipes[0]);
+  
+  // Scan until we find a NUL character. This is the beginning of our output
+  while (fgetc($pipes[1]) != "\0");
+  fscanf($pipes[1], '%s %s', $version, $sapi);
+  
+  // Read the rest
+  for ($out= ''; !feof($pipes[1]); ) $out.= fread($pipes[1], 0x1000);
+  for ($err= ''; !feof($pipes[2]); ) $err.= fread($pipes[2], 0x1000);
+  fclose($pipes[1]);
+  fclose($pipes[2]);
+  $exitcode= proc_close($proc);
+  $config= unserialize($out);
+  
+  // Verify it worked
+  if (0 != $exitcode || '' != $err || !is_array($config)) {
+    println('*** PHP executable ', $runtime, ' exited with unexpected exit code ', $exitcode, ' (', $err, ') ***');
+    exit(1); 
+  }
+  println('---> System PHP ', $version, ' SAPI ', $sapi, ' @ ', $runtime);
+
+  // Verify version
+  foreach ($depend['php'] as $op => $compare) {
+    if (!version_compare($version, $compare, $op)) {
+      println('*** PHP Version ', $op, ' ', $compare, ' required ***');
+      halt($force);
+    }
+  }
+  
+  // Check extensions
+  foreach ($depend['ext.required'] as $ext => $usage) {
+    if (!isset($config['ext'][$ext])) {
+      println('*** PHP Extension ', $ext, ' required for ', $usage, ' ***');  
+      halt($force);
+    }
+  }
+  foreach ($depend['ext.conflict'] as $ext => $usage) {
+    if (isset($config['ext'][$ext])) {
+      println('*** PHP Extension ', $ext, ' conflicts (', $usage, ') ***');  
+      halt($force);
+    }
+  }
+  foreach ($depend['ext.optional'] as $ext => $usage) {
+    if (!isset($config['ext'][$ext])) {
+      $warnings[]= 'PHP Extension '.$ext.' not found, needed for '.$usage.' (ignoring)';
+    }
+  }
+  
+  // Check configuration
+  foreach ($depend['ini'] as $setting => $match) {
+    $value= @$config['ext'][$setting]['local_value'];
+    if (!preg_match($match, $value)) {
+      println('*** PHP .ini setting ', $setting, ' needs to match ', $match, ' (but is '.$value.') ***');
+      exit(1);
+    }
+  }
+  
+  unlink(TARGET_DIR.'depend.ini');
+  println('===> Dependencies OK');
+  
+  // Create directories
+  $target= TARGET_DIR.DIRECTORY_SEPARATOR.VERSION.DIRECTORY_SEPARATOR;
+  println('---> Target: ', $target);
+  foreach (array($target, $target.'tools', $target.'lib', $bin) as $dir) {
+    if (is_dir($dir)) continue;
+    if (mkdir($dir)) continue;
+    
+    println('*** Failed to create directory ', $dir, ' ***');
+    exit(1);
+  }
+  
+  // Download :
+  // * tools (tools/class.php, tools/xar.php, tools/web.php and lang.base.php)
+  // * META-INF (boot.pth, ChangeLog)
+  // * Libraries (xp-rt, xp-test XAR files)
+  println('===> Tools');
+  ardl($proxy, BASE_URL.VERSION.'/tools', $target) || exit(2);
+  
+  println('===> META-INF');
+  ardl($proxy, BASE_URL.VERSION.'/meta-inf', $target) || exit(2);
+  
+  println('===> Libraries');  
+  ardl($proxy, BASE_URL.VERSION.'/lib', $target) || exit(2);
+  
+  // Download runners
+  ardl($proxy, BASE_URL.'bin/'.$runners, $bin, 0700) || exit(3);
+  
+  // Create xp.ini. Always use forward slashes!
+  $config= $bin.DIRECTORY_SEPARATOR.'xp.ini';
+  println('===> Settings (', $config, ')');
+
+  if (file_exists($config)) {
+    $warnings[]= 'xp.ini already existed in '.$bin.', wrote config to xp-'.VERSION.'.ini instead';
+    $config= $bin.DIRECTORY_SEPARATOR.'xp-'.VERSION.'.ini';
+  }
+  $fp= fopen($config, 'wb');
+  fwrite($fp, 'use='.str_replace(DIRECTORY_SEPARATOR, '/', realpath($target)).PHP_EOL);
+  fwrite($fp, '[runtime]'.PHP_EOL);
+  fwrite($fp, 'default='.str_replace(DIRECTORY_SEPARATOR, '/', $runtime).PHP_EOL);
+  fwrite($fp, 'date.timezone='.$timezone.PHP_EOL);
+  fwrite($fp, PHP_EOL);
+  fclose($fp);
+
+  // Print warnings
+  if (!empty($warnings)) {
+    println('===> Warnings:');
+    foreach ($warnings as $warning) {
+      println('!!! ', $warning);
+    }
+  }
+  
+  // Check to see if it works.
+  println('===> Configuration:');
+  
+  // Found it, execute
+  unset($pipes);
+  putenv('XP_RT='.$runtime);
+  putenv('USE_XP='.realpath($target));
+  $xp= realpath($bin).DIRECTORY_SEPARATOR.'xp';
+  $proc= proc_open('"'.$xp.'" -v', array(array('pipe', 'r'), array('pipe', 'w'), array('pipe', 'w')), $pipes);
+  if (!$proc) {
+    println('*** XP runners ', $xp, ' could not be forked ***');
+    exit(1); 
+  }
+  
+  fclose($pipes[0]);
+  
+  // Read the rest
+  for ($out= ''; !feof($pipes[1]); ) echo fread($pipes[1], 0x1000);
+  for ($err= ''; !feof($pipes[2]); ) echo fread($pipes[2], 0x1000);
+  fclose($pipes[1]);
+  fclose($pipes[2]);
+  
+  // xp.tools.Version exits w/ exitcode 1
+  $exitcode= proc_close($proc);
+  if (1 != $exitcode) {
+    println('*** XP runner ', $xp, ' exited with unexpected exitcode ', $exitcode);
+    exit(4);
+  }
+  
+  println('===> Done');
+  // }}}  
+?>
