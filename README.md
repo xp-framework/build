@@ -57,9 +57,16 @@ a specified target directory.
 Testing
 -------
 Before you start, check the configuration files contain the correct values 
-and credentials for the services.
+and credentials for the services. Also, as this is written in XP Language,
+you need the XP Compiler:
 
-First, fire up our local webserver:
+First, compile the sources:
+
+```sh
+$ xcc -o dist/ -sp src/main/xp/ src/
+```
+
+Second, fire up our local webserver:
 
 ```sh
 $ xpws
