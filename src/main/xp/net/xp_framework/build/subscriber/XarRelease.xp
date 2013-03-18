@@ -8,6 +8,7 @@ import io.archive.zip.ZipFile;
 import io.archive.zip.ZipArchiveReader;
 import io.streams.StreamTransfer;
 import io.streams.MemoryInputStream;
+import io.streams.TextReader;
 import lang.archive.Archive;
 import io.collections.IOCollection;
 import io.collections.FileCollection;
@@ -15,6 +16,9 @@ import io.collections.iterate.FilteredIOCollectionIterator;
 import io.collections.iterate.NegationOfFilter;
 import io.collections.iterate.CollectionFilter;
 import net.xp_framework.build.Version;
+import net.xp_framework.build.Release;
+import net.xp_framework.build.ChangeLog;
+import util.Date;
 
 import native standard.sprintf;
 import native standard.sscanf;
@@ -34,8 +38,60 @@ public class XarRelease extends AbstractSubscriber {
   // The first %s token is replaced with the owner, the second with
   // the repository, and the third and last with the tag name
   const string ZIPBALL= 'https://github.com/%s/%s/zipball/%s';
+  const string CHANGELOG= 'https://raw.github.com/%s/%s/%s/core/ChangeLog';
 
   private Folder $tmp;
+
+  /**
+   * Download ChangeLog from github
+   */
+  protected ChangeLog changeLogAt(string $url) throws IllegalStateException {
+    $response= $this.connectionTo($url).get();
+    if (HttpConstants::STATUS_OK !== $response.getStatusCode()) {
+      throw new IllegalStateException('Cannot find changelog @ ' ~ $url ~ ': ' ~ $response.toString());
+    }
+    
+    $log= new ChangeLog();
+    try ($reader= new TextReader($response.getInputStream(), 'utf-8')) {
+      $separator= 'Version %[0-9?.], released %[0-9?-]';
+
+      // Seek for first separator
+      $version= $date= null;
+      do {
+        if (null === ($l= $reader.readLine())) {
+          throw new IllegalStateException('ChangeLog malformed');
+        }
+      } while (2 !== sscanf($l, $separator, $version, $date));
+
+      // Parse rest of file
+      do {
+        $release= new Release();
+        $release.setVersion('?.?.?' === $version ? null : new Version($version));
+        $release.setDate('????-??-??' === $date ? Date::now() : new Date($date));
+
+        // Skip over "----" line
+        $reader.readLine();
+
+        // Extract revision (either: SVN version: 12345 or GIT commit: 12345)
+        $rev= null;
+        sscanf($reader.readLine(), '%*[^:]: %s', $rev);
+        $release.setRevision($rev);
+
+        // Read notes      
+        $notes= '';
+        $version= $date= null;
+        while (null !== ($l= $reader.readLine())) {
+          if (2 === sscanf($l, $separator, $version, $date)) break;
+          $notes~= $l ~ "\n";
+        }
+
+        $release.setNotes(rtrim($notes, "\r\n"));
+        $log.addRelease($release);
+      } while (null !== $l);
+    }
+
+    return $log;
+  }
 
   /**
    * Creates a HTTP connection. Uses a timeout of 10 seconds at github
@@ -146,14 +202,22 @@ public class XarRelease extends AbstractSubscriber {
     $version= new Version($build['version']);
     $this.out.writeLine('===> ', $version);
 
+    // Process changelog
+    $log= $this.changeLogAt(sprintf(self::CHANGELOG, $build['owner'], $build['repo'], $build['tag']));
+    if ($version.isReleaseCandidate()) {
+      $release= $log.getRelease(null);         // Use not yet named release
+      $release.setVersion($version);
+      $release.setRevision($build['tag']);
+    } else {
+      $release= $log.getRelease($version);
+    }
+    $this.out.writeLine('---> ', $release);
+
     $tempDir= new Folder('tmp');
     $tempDir.exists() || $tempDir.create(0755);
 
     // Download zip file
-    $zip= $this.zipballOf(
-      sprintf(self::ZIPBALL, $build['owner'], $build['repo'], $build['tag']),
-      $tempDir
-    );
+    $zip= $this.zipballOf(sprintf(self::ZIPBALL, $build['owner'], $build['repo'], $build['tag']), $tempDir);
 
     // Extract the zip file
     $this.out.write('---> Exporting [');
@@ -231,7 +295,7 @@ public class XarRelease extends AbstractSubscriber {
     // Index: Meta information
     try ($miIndex= new File($targetDir, 'meta-inf.ar').getOutputStream()) {
       $this.out.writeLine('---> ', $tsIndex);
-      //$this.addIndex($miIndex, $release.toString(), 'ChangeLog');
+      $this.addIndex($miIndex, $release.toString(), 'ChangeLog');
       $this.addIndex($miIndex, ".\nlib/" ~ $rtArchive.file.getFileName(), 'boot.pth');
     }
 

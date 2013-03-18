@@ -61,7 +61,7 @@ public class WebHook {
         owner   : $payload.repository.owner.name,
         repo    : $payload.repository.name,
         tag     : $tag,
-        version : $version,
+        version : $version ~ 'RC1',
         user    : $payload.pusher.name
       ]);
       $this.cat && $this.cat.info($message);
