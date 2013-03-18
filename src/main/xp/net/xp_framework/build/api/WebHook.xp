@@ -3,7 +3,9 @@ package net.xp_framework.build.api;
 import webservices.rest.srv.Response;
 import webservices.rest.RestFormat;
 import util.log.LogCategory;
+import util.Properties;
 import io.streams.MemoryInputStream;
+import org.codehaus.stomp.StompConnection;
 
 /**
  * Web hook to capture tag creation
@@ -12,6 +14,8 @@ import io.streams.MemoryInputStream;
 [@webservice(path= '/hook')]
 public class WebHook {
   private LogCategory $cat;
+  private StompConnection $queue;
+  private string $destination;
 
   /**
    * Sets a logger category for debugging
@@ -19,6 +23,20 @@ public class WebHook {
   [@inject(name = 'trace')]
   public void setTrace(LogCategory $cat= null) {
     $this.cat= $cat;
+  }
+
+  /**
+   * Injects message queue configuration
+   */
+  [@inject(name = 'mq')]
+  public void useMessageQueue(Properties $prop) {
+    $this.queue= new StompConnection($prop.readString('endpoint', 'host'), $prop.readInteger('endpoint', 'port'));
+    $this.queue.connect($prop.readString('endpoint', 'user'), $prop.readString('endpoint', 'pass'));
+    $this.destination= $prop.readString('queue', 'destination');
+  }
+
+  public void __destruct() {
+    $this.queue.disconnect();
   }
 
   /**
@@ -36,8 +54,15 @@ public class WebHook {
 
     // Created a tag -> trigger
     if ($payload.created && ($tag= $payload.getTag())) {
-      $this.cat && $this.cat.info('Creating release', $tag, 'started by', $payload.pusher.name);
-      // TBI
+      $message= RestFormat::$JSON.serializer().serialize([
+        owner : $payload.repository.owner.name,
+        repo  : $payload.repository.name,
+        tag   : $tag,
+        user  : $payload.pusher.name
+      ]);
+      $this.cat && $this.cat.info($message);
+      $r= $this.queue.send($this.destination, $message);
+      $this.cat && $this.cat.info($r);
     } else {
       $this.cat && $this.cat.debug('Ignore', $payload);
     }
