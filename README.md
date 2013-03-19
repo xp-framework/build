@@ -52,7 +52,27 @@ The payload is as follows:
 
 A subscriber listens to this message queue, downloads the `ChangeLog` and
 a zipfile, and creates the release build, copying the generated files into 
-a specified target directory.
+a specified target directory. Once that is done, a message is posted in the
+build queue with the following payload:
+
+```json
+{ 
+	"module" 	 : "xp-framework\/xp-framework" , 
+	"release"  : { 
+		"version"  : { "number" : "5.9.0RC4" , "series" : "5.9" }, 
+		"revision" : "r5.9.0RC4", 
+		"date"	   : "2013-03-19T14:55:42+01:00",
+		"notes"    : "\nHeads up!\n~~~~~~~~~\n- Removed ..."
+	}
+	"checkout" : "/tmp/checkout/xp-framework/xp-framework/r5.9.0RC4/" 
+}
+```
+
+Note: This can be pushed to a fanout, for example, and can then be
+distributed to many build systems. All you need to change is the build 
+queue's name.
+
+* * *
 
 Testing
 -------
@@ -66,7 +86,10 @@ user="user"
 pass="password"
 
 [queue]
-destination=/queue/xp.build.dev
+trigger=/queue/xp.trigger.dev
+build=/exchange/xp.build.dev
+build.xar=/queue/xp.build.xar.dev
+build.mvn=/queue/xp.build.mvn.dev
 ```
 
 Then, as this is written in XP Language, you need to compile the sources:

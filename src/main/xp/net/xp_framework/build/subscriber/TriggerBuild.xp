@@ -25,7 +25,7 @@ public class TriggerBuild extends util.cmd.Command {
   public void useMessageQueue(Properties $prop) {
     $this.queue= new StompConnection($prop.readString('endpoint', 'host'), $prop.readInteger('endpoint', 'port'));
     $this.queue.connect($prop.readString('endpoint', 'user'), $prop.readString('endpoint', 'pass'));
-    $this.destination= $prop.readString('queue', 'destination');
+    $this.destination= $prop.readString('destinations', 'trigger');
   }
 
   /**
