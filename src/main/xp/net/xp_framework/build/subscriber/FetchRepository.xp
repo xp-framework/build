@@ -176,7 +176,8 @@ public class FetchRepository extends AbstractSubscriber {
     // Republish for build process
     return [
       build    : $instructions,
-      module   : $build['owner'] ~ '/' ~ $build['repo'],
+      vendor   : $build['owner'],
+      module   : $build['repo'],
       release  : $release,
       checkout : $targetDir.getURI()
     ];

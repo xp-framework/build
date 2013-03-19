@@ -175,8 +175,9 @@ $release=$log->getRelease($version);};
 
 
 return array('build' => 
-$instructions,'module' => 
-$build['owner'].'/'.$build['repo'],'release' => 
+$instructions,'vendor' => 
+$build['owner'],'module' => 
+$build['repo'],'release' => 
 $release,'checkout' => 
 $targetDir->getURI(),);}}xp::$registry['class.FetchRepository']= 'net.xp_framework.build.subscriber.FetchRepository';xp::$registry['details.net.xp_framework.build.subscriber.FetchRepository']= array (
   0 => 
