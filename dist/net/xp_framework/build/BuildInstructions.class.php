@@ -5,6 +5,18 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
  class BuildInstructions extends Object{
 public static $DEFAULT;
 protected $base= '.';
@@ -299,7 +311,18 @@ $this->getClassName().'@'.xp::stringOf(array('base' => $this->base,'naming' => $
     5 => 
     array (
     ),
-    4 => '',
+    4 => 'Override build defaults via xpbuild.json:
+
+<pre>
+ {
+   "base"     : "core",
+   "naming"   : {
+     "main"     : "xp-rt-{VERSION}.xar",
+     "test"     : "xp-test-{VERSION}.xar"
+   },
+   "finalize" : "XpRelease"
+ }
+</pre>',
   ),
 );
 ?>
