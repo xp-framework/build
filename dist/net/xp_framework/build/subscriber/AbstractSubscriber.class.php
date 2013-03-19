@@ -5,6 +5,9 @@
 ;
 ;
 
+
+
+
 $package= 'net.xp_framework.build.subscriber';abstract  class net·xp_framework·build·subscriber·AbstractSubscriber extends Command{
 private $queue;
 private $destination;
@@ -204,7 +207,7 @@ $this->queue->disconnect();}}xp::$registry['class.net·xp_framework·build·subscri
     5 => 
     array (
     ),
-    4 => NULL,
+    4 => 'Abstract base class for all subscribers',
   ),
 );
 ?>

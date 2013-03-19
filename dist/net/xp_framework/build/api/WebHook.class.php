@@ -37,6 +37,9 @@ $this->queue->connect($prop->readString('endpoint','user'),$prop->readString('en
 $this->destination=$prop->readString('queue','destination');}
 
 
+
+
+
 public function __destruct(){
 $this->queue->disconnect();}
 
@@ -151,7 +154,7 @@ return Response::created();}}xp::$registry['class.WebHook']= 'net.xp_framework.b
       3 => 
       array (
       ),
-      4 => NULL,
+      4 => 'Disconnects from queue',
       5 => 
       array (
       ),

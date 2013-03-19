@@ -5,6 +5,9 @@ import org.codehaus.stomp.StompConnection;
 import io.streams.MemoryInputStream;
 import webservices.rest.RestFormat;
 
+/**
+ * Abstract base class for all subscribers
+ */
 package abstract class AbstractSubscriber extends util.cmd.Command {
   private StompConnection $queue;
   private string $destination;

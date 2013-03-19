@@ -37,6 +37,9 @@ public class WebHook {
     $this.destination= $prop.readString('queue', 'destination');
   }
 
+  /**
+   * Disconnects from queue
+   */
   public void __destruct() {
     $this.queue.disconnect();
   }
