@@ -76,7 +76,7 @@ $i++%10||$this->out->write('.');};}
 
 
 public function createXarRelease(array $build){
-$this->out->writeLine('---> ',$build['vendor'],'/',$build['module'],' REL ',$build['release'],' @ ',$build['checkout']);
+$this->out->writeLine('---> ',$build['vendor'],'/',$build['module'],' R ',$build['release'],' @ ',$build['checkout']);
 $version=$build['release']['version'];
 
 
@@ -110,7 +110,11 @@ $archives[$type]=$archive;};
 $finalize=isset($build['build']['finalize'])?$build['build']['finalize']:'Default';
 $this->out->writeLine('---> ',$finalize,'Finalizer');
 try {
-XarRelease::$finalizers->loadClass($finalize.'Finalizer')->newInstance()->finalize($build,$archives,$targetDir);} catch(TargetInvocationException $e) {
+XarRelease::$finalizers->loadClass($finalize.'Finalizer')->newInstance()->finalize(
+$build,
+$archives,
+$targetDir);} catch(TargetInvocationException $e) {
+
 
 throw $e->getCause();};
 

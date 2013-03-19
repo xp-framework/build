@@ -76,7 +76,7 @@ public class XarRelease extends AbstractSubscriber {
    */
   [@handler]
   public void createXarRelease([:var] $build) {
-    $this.out.writeLine('---> ', $build['vendor'], '/', $build['module'], ' REL ', $build['release'], ' @ ', $build['checkout']);
+    $this.out.writeLine('---> ', $build['vendor'], '/', $build['module'], ' R ', $build['release'], ' @ ', $build['checkout']);
     $version= $build['release']['version'];
 
     // Create version
@@ -110,7 +110,11 @@ public class XarRelease extends AbstractSubscriber {
     $finalize= isset($build['build']['finalize']) ? $build['build']['finalize'] : 'Default';
     $this.out.writeLine('---> ', $finalize, 'Finalizer');
     try {
-      self::$finalizers.loadClass($finalize ~ 'Finalizer').newInstance().finalize($build, $archives, $targetDir);
+      self::$finalizers.loadClass($finalize ~ 'Finalizer').newInstance().finalize(
+        $build,
+        $archives,
+        $targetDir
+      );
     } catch (lang.reflect.TargetInvocationException $e) {
       throw $e.getCause();
     }
