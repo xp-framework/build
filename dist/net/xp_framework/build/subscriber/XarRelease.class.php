@@ -1,8 +1,5 @@
-<?php uses('peer.http.HttpConnection', 'peer.http.HttpConstants', 'io.Folder', 'io.File', 'io.FileUtil', 'io.streams.StreamTransfer', 'io.streams.MemoryInputStream', 'io.streams.TextReader', 'lang.archive.Archive', 'io.collections.IOCollection', 'io.collections.FileCollection', 'io.collections.iterate.FilteredIOCollectionIterator', 'io.collections.iterate.NegationOfFilter', 'io.collections.iterate.CollectionFilter', 'io.collections.iterate.ExtensionEqualsFilter', 'net.xp_framework.build.Version', 'net.xp_framework.build.Release', 'net.xp_framework.build.ChangeLog', 'util.Date', 'util.Properties', 'net.xp_framework.build.subscriber.AbstractSubscriber', 'io.streams.FileOutputStream', 'io.streams.InputStream', 'io.collections.IOElement', 'io.streams.StringWriter');
+<?php uses('peer.http.HttpConnection', 'peer.http.HttpConstants', 'io.Folder', 'io.File', 'io.FileUtil', 'io.streams.StreamTransfer', 'io.streams.MemoryInputStream', 'io.streams.TextReader', 'lang.archive.Archive', 'io.collections.IOCollection', 'io.collections.FileCollection', 'io.collections.iterate.FilteredIOCollectionIterator', 'io.collections.iterate.NegationOfFilter', 'io.collections.iterate.CollectionFilter', 'io.collections.iterate.ExtensionEqualsFilter', 'util.Date', 'util.Properties', 'net.xp_framework.build.subscriber.AbstractSubscriber', 'io.streams.FileOutputStream', 'io.streams.InputStream', 'io.collections.IOElement', 'io.streams.StringWriter');
 
-;
-;
-;
 ;
 ;
 ;
@@ -103,43 +100,15 @@ $i++%10||$this->out->write('.');};}
 
 
 
+protected function finalize(array $build,array $archives,Folder $targetDir){
+foreach ($archives as $archive) {
+$archive->file->move($targetDir);};}
 
 
 
-
-public function createXarRelease(array $build){
-$this->out->writeLine('---> ',$build['module'],' REL ',$build['release'],' @ ',$build['checkout']);
+protected function finalizeXpRelease(array $build,array $archives,Folder $targetDir){
 $version=$build['release']['version'];
-
-
-$targetDir=new Folder($this->release,$version['number']);
-$targetDir->exists()||$targetDir->create(493);
-$tempDir=new Folder($targetDir,'tmp');
-$tempDir->exists()||$tempDir->create(493);
-
-
-$coreSrc=new Folder($build['checkout'],'core','src','main','php');
-$rtArchive=new Archive(new File($tempDir,'xp-rt-'.$version['number'].'.xar'));
-$rtArchive->open(ARCHIVE_CREATE);
-$rtArchive->addBytes('VERSION',$version['number']);
-foreach (array('lang','xp','util','io','sapi','peer','rdbms','math','scriptlet','xml','remote','text','unittest','webservices','img','security','gui',) as $package) {
-$this->out->write('     >> ',$coreSrc,' & ',$package,' [');
-$this->addAll($rtArchive,new FileCollection(new Folder($coreSrc,$package)),$coreSrc->getURI());
-$this->out->writeLine(']');};
-
-$rtArchive->create();
-
-
-$testSrc=new Folder($build['checkout'],'core','src','test','php');
-$testRes=new Folder($build['checkout'],'core','src','test','resources');
-$utArchive=new Archive(new File($tempDir,'xp-test-'.$version['number'].'.xar'));
-$utArchive->open(ARCHIVE_CREATE);
-foreach (array($testSrc,$testRes,) as $origin) {
-$this->out->write('     >> ',$origin,' [');
-$this->addAll($utArchive,new FileCollection($origin),$origin->getURI());
-$this->out->writeLine(']');};
-
-$utArchive->create();
+$baseDir=new Folder($build['checkout'],$build['build']['base']);
 
 
 
@@ -147,10 +116,10 @@ $utArchive->create();
 
 
 
-$clIndex=create(new File($targetDir,'lib.ar'))->getOutputStream();$··e= NULL; try {$this->out->writeLine('---> ',$clIndex);foreach (array($rtArchive,$utArchive,) as $entry) {$this->addIndex($clIndex,$entry->file,'lib/'.$entry->file->getFilename());};} catch (Exception $··e) {}try { $clIndex->close(); } catch (Exception $··i) {}if ($··e) throw $··e;;
+$clIndex=create(new File($targetDir,'lib.ar'))->getOutputStream();$··e= NULL; try {$this->out->writeLine('---> ',$clIndex);foreach ($archives as $entry) {$this->addIndex($clIndex,$entry->file,'lib/'.$entry->file->getFilename());};} catch (Exception $··e) {}try { $clIndex->close(); } catch (Exception $··i) {}if ($··e) throw $··e;;
 
 
-$toolSrc=new Folder($build['checkout'],'core','tools');
+$toolSrc=new Folder($baseDir,'tools');
 
 
 
@@ -165,7 +134,7 @@ $tsIndex=create(new File($targetDir,'tools.ar'))->getOutputStream();$··e= NULL; 
 $dpIndex=create(new File($targetDir,'depend.ar'))->getOutputStream();$··e= NULL; try {$this->out->writeLine('---> ',$dpIndex);$this->addIndex($dpIndex,new File('res',$version['series'].'-depend.ini'),'depend.ini');} catch (Exception $··e) {}try { $dpIndex->close(); } catch (Exception $··i) {}if ($··e) throw $··e;;
 
 
-$testCfg=new Folder($build['checkout'],'core','src','test','config','unittest');
+$testCfg=new Folder($baseDir,'src','test','config','unittest');
 
 
 
@@ -176,13 +145,57 @@ $testCfg=new Folder($build['checkout'],'core','src','test','config','unittest');
 
 
 
-$miIndex=create(new File($targetDir,'meta-inf.ar'))->getOutputStream();$··e= NULL; try {$this->out->writeLine('---> ',$tsIndex);$this->addIndex($miIndex,$build['release']['notes'],'ChangeLog');$this->addIndex($miIndex,'lib/'.$rtArchive->file->getFileName().'
+$miIndex=create(new File($targetDir,'meta-inf.ar'))->getOutputStream();$··e= NULL; try {$this->out->writeLine('---> ',$tsIndex);$this->addIndex($miIndex,$build['release']['notes'],'ChangeLog');$this->addIndex($miIndex,'lib/'.$archives['main']->file->getFileName().'
 ','boot.pth');$config=new FilteredIOCollectionIterator(new FileCollection($testCfg),new ExtensionEqualsFilter('.ini'));foreach ($config as $ini) {$f=new File($ini->getURI());$this->addIndex($miIndex,$f,'unittest/'.$f->getFileName());$this->out->writeLine('     >> ',$f->getFileName());};} catch (Exception $··e) {}try { $miIndex->close(); } catch (Exception $··i) {}if ($··e) throw $··e;;
 
 
 
 
-FileUtil::setContents(new File($targetDir,'setup'),str_replace('@@VERSION@@',$version['number'],FileUtil::getContents(new File('res',$version['series'].'-setup.php.in'))));
+FileUtil::setContents(new File($targetDir,'setup'),str_replace('@@VERSION@@',$version['number'],FileUtil::getContents(new File('res',$version['series'].'-setup.php.in'))));}
+
+
+
+
+
+
+
+public function createXarRelease(array $build){
+$this->out->writeLine('---> ',$build['vendor'],'/',$build['module'],' REL ',$build['release'],' @ ',$build['checkout']);
+$version=$build['release']['version'];
+
+
+$targetDir=new Folder($this->release,$build['vendor'],$build['module'],$version['number']);
+$targetDir->exists()||$targetDir->create(493);
+$tempDir=new Folder($targetDir,'tmp');
+$tempDir->exists()||$tempDir->create(493);
+
+
+$archives=array();
+$baseDir=new Folder($build['checkout'],$build['build']['base']);
+foreach (array('main','test',) as $type) {
+$srcDir=new Folder($baseDir,'src',$type);
+
+
+
+$archive=new Archive(new File($tempDir,isset($build['build']['naming'][$type])?strtr($build['build']['naming'][$type],array('{VERSION}' => $version['number'],)).'.xar':'xp-'.$build['module'].'-'.$version['number'].'.xar'));
+$archive->open(ARCHIVE_CREATE);
+$this->out->writeLine('---> ',$archive);
+foreach (new FilteredIOCollectionIterator(new FileCollection($srcDir),new CollectionFilter()) as $origin) {
+$this->out->write('     >> Copy ',$origin,' [');
+$this->addAll($archive,$origin,$origin->getURI());
+$this->out->writeLine(']');};
+
+$archive->addBytes('VERSION',$version['number']);
+$archive->create();
+$archives[$type]=$archive;};
+
+
+
+$finalize=$this->getClass()->getMethod('finalize'.(isset($build['build']['finalize'])?$build['build']['finalize']:''));
+try {
+$finalize->invoke($this,array($build,$archives,$targetDir,));} catch(TargetInvocationException $e) {
+
+throw $e->getCause();};
 
 
 
@@ -290,6 +303,46 @@ $this->out->writeLine('===> Done');}}xp::$registry['class.XarRelease']= 'net.xp_
       array (
       ),
       4 => 'Add all files from a given collection',
+      5 => 
+      array (
+      ),
+      6 => 
+      array (
+      ),
+    ),
+    'finalize' => 
+    array (
+      1 => 
+      array (
+        0 => '[:var]',
+        1 => '[:lang.archive.Archive]',
+        2 => 'io.Folder',
+      ),
+      2 => 'void',
+      3 => 
+      array (
+      ),
+      4 => NULL,
+      5 => 
+      array (
+      ),
+      6 => 
+      array (
+      ),
+    ),
+    'finalizeXpRelease' => 
+    array (
+      1 => 
+      array (
+        0 => '[:var]',
+        1 => '[:lang.archive.Archive]',
+        2 => 'io.Folder',
+      ),
+      2 => 'void',
+      3 => 
+      array (
+      ),
+      4 => NULL,
       5 => 
       array (
       ),

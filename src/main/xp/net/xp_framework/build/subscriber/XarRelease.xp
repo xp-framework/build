@@ -15,9 +15,6 @@ import io.collections.iterate.FilteredIOCollectionIterator;
 import io.collections.iterate.NegationOfFilter;
 import io.collections.iterate.CollectionFilter;
 import io.collections.iterate.ExtensionEqualsFilter;
-import net.xp_framework.build.Version;
-import net.xp_framework.build.Release;
-import net.xp_framework.build.ChangeLog;
 import util.Date;
 import util.Properties;
 
@@ -103,54 +100,26 @@ public class XarRelease extends AbstractSubscriber {
     }
   }
 
-  /**
-   * Handler for messages
-   */
-  [@handler]
-  public void createXarRelease([:var] $build) {
-    $this.out.writeLine('---> ', $build['module'], ' REL ', $build['release'], ' @ ', $build['checkout']);
+  protected void finalize([:var] $build, [:lang.archive.Archive] $archives, Folder $targetDir) {
+    foreach ($archive in $archives) {
+      $archive.file.move($targetDir);
+    }
+  }
+
+  protected void finalizeXpRelease([:var] $build, [:lang.archive.Archive] $archives, Folder $targetDir) {
     $version= $build['release']['version'];
-
-    // Create version
-    $targetDir= new Folder($this.release, $version['number']);
-    $targetDir.exists() || $targetDir.create(0755);
-    $tempDir= new Folder($targetDir, 'tmp');
-    $tempDir.exists() || $tempDir.create(0755);
-
-    // xp-rt-[VERSION].xar
-    $coreSrc= new Folder($build['checkout'], 'core', 'src', 'main', 'php');
-    $rtArchive= new Archive(new File($tempDir, 'xp-rt-' ~ $version['number'] ~ '.xar'));
-    $rtArchive.open(ARCHIVE_CREATE);
-    $rtArchive.addBytes('VERSION', $version['number']);
-    foreach ($package in ['lang', 'xp', 'util', 'io', 'sapi', 'peer', 'rdbms', 'math', 'scriptlet', 'xml', 'remote', 'text', 'unittest', 'webservices', 'img', 'security', 'gui']) {
-      $this.out.write('     >> ', $coreSrc, ' & ', $package, ' [');
-      $this.addAll($rtArchive, new FileCollection(new Folder($coreSrc, $package)), $coreSrc.getURI());
-      $this.out.writeLine(']');
-    }
-    $rtArchive.create();
-
-    // xp-test-[VERSION].xar
-    $testSrc= new Folder($build['checkout'], 'core', 'src', 'test', 'php');
-    $testRes= new Folder($build['checkout'], 'core', 'src', 'test', 'resources');
-    $utArchive= new Archive(new File($tempDir, 'xp-test-' ~ $version['number'] ~ '.xar'));
-    $utArchive.open(ARCHIVE_CREATE);
-    foreach ($origin in [$testSrc, $testRes]) {
-      $this.out.write('     >> ', $origin, ' [');
-      $this.addAll($utArchive, new FileCollection($origin), $origin.getURI());
-      $this.out.writeLine(']');
-    }
-    $utArchive.create();
+    $baseDir= new Folder($build['checkout'], $build['build']['base']);
 
     // Index: Libraries
     try ($clIndex= new File($targetDir, 'lib.ar').getOutputStream()) {
       $this.out.writeLine('---> ', $clIndex);
-      foreach ($entry in [$rtArchive, $utArchive]) {
+      foreach ($entry in $archives) {
         $this.addIndex($clIndex, $entry.file, 'lib/' ~ $entry.file.getFilename());
       }
     }
 
     // Index: Tools
-    $toolSrc= new Folder($build['checkout'], 'core', 'tools');
+    $toolSrc= new Folder($baseDir, 'tools');
     try ($tsIndex= new File($targetDir, 'tools.ar').getOutputStream()) {
       $this.out.writeLine('---> ', $tsIndex);
       foreach ($tool in ['class.php', 'web.php', 'xar.php', 'lang.base.php']) {
@@ -165,11 +134,11 @@ public class XarRelease extends AbstractSubscriber {
     }
 
     // Index: Meta information and test config
-    $testCfg= new Folder($build['checkout'], 'core', 'src', 'test', 'config', 'unittest');
+    $testCfg= new Folder($baseDir, 'src', 'test', 'config', 'unittest');
     try ($miIndex= new File($targetDir, 'meta-inf.ar').getOutputStream()) {
       $this.out.writeLine('---> ', $tsIndex);
       $this.addIndex($miIndex, $build['release']['notes'], 'ChangeLog');
-      $this.addIndex($miIndex, "lib/" ~ $rtArchive.file.getFileName() ~ "\n", 'boot.pth');
+      $this.addIndex($miIndex, "lib/" ~ $archives['main'].file.getFileName() ~ "\n", 'boot.pth');
       $config= new FilteredIOCollectionIterator(new FileCollection($testCfg), new ExtensionEqualsFilter('.ini'));
       foreach ($ini in $config) {
         $f= new File($ini.getURI());
@@ -184,6 +153,50 @@ public class XarRelease extends AbstractSubscriber {
       $version['number'], 
       FileUtil::getContents(new File('res', $version['series'] ~ '-setup.php.in'))
     ));
+  }
+
+  /**
+   * Handler for messages
+   */
+  [@handler]
+  public void createXarRelease([:var] $build) {
+    $this.out.writeLine('---> ', $build['vendor'], '/', $build['module'], ' REL ', $build['release'], ' @ ', $build['checkout']);
+    $version= $build['release']['version'];
+
+    // Create version
+    $targetDir= new Folder($this.release, $build['vendor'], $build['module'], $version['number']);
+    $targetDir.exists() || $targetDir.create(0755);
+    $tempDir= new Folder($targetDir, 'tmp');
+    $tempDir.exists() || $tempDir.create(0755);
+
+    // Process src/main/*, src/test/* and store in archives
+    $archives= [:];
+    $baseDir= new Folder($build['checkout'], $build['build']['base']);
+    foreach ($type in ['main', 'test']) {
+      $srcDir= new Folder($baseDir, 'src', $type);
+      $archive= new Archive(new File($tempDir, isset($build['build']['naming'][$type])
+        ? strtr($build['build']['naming'][$type], [ '{VERSION}' : $version['number'] ]) ~ '.xar'
+        : 'xp-' ~ $build['module'] ~ '-' ~ $version['number'] ~ '.xar'
+      ));
+      $archive.open(ARCHIVE_CREATE);
+      $this.out.writeLine('---> ', $archive);
+      foreach ($origin in new FilteredIOCollectionIterator(new FileCollection($srcDir), new CollectionFilter())) {
+        $this.out.write('     >> Copy ', $origin, ' [');
+        $this.addAll($archive, $origin, $origin.getURI());
+        $this.out.writeLine(']');
+      }
+      $archive.addBytes('VERSION', $version['number']);
+      $archive.create();
+      $archives[$type]= $archive;
+    }
+
+    // Finalize
+    $finalize= $this.getClass().getMethod('finalize' ~ (isset($build['build']['finalize']) ? $build['build']['finalize'] : ''));
+    try {
+      $finalize.invoke($this, [$build, $archives, $targetDir]);
+    } catch (lang.reflect.TargetInvocationException $e) {
+      throw $e.getCause();
+    }
 
     // Clean up
     $this.out.writeLine('===> ', $targetDir);
