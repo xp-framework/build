@@ -10,8 +10,19 @@
 
 $package= 'net.xp_framework.build.subscriber';abstract  class net·xp_framework·build·subscriber·AbstractSubscriber extends Command{
 private $queue;
-private $destination;
 private $timeout;
+private $origin;
+private $destination;
+
+
+
+
+protected abstract function origin();
+
+
+
+
+protected abstract function destination();
 
 
 
@@ -20,7 +31,8 @@ private $timeout;
 public function useMessageQueue(Properties $prop){
 $this->queue=new StompConnection($prop->readString('endpoint','host'),$prop->readInteger('endpoint','port'));
 $this->queue->connect($prop->readString('endpoint','user'),$prop->readString('endpoint','pass'));
-$this->destination=$prop->readString('queue','destination');}
+$this->origin=$prop->readString('destinations',$this->origin());
+$this->destination=$prop->readString('destinations',$this->destination());}
 
 
 
@@ -47,6 +59,7 @@ $this->timeout=NULL === $t?NULL:(double)$t;}
 
 
 public function run(){
+$serializer=RestFormat::$JSON->serializer();
 
 
 if (!($handler=$this->findHandler())) {
@@ -55,24 +68,34 @@ return 1;};
 
 
 
-$this->queue->subscribe($this->destination);
+$this->queue->subscribe($this->origin);
 $this->out->writeLinef(
 'Subscribed to %s using %s timeout',
 $this->destination,
 
 NULL === $this->timeout?'no':$this->timeout.' second(s)');
 while ($message=$this->queue->receive($this->timeout)) {
+$this->err->writeLine('<<< ',$message);
 
-$this->err->writeLine($message);
-continue;
+
+if ('MESSAGE' !== $message->command()) {break;};
 
 
 try {
 
 
 
-$r=$handler->invoke($this,array(RestFormat::$JSON->read(new MemoryInputStream($message->getBody()),$handler->getParameter(0)->getType()),));
-$this->out->writeLine($r);} catch(TargetInvocationException $e) {
+$response=$handler->invoke($this,array(RestFormat::$JSON->read(new MemoryInputStream($message->getBody()),$handler->getParameter(0)->getType()),));
+if (NULL === $response) {
+$this->err->writeLine('+++');}else {
+
+$this->err->writeLine('>>> ',$response);
+$message=$serializer->serialize($response);
+$this->cat&&$this->cat->info($this->destination,$message);
+$this->queue->send($this->destination,$message,array('content-type' => 
+$serializer->contentType(),));};} catch(TargetInvocationException $e) {
+
+
 
 $this->err->writeLine('*** ',$e);};};
 
@@ -95,13 +118,6 @@ $this->queue->disconnect();}}xp::$registry['class.net·xp_framework·build·subscri
         'type' => 'org.codehaus.stomp.StompConnection',
       ),
     ),
-    'destination' => 
-    array (
-      5 => 
-      array (
-        'type' => 'string',
-      ),
-    ),
     'timeout' => 
     array (
       5 => 
@@ -109,9 +125,57 @@ $this->queue->disconnect();}}xp::$registry['class.net·xp_framework·build·subscri
         'type' => 'double',
       ),
     ),
+    'origin' => 
+    array (
+      5 => 
+      array (
+        'type' => 'string',
+      ),
+    ),
+    'destination' => 
+    array (
+      5 => 
+      array (
+        'type' => 'string',
+      ),
+    ),
   ),
   1 => 
   array (
+    'origin' => 
+    array (
+      1 => 
+      array (
+      ),
+      2 => 'string',
+      3 => 
+      array (
+      ),
+      4 => 'Returns origin to use for messages',
+      5 => 
+      array (
+      ),
+      6 => 
+      array (
+      ),
+    ),
+    'destination' => 
+    array (
+      1 => 
+      array (
+      ),
+      2 => 'string',
+      3 => 
+      array (
+      ),
+      4 => 'Returns destination to use for replies',
+      5 => 
+      array (
+      ),
+      6 => 
+      array (
+      ),
+    ),
     'useMessageQueue' => 
     array (
       1 => 
