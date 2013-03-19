@@ -37,13 +37,21 @@ public class TriggerBuild extends util.cmd.Command {
   }
 
   /**
-   * Sets tag - use "r[VERSION]" here.
+   * Sets version and tag
    */
   [@arg(position = 1)]
-  public void setTag(string? $tag) {
-    if (1 !== sscanf($tag, 'r%[0-9A-Za-z.~]', $this.version)) {
-      throw new IllegalArgumentException('Invalid tag ' ~ $tag);
+  public void setVersion(string? $version) {
+    if (1 !== sscanf($version, '%[0-9A-Za-z.~]', $this.version)) {
+      throw new IllegalArgumentException('Invalid tag ' ~ $version);
     }
+    $this.tag= 'r' ~ $this.version;
+  }
+
+  /**
+   * Overrides tag
+   */
+  [@arg]
+  public void setTag(string? $tag= null) {
     $this.tag= $tag;
   }
 

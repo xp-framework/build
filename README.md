@@ -126,7 +126,11 @@ $ curl -X POST -d @tag-payload.data http://localhost:8080/hook
 Use the xpcli utility provided:
 
 ```sh
-$ xpcli -c etc/dev/ net.xp_framework.build.subscriber.TriggerBuild thekid/xp-framework r5.9.0RC5
+$ xpcli -c etc/dev/ net.xp_framework.build.subscriber.TriggerBuild thekid/xp-framework 5.9.0RC5
+# This will trigger a build. The tag must exist!
+
+$ xpcli -c etc/dev/ net.xp_framework.build.subscriber.TriggerBuild thekid/xp-framework 5.9.0RC5 -t master
+# This will trigger a snapshot build
 ```
 
 ### Building steps

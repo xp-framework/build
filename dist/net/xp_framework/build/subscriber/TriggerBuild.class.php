@@ -40,10 +40,18 @@ sscanf($repo,'%[^/]/%s',$this->owner,$this->repository);}
 
 
 
-public function setTag($tag){
-if (1 !== sscanf($tag,'r%[0-9A-Za-z.~]',$this->version)) {
-throw new IllegalArgumentException('Invalid tag '.$tag);};
+public function setVersion($version){
+if (1 !== sscanf($version,'%[0-9A-Za-z.~]',$this->version)) {
+throw new IllegalArgumentException('Invalid tag '.$version);};
 
+$this->tag='r'.$this->version;}
+
+
+
+
+
+
+public function setTag($tag= NULL){
 $this->tag=$tag;}
 
 
@@ -164,6 +172,28 @@ $this->queue->disconnect();}}xp::$registry['class.TriggerBuild']= 'net.xp_framew
       array (
       ),
     ),
+    'setVersion' => 
+    array (
+      1 => 
+      array (
+        0 => 'string',
+      ),
+      2 => 'void',
+      3 => 
+      array (
+      ),
+      4 => 'Sets version and tag',
+      5 => 
+      array (
+        'arg' => 
+        array (
+          'position' => 1,
+        ),
+      ),
+      6 => 
+      array (
+      ),
+    ),
     'setTag' => 
     array (
       1 => 
@@ -174,13 +204,10 @@ $this->queue->disconnect();}}xp::$registry['class.TriggerBuild']= 'net.xp_framew
       3 => 
       array (
       ),
-      4 => 'Sets tag - use "r[VERSION]" here.',
+      4 => 'Overrides tag',
       5 => 
       array (
-        'arg' => 
-        array (
-          'position' => 1,
-        ),
+        'arg' => NULL,
       ),
       6 => 
       array (
