@@ -1,7 +1,5 @@
-<?php uses('peer.http.HttpConnection', 'peer.http.HttpConstants', 'io.Folder', 'io.File', 'io.FileUtil', 'io.archive.zip.ZipFile', 'io.archive.zip.ZipArchiveReader', 'io.streams.StreamTransfer', 'io.streams.MemoryInputStream', 'io.streams.TextReader', 'lang.archive.Archive', 'io.collections.IOCollection', 'io.collections.FileCollection', 'io.collections.iterate.FilteredIOCollectionIterator', 'io.collections.iterate.NegationOfFilter', 'io.collections.iterate.CollectionFilter', 'io.collections.iterate.ExtensionEqualsFilter', 'net.xp_framework.build.Version', 'net.xp_framework.build.Release', 'net.xp_framework.build.ChangeLog', 'util.Date', 'util.Properties', 'net.xp_framework.build.subscriber.AbstractSubscriber', 'peer.http.HttpResponse', 'io.streams.StringWriter', 'io.streams.FileOutputStream', 'io.streams.InputStream', 'io.collections.IOElement', 'io.archive.zip.ZipIterator', 'io.archive.zip.ZipDirEntry', 'io.archive.zip.ZipEntry');
+<?php uses('peer.http.HttpConnection', 'peer.http.HttpConstants', 'io.Folder', 'io.File', 'io.FileUtil', 'io.streams.StreamTransfer', 'io.streams.MemoryInputStream', 'io.streams.TextReader', 'lang.archive.Archive', 'io.collections.IOCollection', 'io.collections.FileCollection', 'io.collections.iterate.FilteredIOCollectionIterator', 'io.collections.iterate.NegationOfFilter', 'io.collections.iterate.CollectionFilter', 'io.collections.iterate.ExtensionEqualsFilter', 'net.xp_framework.build.Version', 'net.xp_framework.build.Release', 'net.xp_framework.build.ChangeLog', 'util.Date', 'util.Properties', 'net.xp_framework.build.subscriber.AbstractSubscriber', 'io.streams.FileOutputStream', 'io.streams.InputStream', 'io.collections.IOElement', 'io.streams.StringWriter');
 
-;
-;
 ;
 ;
 ;
@@ -37,130 +35,28 @@
 
 
  class XarRelease extends net·xp_framework·build·subscriber·AbstractSubscriber{
+private $release;
 
 
 
-const ZIPBALL='https://github.com/%s/%s/zipball/%s';
-const CHANGELOG='https://raw.github.com/%s/%s/%s/core/ChangeLog';
 
-private $target;
+protected function origin(){
+return 'build.xar';}
 
 
 
 
 
-public function configure(Properties $prop){
-$this->target=new Folder($prop->readString('storage','folder','release'));}
+protected function destination(){
+return NULL;}
 
 
 
 
 
-protected function changeLogAt($url){if (NULL !== $url && !is("string", $url)) throw new IllegalArgumentException("Argument 1 passed to ".__METHOD__." must be of string, ".xp::typeOf($url)." given");
-$response=$this->connectionTo($url)->get();
-if (HttpConstants::STATUS_OK !== $response->getStatusCode()) {
-throw new IllegalStateException('Cannot find changelog @ '.$url.': '.$response->toString());};
 
-
-$log=new ChangeLog();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-$reader=new TextReader($response->getInputStream(),'utf-8');$··e= NULL; try {$separator='Version %[0-9?.], released %[0-9?-]';$version=$date=NULL;do {if (NULL === ($l=$reader->readLine())) {throw new IllegalStateException('ChangeLog malformed');};} while (2 !== sscanf($l,$separator,$version,$date));;do {$release=new Release();$release->setVersion('?.?.?' === $version?NULL:new Version($version));$release->setDate('????-??-??' === $date?Date::now():new Date($date));$reader->readLine();$rev=NULL;sscanf($reader->readLine(),'%*[^:]: %s',$rev);$release->setRevision($rev);$notes='';$version=$date=NULL;while (NULL !== ($l=$reader->readLine())) {if (2 === sscanf($l,$separator,$version,$date)) {break;};$notes.=$l.'
-';};$release->setNotes(rtrim($notes,'
-'));$log->addRelease($release);} while (NULL !== $l);;} catch (Exception $··e) {}try { $reader->close(); } catch (Exception $··i) {}if ($··e) throw $··e;;return $log;}
-
-
-
-
-
-
-protected function connectionTo($url){if (NULL !== $url && !is("string", $url)) throw new IllegalArgumentException("Argument 1 passed to ".__METHOD__." must be of string, ".xp::typeOf($url)." given");
-$conn=new HttpConnection($url);
-$conn->setConnectTimeout(10.0);
-return $conn;}
-
-
-
-
-
-protected function zipballOf($url,Folder $tempDir){if (NULL !== $url && !is("string", $url)) throw new IllegalArgumentException("Argument 1 passed to ".__METHOD__." must be of string, ".xp::typeOf($url)." given");
-$headers=array();
-do {
-$this->out->write('===> ',$url,': ');
-$response=$this->connectionTo($url,$headers)->get();
-switch ($response->statusCode()) {
-case HttpConstants::STATUS_OK: 
-
-
-if ($disposition=$response->header('Content-Disposition')) {
-$filename=NULL;
-sscanf($disposition[0],'attachment; filename=%s',$filename);}else {
-
-$filename=basename($url);};
-
-
-
-
-$tmp=new File($tempDir,$filename);
-if ($tmp->exists()&&$tmp->size() == this($response->header('Content-Length'),0)) {
-$this->out->writeLine('Reusing local copy');}else {
-
-$this->out->write('Downloading... ');
-
-
-$xfr=new StreamTransfer($response->getInputStream(),$tmp->getOutputStream());$··e= NULL; try {$xfr->transferAll();} catch (Exception $··e) {}try { $xfr->close(); } catch (Exception $··i) {}if ($··e) throw $··e;;
-$this->out->writeLine('Done');};
-
-
-return ZipFile::open($tmp->getInputStream());;
-
-case HttpConstants::STATUS_FOUND: ;case HttpConstants::STATUS_SEE_OTHER: 
-$this->out->writeLine('Redirect');
-$headers['Referer']=$url;
-$url=this($response->header('Location'),0);
-continue;;
-
-default: 
-$this->out->writeLine('Error');
-throw new IllegalStateException('Unexpected response for '.$url.': '.$response->toString());;};} while (
-
-1);;}
-
-
+public function useRelease(Properties $prop){
+$this->release=new Folder($prop->readString('storage','folder','release'));}
 
 
 
@@ -212,57 +108,20 @@ $i++%10||$this->out->write('.');};}
 
 
 public function createXarRelease(array $build){
-$version=new Version($build['version']);
-$this->out->writeLine('===> ',$version);
+$this->out->writeLine('---> ',$build['module'],' REL ',$build['release'],' @ ',$build['checkout']);
+$version=$build['release']['version'];
 
 
-$log=$this->changeLogAt(sprintf(XarRelease::CHANGELOG,$build['owner'],$build['repo'],$build['tag']));
-if ($version->isReleaseCandidate()) {
-$release=$log->getRelease(NULL);
-$release->setVersion($version);
-$release->setRevision($build['tag']);}else {
-
-$release=$log->getRelease($version);};
-
-$this->out->writeLine('---> ',$release);
-
-$tempDir=new Folder('tmp');
+$targetDir=new Folder($this->release,$version['number']);
+$targetDir->exists()||$targetDir->create(493);
+$tempDir=new Folder($targetDir,'tmp');
 $tempDir->exists()||$tempDir->create(493);
 
 
-$zip=$this->zipballOf(sprintf(XarRelease::ZIPBALL,$build['owner'],$build['repo'],$build['tag']),$tempDir);
-
-
-$this->out->write('---> Exporting [');
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-$iter=$zip->iterator();$base=rtrim(create((cast($iter->next(), 'io.archive.zip.ZipDirEntry')))->getName().'/','/');while ($iter->hasNext()) {$entry=$iter->next();$relative=str_replace($base,'',$entry->getName());if ($entry->isDirectory()) {$folder=new Folder($tempDir,$relative);$folder->exists()||$folder->create(493);}else {$file=new File($tempDir,$relative);$tran=new StreamTransfer($entry->getInputStream(),$file->getOutputStream());$··e= NULL; try {$tran->transferAll();} catch (Exception $··e) {}try { $tran->close(); } catch (Exception $··i) {}if ($··e) throw $··e;;};$this->out->write('.');};;
-$zip->close();
-$this->out->writeLine(']');
-
-
-$targetDir=new Folder($this->target,$version->getNumber());
-$targetDir->exists()||$targetDir->create(493);
-
-
-$coreSrc=new Folder($tempDir,'core','src','main','php');
-$rtArchive=new Archive(new File($tempDir,'xp-rt-'.$version->getNumber().'.xar'));
+$coreSrc=new Folder($build['checkout'],'core','src','main','php');
+$rtArchive=new Archive(new File($tempDir,'xp-rt-'.$version['number'].'.xar'));
 $rtArchive->open(ARCHIVE_CREATE);
-$rtArchive->addBytes('VERSION',$version->getNumber());
+$rtArchive->addBytes('VERSION',$version['number']);
 foreach (array('lang','xp','util','io','sapi','peer','rdbms','math','scriptlet','xml','remote','text','unittest','webservices','img','security','gui',) as $package) {
 $this->out->write('     >> ',$coreSrc,' & ',$package,' [');
 $this->addAll($rtArchive,new FileCollection(new Folder($coreSrc,$package)),$coreSrc->getURI());
@@ -271,9 +130,9 @@ $this->out->writeLine(']');};
 $rtArchive->create();
 
 
-$testSrc=new Folder($tempDir,'core','src','test','php');
-$testRes=new Folder($tempDir,'core','src','test','resources');
-$utArchive=new Archive(new File($tempDir,'xp-test-'.$version->getNumber().'.xar'));
+$testSrc=new Folder($build['checkout'],'core','src','test','php');
+$testRes=new Folder($build['checkout'],'core','src','test','resources');
+$utArchive=new Archive(new File($tempDir,'xp-test-'.$version['number'].'.xar'));
 $utArchive->open(ARCHIVE_CREATE);
 foreach (array($testSrc,$testRes,) as $origin) {
 $this->out->write('     >> ',$origin,' [');
@@ -291,7 +150,7 @@ $utArchive->create();
 $clIndex=create(new File($targetDir,'lib.ar'))->getOutputStream();$··e= NULL; try {$this->out->writeLine('---> ',$clIndex);foreach (array($rtArchive,$utArchive,) as $entry) {$this->addIndex($clIndex,$entry->file,'lib/'.$entry->file->getFilename());};} catch (Exception $··e) {}try { $clIndex->close(); } catch (Exception $··i) {}if ($··e) throw $··e;;
 
 
-$toolSrc=new Folder($tempDir,'core','tools');
+$toolSrc=new Folder($build['checkout'],'core','tools');
 
 
 
@@ -303,13 +162,10 @@ $tsIndex=create(new File($targetDir,'tools.ar'))->getOutputStream();$··e= NULL; 
 
 
 
-$dpIndex=create(new File($targetDir,'depend.ar'))->getOutputStream();$··e= NULL; try {$this->out->writeLine('---> ',$dpIndex);$this->addIndex($dpIndex,new File('res',$version->getSeries().'-depend.ini'),'depend.ini');} catch (Exception $··e) {}try { $dpIndex->close(); } catch (Exception $··i) {}if ($··e) throw $··e;;
+$dpIndex=create(new File($targetDir,'depend.ar'))->getOutputStream();$··e= NULL; try {$this->out->writeLine('---> ',$dpIndex);$this->addIndex($dpIndex,new File('res',$version['series'].'-depend.ini'),'depend.ini');} catch (Exception $··e) {}try { $dpIndex->close(); } catch (Exception $··i) {}if ($··e) throw $··e;;
 
 
-$testCfg=new Folder($tempDir,'core','src','test','config','unittest');
-
-
-
+$testCfg=new Folder($build['checkout'],'core','src','test','config','unittest');
 
 
 
@@ -317,13 +173,16 @@ $testCfg=new Folder($tempDir,'core','src','test','config','unittest');
 
 
 
-$miIndex=create(new File($targetDir,'meta-inf.ar'))->getOutputStream();$··e= NULL; try {$this->out->writeLine('---> ',$tsIndex);$this->addIndex($miIndex,$release->toString(),'ChangeLog');$this->addIndex($miIndex,'lib/'.$rtArchive->file->getFileName().'
+
+
+
+$miIndex=create(new File($targetDir,'meta-inf.ar'))->getOutputStream();$··e= NULL; try {$this->out->writeLine('---> ',$tsIndex);$this->addIndex($miIndex,$build['release']['notes'],'ChangeLog');$this->addIndex($miIndex,'lib/'.$rtArchive->file->getFileName().'
 ','boot.pth');$config=new FilteredIOCollectionIterator(new FileCollection($testCfg),new ExtensionEqualsFilter('.ini'));foreach ($config as $ini) {$f=new File($ini->getURI());$this->addIndex($miIndex,$f,'unittest/'.$f->getFileName());$this->out->writeLine('     >> ',$f->getFileName());};} catch (Exception $··e) {}try { $miIndex->close(); } catch (Exception $··i) {}if ($··e) throw $··e;;
 
 
 
 
-FileUtil::setContents(new File($targetDir,'setup'),str_replace('@@VERSION@@',$version->getNumber(),FileUtil::getContents(new File('res',$version->getSeries().'-setup.php.in'))));
+FileUtil::setContents(new File($targetDir,'setup'),str_replace('@@VERSION@@',$version['number'],FileUtil::getContents(new File('res',$version['series'].'-setup.php.in'))));
 
 
 
@@ -332,7 +191,7 @@ $tempDir->unlink();
 $this->out->writeLine('===> Done');}}xp::$registry['class.XarRelease']= 'net.xp_framework.build.subscriber.XarRelease';xp::$registry['details.net.xp_framework.build.subscriber.XarRelease']= array (
   0 => 
   array (
-    'target' => 
+    'release' => 
     array (
       5 => 
       array (
@@ -342,7 +201,41 @@ $this->out->writeLine('===> Done');}}xp::$registry['class.XarRelease']= 'net.xp_
   ),
   1 => 
   array (
-    'configure' => 
+    'origin' => 
+    array (
+      1 => 
+      array (
+      ),
+      2 => 'string',
+      3 => 
+      array (
+      ),
+      4 => 'React on builds',
+      5 => 
+      array (
+      ),
+      6 => 
+      array (
+      ),
+    ),
+    'destination' => 
+    array (
+      1 => 
+      array (
+      ),
+      2 => 'string',
+      3 => 
+      array (
+      ),
+      4 => 'Does not publish a result',
+      5 => 
+      array (
+      ),
+      6 => 
+      array (
+      ),
+    ),
+    'useRelease' => 
     array (
       1 => 
       array (
@@ -359,62 +252,6 @@ $this->out->writeLine('===> Done');}}xp::$registry['class.XarRelease']= 'net.xp_
         array (
           'name' => 'xarrelease',
         ),
-      ),
-      6 => 
-      array (
-      ),
-    ),
-    'changeLogAt' => 
-    array (
-      1 => 
-      array (
-        0 => 'string',
-      ),
-      2 => 'net.xp_framework.build.ChangeLog',
-      3 => 
-      array (
-      ),
-      4 => 'Download ChangeLog from github',
-      5 => 
-      array (
-      ),
-      6 => 
-      array (
-      ),
-    ),
-    'connectionTo' => 
-    array (
-      1 => 
-      array (
-        0 => 'string',
-      ),
-      2 => 'peer.http.HttpConnection',
-      3 => 
-      array (
-      ),
-      4 => 'Creates a HTTP connection. Uses a timeout of 10 seconds at github
-is a bit slow in responding from while to while',
-      5 => 
-      array (
-      ),
-      6 => 
-      array (
-      ),
-    ),
-    'zipballOf' => 
-    array (
-      1 => 
-      array (
-        0 => 'string',
-        1 => 'io.Folder',
-      ),
-      2 => 'io.archive.zip.ZipArchiveReader',
-      3 => 
-      array (
-      ),
-      4 => 'Fetches a ZIP file',
-      5 => 
-      array (
       ),
       6 => 
       array (
@@ -464,7 +301,7 @@ is a bit slow in responding from while to while',
     array (
       1 => 
       array (
-        0 => '[:string]',
+        0 => '[:var]',
       ),
       2 => 'void',
       3 => 

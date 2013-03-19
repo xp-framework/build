@@ -5,8 +5,6 @@ import peer.http.HttpConstants;
 import io.Folder;
 import io.File;
 import io.FileUtil;
-import io.archive.zip.ZipFile;
-import io.archive.zip.ZipArchiveReader;
 import io.streams.StreamTransfer;
 import io.streams.MemoryInputStream;
 import io.streams.TextReader;
@@ -37,130 +35,28 @@ import native core.strlen;
  * Creates the .xar-based releases
  */
 public class XarRelease extends AbstractSubscriber {
+  private Folder $release;
 
-  // The first %s token is replaced with the owner, the second with
-  // the repository, and the third and last with the tag name
-  const string ZIPBALL= 'https://github.com/%s/%s/zipball/%s';
-  const string CHANGELOG= 'https://raw.github.com/%s/%s/%s/core/ChangeLog';
+  /**
+   * React on builds
+   */
+  protected string origin() {
+    return 'build.xar';
+  }
 
-  private Folder $target;
+  /**
+   * Does not publish a result
+   */
+  protected string destination() {
+    return null;
+  }
 
   /**
    * Injects xarrelease configuration
    */
   [@inject(name = 'xarrelease')]
-  public void configure(Properties $prop) {
-    $this.target= new Folder($prop.readString('storage', 'folder', 'release'));
-  }
-
-  /**
-   * Download ChangeLog from github
-   */
-  protected ChangeLog changeLogAt(string $url) throws IllegalStateException {
-    $response= $this.connectionTo($url).get();
-    if (HttpConstants::STATUS_OK !== $response.getStatusCode()) {
-      throw new IllegalStateException('Cannot find changelog @ ' ~ $url ~ ': ' ~ $response.toString());
-    }
-    
-    $log= new ChangeLog();
-    try ($reader= new TextReader($response.getInputStream(), 'utf-8')) {
-      $separator= 'Version %[0-9?.], released %[0-9?-]';
-
-      // Seek for first separator
-      $version= $date= null;
-      do {
-        if (null === ($l= $reader.readLine())) {
-          throw new IllegalStateException('ChangeLog malformed');
-        }
-      } while (2 !== sscanf($l, $separator, $version, $date));
-
-      // Parse rest of file
-      do {
-        $release= new Release();
-        $release.setVersion('?.?.?' === $version ? null : new Version($version));
-        $release.setDate('????-??-??' === $date ? Date::now() : new Date($date));
-
-        // Skip over "----" line
-        $reader.readLine();
-
-        // Extract revision (either: SVN version: 12345 or GIT commit: 12345)
-        $rev= null;
-        sscanf($reader.readLine(), '%*[^:]: %s', $rev);
-        $release.setRevision($rev);
-
-        // Read notes      
-        $notes= '';
-        $version= $date= null;
-        while (null !== ($l= $reader.readLine())) {
-          if (2 === sscanf($l, $separator, $version, $date)) break;
-          $notes~= $l ~ "\n";
-        }
-
-        $release.setNotes(rtrim($notes, "\r\n"));
-        $log.addRelease($release);
-      } while (null !== $l);
-    }
-
-    return $log;
-  }
-
-  /**
-   * Creates a HTTP connection. Uses a timeout of 10 seconds at github
-   * is a bit slow in responding from while to while
-   */
-  protected HttpConnection connectionTo(string $url) {
-    $conn= new HttpConnection($url);
-    $conn.setConnectTimeout(10.0);
-    return $conn;
-  }
-
-  /**
-   * Fetches a ZIP file
-   */
-  protected ZipArchiveReader zipballOf(string $url, Folder $tempDir) {
-    $headers= [:];
-    do {
-      $this.out.write('===> ', $url, ': ');
-      $response= $this.connectionTo($url, $headers).get();
-      switch ($response.statusCode()) {
-        case HttpConstants::STATUS_OK:
-
-          // Calculate file name
-          if ($disposition= $response.header('Content-Disposition')) {
-            $filename= null;
-            sscanf($disposition[0], 'attachment; filename=%s', $filename);
-          } else {
-            $filename= basename($url);
-          }
-
-          // Download to a temporary location and store there so we will later be
-          // able to reuse it - being nice to github's bandwidth here:)
-          $tmp= new File($tempDir, $filename);
-          if ($tmp.exists() && $tmp.size() == $response.header('Content-Length')[0]) {
-            $this.out.writeLine('Reusing local copy');
-          } else {
-            $this.out.write('Downloading... ');
-            try ($xfr= new StreamTransfer($response.getInputStream(), $tmp.getOutputStream())) {
-              $xfr.transferAll();
-            }
-            $this.out.writeLine('Done');
-          }
-
-          return ZipFile::open($tmp.getInputStream());
-
-        case HttpConstants::STATUS_FOUND: case HttpConstants::STATUS_SEE_OTHER:
-          $this.out.writeLine('Redirect');
-          $headers['Referer']= $url;
-          $url= $response.header('Location')[0];
-          continue;
-
-        default:
-          $this.out.writeLine('Error');
-          throw new IllegalStateException('Unexpected response for ' ~ $url ~ ': ' ~ $response.toString());
-      }
-    } while (1);
-
-    // Unreachable
+  public void useRelease(Properties $prop) {
+    $this.release= new Folder($prop.readString('storage', 'folder', 'release'));
   }
 
   /**
@@ -211,58 +107,21 @@ public class XarRelease extends AbstractSubscriber {
    * Handler for messages
    */
   [@handler]
-  public void createXarRelease([:string] $build) {
-    $version= new Version($build['version']);
-    $this.out.writeLine('===> ', $version);
-
-    // Process changelog
-    $log= $this.changeLogAt(sprintf(self::CHANGELOG, $build['owner'], $build['repo'], $build['tag']));
-    if ($version.isReleaseCandidate()) {
-      $release= $log.getRelease(null);         // Use not yet named release
-      $release.setVersion($version);
-      $release.setRevision($build['tag']);
-    } else {
-      $release= $log.getRelease($version);
-    }
-    $this.out.writeLine('---> ', $release);
-
-    $tempDir= new Folder('tmp');
-    $tempDir.exists() || $tempDir.create(0755);
-
-    // Download zip file
-    $zip= $this.zipballOf(sprintf(self::ZIPBALL, $build['owner'], $build['repo'], $build['tag']), $tempDir);
-
-    // Extract the zip file
-    $this.out.write('---> Exporting [');
-    with ($iter= $zip.iterator()) {
-      $base= rtrim(($iter.next() as io.archive.zip.ZipDirEntry).getName() ~ '/', '/');
-      while ($iter.hasNext()) {
-        $entry= $iter.next();
-        $relative= str_replace($base, '', $entry.getName());
-        if ($entry.isDirectory()) {
-          $folder= new Folder($tempDir, $relative);
-          $folder.exists() || $folder.create(0755);
-        } else {
-          $file= new File($tempDir, $relative);
-          try ($tran= new StreamTransfer($entry.getInputStream(), $file.getOutputStream())) {
-            $tran.transferAll();
-          }
-        }
-        $this.out.write('.');
-      }
-    }
-    $zip.close();
-    $this.out.writeLine(']');
+  public void createXarRelease([:var] $build) {
+    $this.out.writeLine('---> ', $build['module'], ' REL ', $build['release'], ' @ ', $build['checkout']);
+    $version= $build['release']['version'];
 
     // Create version
-    $targetDir= new Folder($this.target, $version.getNumber());
+    $targetDir= new Folder($this.release, $version['number']);
     $targetDir.exists() || $targetDir.create(0755);
+    $tempDir= new Folder($targetDir, 'tmp');
+    $tempDir.exists() || $tempDir.create(0755);
 
     // xp-rt-[VERSION].xar
-    $coreSrc= new Folder($tempDir, 'core', 'src', 'main', 'php');
-    $rtArchive= new Archive(new File($tempDir, 'xp-rt-' ~ $version.getNumber() ~ '.xar'));
+    $coreSrc= new Folder($build['checkout'], 'core', 'src', 'main', 'php');
+    $rtArchive= new Archive(new File($tempDir, 'xp-rt-' ~ $version['number'] ~ '.xar'));
     $rtArchive.open(ARCHIVE_CREATE);
-    $rtArchive.addBytes('VERSION', $version.getNumber());
+    $rtArchive.addBytes('VERSION', $version['number']);
     foreach ($package in ['lang', 'xp', 'util', 'io', 'sapi', 'peer', 'rdbms', 'math', 'scriptlet', 'xml', 'remote', 'text', 'unittest', 'webservices', 'img', 'security', 'gui']) {
       $this.out.write('     >> ', $coreSrc, ' & ', $package, ' [');
       $this.addAll($rtArchive, new FileCollection(new Folder($coreSrc, $package)), $coreSrc.getURI());
@@ -271,9 +130,9 @@ public class XarRelease extends AbstractSubscriber {
     $rtArchive.create();
 
     // xp-test-[VERSION].xar
-    $testSrc= new Folder($tempDir, 'core', 'src', 'test', 'php');
-    $testRes= new Folder($tempDir, 'core', 'src', 'test', 'resources');
-    $utArchive= new Archive(new File($tempDir, 'xp-test-' ~ $version.getNumber() ~ '.xar'));
+    $testSrc= new Folder($build['checkout'], 'core', 'src', 'test', 'php');
+    $testRes= new Folder($build['checkout'], 'core', 'src', 'test', 'resources');
+    $utArchive= new Archive(new File($tempDir, 'xp-test-' ~ $version['number'] ~ '.xar'));
     $utArchive.open(ARCHIVE_CREATE);
     foreach ($origin in [$testSrc, $testRes]) {
       $this.out.write('     >> ', $origin, ' [');
@@ -291,7 +150,7 @@ public class XarRelease extends AbstractSubscriber {
     }
 
     // Index: Tools
-    $toolSrc= new Folder($tempDir, 'core', 'tools');
+    $toolSrc= new Folder($build['checkout'], 'core', 'tools');
     try ($tsIndex= new File($targetDir, 'tools.ar').getOutputStream()) {
       $this.out.writeLine('---> ', $tsIndex);
       foreach ($tool in ['class.php', 'web.php', 'xar.php', 'lang.base.php']) {
@@ -302,14 +161,14 @@ public class XarRelease extends AbstractSubscriber {
     // Index: Dependencies
     try ($dpIndex= new File($targetDir, 'depend.ar').getOutputStream()) {
       $this.out.writeLine('---> ', $dpIndex);
-      $this.addIndex($dpIndex, new File('res', $version.getSeries() ~ '-depend.ini'), 'depend.ini');
+      $this.addIndex($dpIndex, new File('res', $version['series'] ~ '-depend.ini'), 'depend.ini');
     }
 
     // Index: Meta information and test config
-    $testCfg= new Folder($tempDir, 'core', 'src', 'test', 'config', 'unittest');
+    $testCfg= new Folder($build['checkout'], 'core', 'src', 'test', 'config', 'unittest');
     try ($miIndex= new File($targetDir, 'meta-inf.ar').getOutputStream()) {
       $this.out.writeLine('---> ', $tsIndex);
-      $this.addIndex($miIndex, $release.toString(), 'ChangeLog');
+      $this.addIndex($miIndex, $build['release']['notes'], 'ChangeLog');
       $this.addIndex($miIndex, "lib/" ~ $rtArchive.file.getFileName() ~ "\n", 'boot.pth');
       $config= new FilteredIOCollectionIterator(new FileCollection($testCfg), new ExtensionEqualsFilter('.ini'));
       foreach ($ini in $config) {
@@ -322,8 +181,8 @@ public class XarRelease extends AbstractSubscriber {
     // Add setup script
     FileUtil::setContents(new File($targetDir, 'setup'), str_replace(
       '@@VERSION@@', 
-      $version.getNumber(), 
-      FileUtil::getContents(new File('res', $version.getSeries() ~ '-setup.php.in'))
+      $version['number'], 
+      FileUtil::getContents(new File('res', $version['series'] ~ '-setup.php.in'))
     ));
 
     // Clean up
