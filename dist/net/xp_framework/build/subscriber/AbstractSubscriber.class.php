@@ -63,6 +63,9 @@ $this->destination,
 NULL === $this->timeout?'no':$this->timeout.' second(s)');
 while ($message=$this->queue->receive($this->timeout)) {
 
+$this->err->writeLine($message);
+continue;
+
 
 try {
 

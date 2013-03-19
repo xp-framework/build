@@ -51,16 +51,20 @@ public class TriggerBuild extends util.cmd.Command {
    * Listens
    */
   public int run() {
-    $message= RestFormat::$JSON.serializer().serialize([
-      owner   : $this.owner,
-      repo    : $this.repository,
-      tag     : $this.tag,
-      version : $this.version,
-      user    : System::getProperty('user.name')
-    ]);
+    with ($serializer= RestFormat::$JSON.serializer()) {
+      $message= $serializer.serialize([
+        owner   : $this.owner,
+        repo    : $this.repository,
+        tag     : $this.tag,
+        version : $this.version,
+        user    : System::getProperty('user.name')
+      ]);
 
-    $this.queue.send($this.destination, $message);
-    $this.out.writeLine('Publish -> ', $this.destination, ': ', $message);
+      $this.queue.send($this.destination, $message, [
+        'content-type' : $serializer.contentType()
+      ]);
+      $this.out.writeLine('Publish -> ', $this.destination, ': ', $message);
+    }
     return 0;
   }
 

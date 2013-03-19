@@ -57,10 +57,14 @@ public function run(){
 
 
 
-$message=RestFormat::$JSON->serializer()->serialize(array('owner' => $this->owner,'repo' => $this->repository,'tag' => $this->tag,'version' => $this->version,'user' => System::getProperty('user.name'),));
 
-$this->queue->send($this->destination,$message);
-$this->out->writeLine('Publish -> ',$this->destination,': ',$message);
+
+
+
+
+
+
+$serializer=RestFormat::$JSON->serializer();$message=$serializer->serialize(array('owner' => $this->owner,'repo' => $this->repository,'tag' => $this->tag,'version' => $this->version,'user' => System::getProperty('user.name'),));$this->queue->send($this->destination,$message,array('content-type' => $serializer->contentType(),));$this->out->writeLine('Publish -> ',$this->destination,': ',$message);;
 return 0;}
 
 
