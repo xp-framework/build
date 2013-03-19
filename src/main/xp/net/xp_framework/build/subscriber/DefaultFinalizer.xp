@@ -1,0 +1,20 @@
+package net.xp_framework.build.subscriber;
+
+import lang.archive.Archive;
+import io.Folder;
+
+/**
+ * The default finalizer just moves the created libraries to the
+ * target directory
+ */
+public class DefaultFinalizer implements XarReleaseFinalizer {
+
+  /**
+   * Finalize
+   */
+  public void finalize([:var] $build, [:Archive] $archives, Folder $targetDir) {
+    foreach ($archive in $archives) {
+      $archive.file.move($targetDir);
+    }
+  }
+}

@@ -18,20 +18,15 @@ import io.collections.iterate.ExtensionEqualsFilter;
 import util.Date;
 import util.Properties;
 
-import native standard.sprintf;
-import native standard.sscanf;
-import native standard.basename;
-import native standard.rtrim;
-import native standard.str_replace;
 import native standard.strtr;
 import native pcre.preg_replace;
 import native pcre.preg_quote;
-import native core.strlen;
 
 /**
  * Creates the .xar-based releases
  */
 public class XarRelease extends AbstractSubscriber {
+  private static var $finalizers= lang.reflect.Package::forName('net.xp_framework.build.subscriber');
   private Folder $release;
 
   /**
@@ -57,30 +52,6 @@ public class XarRelease extends AbstractSubscriber {
   }
 
   /**
-   * Adds a file or a string to a given index
-   *
-   * @param   arg either an io.File or a string
-   */
-  protected void addIndex(io.streams.FileOutputStream $ar, var $arg, string $name= null) {
-    if ($arg instanceof File) {
-      $f= $arg as File?;
-      $size= $f.size();
-      isset($name) || $name= $f.getFilename();
-      $stream= $f.getInputStream();
-    } else {
-      $size= strlen($arg);
-      $stream= new MemoryInputStream($arg);
-    }
-
-    $ar.write(sprintf("--%d:%s:--\n", $size, $name));
-    try ($stream) {
-      while ($stream.available()) {
-        $ar.write($stream.read());
-      }
-    }
-  }
-
-  /**
    * Add all files from a given collection
    *
    * @param   archive - must be opened with ARCHIVE_CREATE
@@ -98,61 +69,6 @@ public class XarRelease extends AbstractSubscriber {
       $archive.add(new File($uri), $urn);
       $i++ % 10 || $this.out.write('.');
     }
-  }
-
-  protected void finalize([:var] $build, [:lang.archive.Archive] $archives, Folder $targetDir) {
-    foreach ($archive in $archives) {
-      $archive.file.move($targetDir);
-    }
-  }
-
-  protected void finalizeXpRelease([:var] $build, [:lang.archive.Archive] $archives, Folder $targetDir) {
-    $version= $build['release']['version'];
-    $baseDir= new Folder($build['checkout'], $build['build']['base']);
-
-    // Index: Libraries
-    try ($clIndex= new File($targetDir, 'lib.ar').getOutputStream()) {
-      $this.out.writeLine('---> ', $clIndex);
-      foreach ($entry in $archives) {
-        $this.addIndex($clIndex, $entry.file, 'lib/' ~ $entry.file.getFilename());
-      }
-    }
-
-    // Index: Tools
-    $toolSrc= new Folder($baseDir, 'tools');
-    try ($tsIndex= new File($targetDir, 'tools.ar').getOutputStream()) {
-      $this.out.writeLine('---> ', $tsIndex);
-      foreach ($tool in ['class.php', 'web.php', 'xar.php', 'lang.base.php']) {
-        $this.addIndex($tsIndex, new File($toolSrc, $tool), 'tools/' ~ $tool);
-      }
-    }
-
-    // Index: Dependencies
-    try ($dpIndex= new File($targetDir, 'depend.ar').getOutputStream()) {
-      $this.out.writeLine('---> ', $dpIndex);
-      $this.addIndex($dpIndex, new File('res', $version['series'] ~ '-depend.ini'), 'depend.ini');
-    }
-
-    // Index: Meta information and test config
-    $testCfg= new Folder($baseDir, 'src', 'test', 'config', 'unittest');
-    try ($miIndex= new File($targetDir, 'meta-inf.ar').getOutputStream()) {
-      $this.out.writeLine('---> ', $tsIndex);
-      $this.addIndex($miIndex, $build['release']['notes'], 'ChangeLog');
-      $this.addIndex($miIndex, "lib/" ~ $archives['main'].file.getFileName() ~ "\n", 'boot.pth');
-      $config= new FilteredIOCollectionIterator(new FileCollection($testCfg), new ExtensionEqualsFilter('.ini'));
-      foreach ($ini in $config) {
-        $f= new File($ini.getURI());
-        $this.addIndex($miIndex, $f, 'unittest/' ~ $f.getFileName());
-        $this.out.writeLine('     >> ', $f.getFileName());
-      }
-    }
-
-    // Add setup script
-    FileUtil::setContents(new File($targetDir, 'setup'), str_replace(
-      '@@VERSION@@', 
-      $version['number'], 
-      FileUtil::getContents(new File('res', $version['series'] ~ '-setup.php.in'))
-    ));
   }
 
   /**
@@ -191,15 +107,16 @@ public class XarRelease extends AbstractSubscriber {
     }
 
     // Finalize
-    $finalize= $this.getClass().getMethod('finalize' ~ (isset($build['build']['finalize']) ? $build['build']['finalize'] : ''));
+    $finalize= isset($build['build']['finalize']) ? $build['build']['finalize'] : '';
+    $this.out.writeLine('---> ', $finalize, 'Finalizer');
     try {
-      $finalize.invoke($this, [$build, $archives, $targetDir]);
+      self::$finalizers.loadClass($finalize ~ 'Finalizer').newInstance().finalize($build, $archives, $targetDir);
     } catch (lang.reflect.TargetInvocationException $e) {
       throw $e.getCause();
     }
 
     // Clean up
-    $this.out.writeLine('===> ', $targetDir);
+    $this.out.writeLine('---> ', $targetDir);
     $tempDir.unlink();
     $this.out.writeLine('===> Done');
   }
