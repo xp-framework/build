@@ -56,17 +56,27 @@ a specified target directory.
 
 Testing
 -------
-Before you start, check the configuration files contain the correct values 
-and credentials for the services. Also, as this is written in XP Language,
-you need the XP Compiler:
+Before you start, add a configuration file named `mq.ini` to `etc/dev/`:
 
-First, compile the sources:
+```ini
+[endpoint]
+host=mq.example.com
+port=61613
+user="user"
+pass="password"
+
+[queue]
+destination=/queue/xp.build.dev
+```
+
+Then, as this is written in XP Language, you need to compile the sources:
 
 ```sh
 $ xcc -o dist/ -sp src/main/xp/ src/
 ```
 
-Second, fire up our local webserver:
+### Testing the Webhook
+Fire up our local webserver:
 
 ```sh
 $ xpws
@@ -76,10 +86,20 @@ $ xpws
 Then open another shell and:
 
 ```sh
-$ curl -X POST -d @commit-payload.data -H 'Content-Type: application/x-www-form-urlencoded' http://localhost:8080/hook
+$ curl -X POST -d @commit-payload.data http://localhost:8080/hook
+# The webserver logfile will read "Ignoring ..."
 
-$ curl -X POST -d @tag-payload.data -H 'Content-Type: application/x-www-form-urlencoded' http://localhost:8080/hook
+$ curl -X POST -d @tag-payload.data http://localhost:8080/hook
+# This will actually trigger a build
 ```
+
+### Directly trigger a build
+Use the xpcli utility provided:
+
+```sh
+$ xpcli -c etc/dev/ net.xp_framework.build.subscriber.TriggerBuild thekid/xp-framework r5.9.0RC5
+```
+
 
 Finally, use the subscriber:
 

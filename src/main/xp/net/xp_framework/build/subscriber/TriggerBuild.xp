@@ -1,0 +1,73 @@
+package net.xp_framework.build.subscriber;
+
+import util.Properties;
+import org.codehaus.stomp.StompConnection;
+import io.streams.MemoryInputStream;
+import webservices.rest.RestFormat;
+
+import native standard.sscanf;
+
+/**
+ * Trigger a build
+ */
+public class TriggerBuild extends util.cmd.Command {
+  private StompConnection $queue;
+  private string $destination;
+  private string $repository;
+  private string $owner;
+  private string $tag;
+  private string $version;
+
+  /**
+   * Injects message queue configuration
+   */
+  [@inject(name = 'mq')]
+  public void useMessageQueue(Properties $prop) {
+    $this.queue= new StompConnection($prop.readString('endpoint', 'host'), $prop.readInteger('endpoint', 'port'));
+    $this.queue.connect($prop.readString('endpoint', 'user'), $prop.readString('endpoint', 'pass'));
+    $this.destination= $prop.readString('queue', 'destination');
+  }
+
+  /**
+   * Sets repository - use "owner/name" syntax
+   */
+  [@arg(position = 0)]
+  public void setRepo(string? $repo) {
+    sscanf($repo, '%[^/]/%s', $this.owner, $this.repository);
+  }
+
+  /**
+   * Sets tag - use "r[VERSION]" here.
+   */
+  [@arg(position = 1)]
+  public void setTag(string? $tag) {
+    if (1 !== sscanf($tag, 'r%[0-9A-Za-z.~]', $this.version)) {
+      throw new IllegalArgumentException('Invalid tag ' ~ $tag);
+    }
+    $this.tag= $tag;
+  }
+
+  /**
+   * Listens
+   */
+  public int run() {
+    $message= RestFormat::$JSON.serializer().serialize([
+      owner   : $this.owner,
+      repo    : $this.repository,
+      tag     : $this.tag,
+      version : $this.version,
+      user    : System::getProperty('user.name')
+    ]);
+
+    $this.queue.send($this.destination, $message);
+    $this.out.writeLine('Publish -> ', $this.destination, ': ', $message);
+    return 0;
+  }
+
+  /**
+   * Destructor. Closes connection to MQ
+   */
+  public void __destruct() {
+    $this.queue.disconnect();
+  }
+}
