@@ -10,7 +10,11 @@ public class Version {
   protected var[] $parts;
   protected int $rc= 0;
   protected string $branch= null;
-  
+
+  // Used for serialization
+  protected string $number;
+  protected string $series;
+
   /**
    * Constructor
    */

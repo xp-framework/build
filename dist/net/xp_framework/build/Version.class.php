@@ -12,6 +12,10 @@ protected $rc= 0;
 protected $branch= NULL;
 
 
+protected $number;
+protected $series;
+
+
 
 
 
@@ -120,6 +124,20 @@ $cmp instanceof Version&&$this->parts === $cmp->parts&&$this->rc === $cmp->rc&&$
       ),
     ),
     'branch' => 
+    array (
+      5 => 
+      array (
+        'type' => 'string',
+      ),
+    ),
+    'number' => 
+    array (
+      5 => 
+      array (
+        'type' => 'string',
+      ),
+    ),
+    'series' => 
     array (
       5 => 
       array (
