@@ -98,7 +98,7 @@ $srcDir=new Folder($baseDir,'src',$type);
 
 
 
-$archive=new Archive(new File($tempDir,strtr(isset($build['build']['naming'][$type])?isset($build['build']['naming'][$type]):XarRelease::$naming[$type],array('{MODULE}' => $build['module'],'{VERSION}' => $version['number'],))));
+$archive=new Archive(new File($tempDir,strtr(isset($build['build']['naming'][$type])?$build['build']['naming'][$type]:XarRelease::$naming[$type],array('{MODULE}' => $build['module'],'{VERSION}' => $version['number'],))));
 $archive->open(ARCHIVE_CREATE);
 $this->out->writeLine('---> ',$archive);
 foreach (new FilteredIOCollectionIterator(new FileCollection($srcDir),new CollectionFilter()) as $origin) {
