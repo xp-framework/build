@@ -8,19 +8,10 @@ import io.FileUtil;
 import io.archive.zip.ZipFile;
 import io.archive.zip.ZipArchiveReader;
 import io.streams.StreamTransfer;
-import io.streams.MemoryInputStream;
-import io.streams.TextReader;
-import lang.archive.Archive;
-import io.collections.IOCollection;
-import io.collections.FileCollection;
-import io.collections.iterate.FilteredIOCollectionIterator;
-import io.collections.iterate.NegationOfFilter;
-import io.collections.iterate.CollectionFilter;
-import io.collections.iterate.ExtensionEqualsFilter;
 import net.xp_framework.build.Version;
 import net.xp_framework.build.Release;
 import net.xp_framework.build.ChangeLog;
-import net.xp_framework.build.ChangeLogParser;
+import net.xp_framework.build.BuildInstructions;
 import util.Date;
 import util.Properties;
 
@@ -42,7 +33,6 @@ public class FetchRepository extends AbstractSubscriber {
   // The first %s token is replaced with the owner, the second with
   // the repository, and the third and last with the tag name
   const string ZIPBALL= 'https://github.com/%s/%s/zipball/%s';
-  const string CHANGELOG= 'https://raw.github.com/%s/%s/%s/core/ChangeLog';
 
   private Folder $target;
 
@@ -136,20 +126,6 @@ public class FetchRepository extends AbstractSubscriber {
     $version= new Version($build['version']);
     $this.out.writeLine('===> ', $version);
 
-    // Process changelog
-    $response= $this.connectionTo(sprintf(self::CHANGELOG, $build['owner'], $build['repo'], $build['tag'])).get();
-    if (HttpConstants::STATUS_OK !== $response.getStatusCode()) {
-      throw new IllegalStateException('Cannot find changelog: ' ~ $response.toString());
-    }
-    $log= new ChangeLogParser().parse($response.getInputStream());
-    if ($version.isReleaseCandidate()) {
-      $release= $log.getRelease(null);         // Use not yet named release
-      $release.setVersion($version);
-      $release.setRevision($build['tag']);
-    } else {
-      $release= $log.getRelease($version);
-    }
-
     $targetDir= new Folder($this.target, $build['owner'], $build['repo'], $build['tag']);
     $targetDir.exists() || $targetDir.create(0755);
 
@@ -158,6 +134,7 @@ public class FetchRepository extends AbstractSubscriber {
 
     // Extract the zip file
     $this.out.write('---> Exporting [');
+    $i= 0;
     with ($iter= $zip.iterator()) {
       $base= rtrim(($iter.next() as io.archive.zip.ZipDirEntry).getName() ~ '/', '/');
       while ($iter.hasNext()) {
@@ -172,16 +149,35 @@ public class FetchRepository extends AbstractSubscriber {
             $tran.transferAll();
           }
         }
-        $this.out.write('.');
+        $i++ % 100 || $this.out.write('.');
       }
     }
     $zip.close();
     $this.out.writeLine(']');
 
+    // Check for special build instructions
+    $f= new File($targetDir, 'xpbuild.json');
+    if ($f.exists()) {
+      $instructions= webservices.rest.RestFormat::$JSON.read($f.getInputStream(), BuildInstructions::class) as BuildInstructions;
+    } else {
+      $instructions= BuildInstructions::$DEFAULT as BuildInstructions;
+    }
+
+    // Process changelog
+    $log= $instructions.changeLogIn($targetDir);
+    if ($version.isReleaseCandidate()) {
+      $release= $log.getRelease(null);         // Use not yet named release
+      $release.setVersion($version);
+      $release.setRevision($build['tag']);
+    } else {
+      $release= $log.getRelease($version);
+    }
+
     // Republish for build process
-    return [ 
-      module   : $build['owner'] ~ '/' ~ $build['repo'], 
-      release  : $release, 
+    return [
+      build    : $instructions,
+      module   : $build['owner'] ~ '/' ~ $build['repo'],
+      release  : $release,
       checkout : $targetDir.getURI()
     ];
   }

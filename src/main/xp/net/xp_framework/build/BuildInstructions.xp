@@ -1,0 +1,71 @@
+package net.xp_framework.build;
+
+import io.File;
+import io.Folder;
+
+/**
+ */
+public class BuildInstructions {
+  public static self $DEFAULT= new self();
+  protected string $base= '.';
+  protected [:string] $names= [:];
+
+  /**
+   * Sets base
+   */
+  public void setBase(string? $base) {
+    $this.base= $base;
+  }
+
+  /**
+   * Returns base
+   */
+  public string getBase() {
+    return $this.base;
+  }
+
+  /**
+   * Sets names
+   */
+  public void setNames([:string]? $names) {
+    $this.names= $names;
+  }
+
+  /**
+   * Returns names
+   */
+  public [:string] getNames() {
+    return $this.names;
+  }
+
+  /**
+   * Base folder
+   */
+  protected Folder baseOf(Folder $base) {
+    return new Folder($base, $this.base);
+  }
+
+  /**
+   * Returns a file reference
+   */
+  public File file(Folder $base, string? $name) {
+    return new File($this.baseOf($base), $name);
+  }
+
+  /**
+   * Returns the ChangeLog
+   */
+  public ChangeLog changeLogIn(Folder $base) {
+    return new ChangeLogParser().parse($this.file($base, 'ChangeLog').getInputStream());
+  }
+
+  /**
+   * Creates a string representation
+   */
+  public string toString() {
+    return $this.getClassName() ~ '@' ~ xp::stringOf([
+      base  : $this.base,
+      names : $this.names
+    ]);
+  }
+}

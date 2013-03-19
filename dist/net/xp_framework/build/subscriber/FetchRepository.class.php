@@ -1,14 +1,5 @@
-<?php uses('peer.http.HttpConnection', 'peer.http.HttpConstants', 'io.Folder', 'io.File', 'io.FileUtil', 'io.archive.zip.ZipFile', 'io.archive.zip.ZipArchiveReader', 'io.streams.StreamTransfer', 'io.streams.MemoryInputStream', 'io.streams.TextReader', 'lang.archive.Archive', 'io.collections.IOCollection', 'io.collections.FileCollection', 'io.collections.iterate.FilteredIOCollectionIterator', 'io.collections.iterate.NegationOfFilter', 'io.collections.iterate.CollectionFilter', 'io.collections.iterate.ExtensionEqualsFilter', 'net.xp_framework.build.Version', 'net.xp_framework.build.Release', 'net.xp_framework.build.ChangeLog', 'net.xp_framework.build.ChangeLogParser', 'util.Date', 'util.Properties', 'net.xp_framework.build.subscriber.AbstractSubscriber', 'io.streams.StringWriter', 'peer.http.HttpResponse', 'io.archive.zip.ZipIterator', 'io.archive.zip.ZipDirEntry', 'io.archive.zip.ZipEntry');
+<?php uses('peer.http.HttpConnection', 'peer.http.HttpConstants', 'io.Folder', 'io.File', 'io.FileUtil', 'io.archive.zip.ZipFile', 'io.archive.zip.ZipArchiveReader', 'io.streams.StreamTransfer', 'net.xp_framework.build.Version', 'net.xp_framework.build.Release', 'net.xp_framework.build.ChangeLog', 'net.xp_framework.build.BuildInstructions', 'util.Date', 'util.Properties', 'net.xp_framework.build.subscriber.AbstractSubscriber', 'io.streams.StringWriter', 'peer.http.HttpResponse', 'io.archive.zip.ZipIterator', 'io.archive.zip.ZipDirEntry', 'io.archive.zip.ZipEntry', 'webservices.rest.RestFormat');
 
-;
-;
-;
-;
-;
-;
-;
-;
-;
 ;
 ;
 ;
@@ -42,7 +33,6 @@
 
 
 const ZIPBALL='https://github.com/%s/%s/zipball/%s';
-const CHANGELOG='https://raw.github.com/%s/%s/%s/core/ChangeLog';
 
 private $target;
 
@@ -136,20 +126,6 @@ public function fetch(array $build){
 $version=new Version($build['version']);
 $this->out->writeLine('===> ',$version);
 
-
-$response=$this->connectionTo(sprintf(FetchRepository::CHANGELOG,$build['owner'],$build['repo'],$build['tag']))->get();
-if (HttpConstants::STATUS_OK !== $response->getStatusCode()) {
-throw new IllegalStateException('Cannot find changelog: '.$response->toString());};
-
-$log=create(new ChangeLogParser())->parse($response->getInputStream());
-if ($version->isReleaseCandidate()) {
-$release=$log->getRelease(NULL);
-$release->setVersion($version);
-$release->setRevision($build['tag']);}else {
-
-$release=$log->getRelease($version);};
-
-
 $targetDir=new Folder($this->target,$build['owner'],$build['repo'],$build['tag']);
 $targetDir->exists()||$targetDir->create(493);
 
@@ -158,6 +134,7 @@ $zip=$this->zipballOf(sprintf(FetchRepository::ZIPBALL,$build['owner'],$build['r
 
 
 $this->out->write('---> Exporting [');
+$i=0;
 
 
 
@@ -174,12 +151,31 @@ $this->out->write('---> Exporting [');
 
 
 
-$iter=$zip->iterator();$base=rtrim(create((cast($iter->next(), 'io.archive.zip.ZipDirEntry')))->getName().'/','/');while ($iter->hasNext()) {$entry=$iter->next();$relative=str_replace($base,'',$entry->getName());if ($entry->isDirectory()) {$folder=new Folder($targetDir,$relative);$folder->exists()||$folder->create(493);}else {$file=new File($targetDir,$relative);$tran=new StreamTransfer($entry->getInputStream(),$file->getOutputStream());$··e= NULL; try {$tran->transferAll();} catch (Exception $··e) {}try { $tran->close(); } catch (Exception $··i) {}if ($··e) throw $··e;;};$this->out->write('.');};;
+$iter=$zip->iterator();$base=rtrim(create((cast($iter->next(), 'io.archive.zip.ZipDirEntry')))->getName().'/','/');while ($iter->hasNext()) {$entry=$iter->next();$relative=str_replace($base,'',$entry->getName());if ($entry->isDirectory()) {$folder=new Folder($targetDir,$relative);$folder->exists()||$folder->create(493);}else {$file=new File($targetDir,$relative);$tran=new StreamTransfer($entry->getInputStream(),$file->getOutputStream());$··e= NULL; try {$tran->transferAll();} catch (Exception $··e) {}try { $tran->close(); } catch (Exception $··i) {}if ($··e) throw $··e;;};$i++%100||$this->out->write('.');};;
 $zip->close();
 $this->out->writeLine(']');
 
 
-return array('module' => 
+$f=new File($targetDir,'xpbuild.json');
+if ($f->exists()) {
+$instructions=cast(RestFormat::$JSON->read($f->getInputStream(),XPClass::forName('net.xp_framework.build.BuildInstructions')), 'net.xp_framework.build.BuildInstructions');}else {
+
+$instructions=cast(BuildInstructions::$DEFAULT, 'net.xp_framework.build.BuildInstructions');};
+
+
+
+$log=$instructions->changeLogIn($targetDir);
+if ($version->isReleaseCandidate()) {
+$release=$log->getRelease(NULL);
+$release->setVersion($version);
+$release->setRevision($build['tag']);}else {
+
+$release=$log->getRelease($version);};
+
+
+
+return array('build' => 
+$instructions,'module' => 
 $build['owner'].'/'.$build['repo'],'release' => 
 $release,'checkout' => 
 $targetDir->getURI(),);}}xp::$registry['class.FetchRepository']= 'net.xp_framework.build.subscriber.FetchRepository';xp::$registry['details.net.xp_framework.build.subscriber.FetchRepository']= array (
