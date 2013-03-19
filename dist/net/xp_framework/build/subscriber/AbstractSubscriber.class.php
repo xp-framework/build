@@ -71,7 +71,7 @@ return 1;};
 $this->queue->subscribe($this->origin);
 $this->out->writeLinef(
 'Subscribed to %s using %s timeout',
-$this->destination,
+$this->origin,
 
 NULL === $this->timeout?'no':$this->timeout.' second(s)');
 while ($message=$this->queue->receive($this->timeout)) {
