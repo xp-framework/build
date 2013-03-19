@@ -8,7 +8,8 @@ import io.Folder;
 public class BuildInstructions {
   public static self $DEFAULT= new self();
   protected string $base= '.';
-  protected [:string] $names= [:];
+  protected [:string] $naming= [:];
+  protected string $finalize= null;
 
   /**
    * Sets base
@@ -25,17 +26,31 @@ public class BuildInstructions {
   }
 
   /**
-   * Sets names
+   * Sets naming
    */
-  public void setNames([:string]? $names) {
-    $this.names= $names;
+  public void setNaming([:string]? $naming) {
+    $this.naming= $naming;
   }
 
   /**
-   * Returns names
+   * Returns naming
    */
-  public [:string] getNames() {
-    return $this.names;
+  public [:string] getNaming() {
+    return $this.naming;
+  }
+
+  /**
+   * Sets finalize
+   */
+  public void setFinalize(string? $finalize) {
+    $this.finalize= $finalize;
+  }
+
+  /**
+   * Returns finalize
+   */
+  public string getFinalize() {
+    return $this.finalize;
   }
 
   /**
@@ -64,8 +79,9 @@ public class BuildInstructions {
    */
   public string toString() {
     return $this.getClassName() ~ '@' ~ xp::stringOf([
-      base  : $this.base,
-      names : $this.names
+      base     : $this.base,
+      naming   : $this.naming,
+      finalize : $this.finalize
     ]);
   }
 }
