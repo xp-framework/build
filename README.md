@@ -20,6 +20,8 @@ Version 5.9.0, released 2013-03-18
 Git commit: ccfc987dcabfac36dab6d7544a22476d3b556231
 ```
 
+If the ChangeLog is missing or unparseable, an empty ChangeLog will be used.
+
 Errors
 ------
 If an error occurs, you can undo by deleting and retagging:
@@ -32,6 +34,32 @@ If an error occurs, you can undo by deleting and retagging:
 Setup
 -----
 Use `http://webservices.xp-framework.net/hook` as web hook for the repository.
+
+Influencing the build
+---------------------
+Per default, the build suite expects to find the source folder `src` 
+and the `ChangeLog` file in the top level of your repository. If you
+need to change this, add a file `xpbuild.json` to your repository
+containing the following:
+
+```json
+{
+  "base"     : "core",
+}
+```
+
+By default, the files will be called `xp-[REPO]-[VERSION].xar` and
+`xp-[REPO]-test-[VERSION].xar`. This can also be changed:
+
+```json
+{
+  "base"     : "core",
+  "naming"   : {
+    "main"     : "xp-rt-{VERSION}.xar",
+    "test"     : "xp-test-{VERSION}.xar"
+  },
+}
+```
 
 * * *
 
