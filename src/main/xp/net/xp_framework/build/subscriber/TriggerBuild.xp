@@ -52,7 +52,7 @@ public class TriggerBuild extends util.cmd.Command {
    */
   [@arg]
   public void setTag(string? $tag= null) {
-    $this.tag= $tag;
+    if (null !== $tag) $this.tag= $tag;
   }
 
   /**

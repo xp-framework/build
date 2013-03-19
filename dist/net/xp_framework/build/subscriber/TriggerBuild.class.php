@@ -52,7 +52,7 @@ $this->tag='r'.$this->version;}
 
 
 public function setTag($tag= NULL){
-$this->tag=$tag;}
+if (NULL !== $tag) {$this->tag=$tag;};}
 
 
 
