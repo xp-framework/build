@@ -164,13 +164,21 @@ $instructions=cast(BuildInstructions::$DEFAULT, 'net.xp_framework.build.BuildIns
 
 
 
+try {
 $log=$instructions->changeLogIn($targetDir);
 if ($version->isReleaseCandidate()) {
 $release=$log->getRelease(NULL);
 $release->setVersion($version);
 $release->setRevision($build['tag']);}else {
 
-$release=$log->getRelease($version);};
+$release=$log->getRelease($version);};} catch(IllegalStateException $e) {
+
+
+$this->err->writeLine('Cannot read ChangeLog, using defaults ~ ',$e);
+$release=new Release();
+$release->setVersion($version);
+$release->setRevision($build['tag']);
+$release->setDate(Date::now());};
 
 
 
