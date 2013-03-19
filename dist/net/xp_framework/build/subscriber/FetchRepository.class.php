@@ -1,5 +1,6 @@
-<?php uses('peer.http.HttpConnection', 'peer.http.HttpConstants', 'io.Folder', 'io.File', 'io.FileUtil', 'io.archive.zip.ZipFile', 'io.archive.zip.ZipArchiveReader', 'io.streams.StreamTransfer', 'io.streams.MemoryInputStream', 'io.streams.TextReader', 'lang.archive.Archive', 'io.collections.IOCollection', 'io.collections.FileCollection', 'io.collections.iterate.FilteredIOCollectionIterator', 'io.collections.iterate.NegationOfFilter', 'io.collections.iterate.CollectionFilter', 'io.collections.iterate.ExtensionEqualsFilter', 'net.xp_framework.build.Version', 'net.xp_framework.build.Release', 'net.xp_framework.build.ChangeLog', 'util.Date', 'util.Properties', 'net.xp_framework.build.subscriber.AbstractSubscriber', 'peer.http.HttpResponse', 'io.streams.StringWriter', 'io.archive.zip.ZipIterator', 'io.archive.zip.ZipDirEntry', 'io.archive.zip.ZipEntry');
+<?php uses('peer.http.HttpConnection', 'peer.http.HttpConstants', 'io.Folder', 'io.File', 'io.FileUtil', 'io.archive.zip.ZipFile', 'io.archive.zip.ZipArchiveReader', 'io.streams.StreamTransfer', 'io.streams.MemoryInputStream', 'io.streams.TextReader', 'lang.archive.Archive', 'io.collections.IOCollection', 'io.collections.FileCollection', 'io.collections.iterate.FilteredIOCollectionIterator', 'io.collections.iterate.NegationOfFilter', 'io.collections.iterate.CollectionFilter', 'io.collections.iterate.ExtensionEqualsFilter', 'net.xp_framework.build.Version', 'net.xp_framework.build.Release', 'net.xp_framework.build.ChangeLog', 'net.xp_framework.build.ChangeLogParser', 'util.Date', 'util.Properties', 'net.xp_framework.build.subscriber.AbstractSubscriber', 'io.streams.StringWriter', 'peer.http.HttpResponse', 'io.archive.zip.ZipIterator', 'io.archive.zip.ZipDirEntry', 'io.archive.zip.ZipEntry');
 
+;
 ;
 ;
 ;
@@ -71,57 +72,6 @@ $this->target->exists()||$this->target->create(493);}
 
 
 
-protected function changeLogAt($url){if (NULL !== $url && !is("string", $url)) throw new IllegalArgumentException("Argument 1 passed to ".__METHOD__." must be of string, ".xp::typeOf($url)." given");
-$response=$this->connectionTo($url)->get();
-if (HttpConstants::STATUS_OK !== $response->getStatusCode()) {
-throw new IllegalStateException('Cannot find changelog @ '.$url.': '.$response->toString());};
-
-
-$log=new ChangeLog();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-$reader=new TextReader($response->getInputStream(),'utf-8');$··e= NULL; try {$separator='Version %[0-9?.], released %[0-9?-]';$version=$date=NULL;do {if (NULL === ($l=$reader->readLine())) {throw new IllegalStateException('ChangeLog malformed');};} while (2 !== sscanf($l,$separator,$version,$date));;do {$release=new Release();$release->setVersion('?.?.?' === $version?NULL:new Version($version));$release->setDate('????-??-??' === $date?Date::now():new Date($date));$reader->readLine();$rev=NULL;sscanf($reader->readLine(),'%*[^:]: %s',$rev);$release->setRevision($rev);$notes='';$version=$date=NULL;while (NULL !== ($l=$reader->readLine())) {if (2 === sscanf($l,$separator,$version,$date)) {break;};$notes.=$l.'
-';};$release->setNotes(rtrim($notes,'
-'));$log->addRelease($release);} while (NULL !== $l);;} catch (Exception $··e) {}try { $reader->close(); } catch (Exception $··i) {}if ($··e) throw $··e;;return $log;}
-
-
-
-
-
 
 protected function connectionTo($url){if (NULL !== $url && !is("string", $url)) throw new IllegalArgumentException("Argument 1 passed to ".__METHOD__." must be of string, ".xp::typeOf($url)." given");
 $conn=new HttpConnection($url);
@@ -187,7 +137,11 @@ $version=new Version($build['version']);
 $this->out->writeLine('===> ',$version);
 
 
-$log=$this->changeLogAt(sprintf(FetchRepository::CHANGELOG,$build['owner'],$build['repo'],$build['tag']));
+$response=$this->connectionTo(sprintf(FetchRepository::CHANGELOG,$build['owner'],$build['repo'],$build['tag']))->get();
+if (HttpConstants::STATUS_OK !== $response->getStatusCode()) {
+throw new IllegalStateException('Cannot find changelog: '.$response->toString());};
+
+$log=create(new ChangeLogParser())->parse($response->getInputStream());
 if ($version->isReleaseCandidate()) {
 $release=$log->getRelease(NULL);
 $release->setVersion($version);
@@ -292,24 +246,6 @@ $targetDir->getURI(),);}}xp::$registry['class.FetchRepository']= 'net.xp_framewo
         array (
           'name' => 'fetch',
         ),
-      ),
-      6 => 
-      array (
-      ),
-    ),
-    'changeLogAt' => 
-    array (
-      1 => 
-      array (
-        0 => 'string',
-      ),
-      2 => 'net.xp_framework.build.ChangeLog',
-      3 => 
-      array (
-      ),
-      4 => 'Download ChangeLog from github',
-      5 => 
-      array (
       ),
       6 => 
       array (

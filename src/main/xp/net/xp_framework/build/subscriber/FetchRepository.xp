@@ -20,6 +20,7 @@ import io.collections.iterate.ExtensionEqualsFilter;
 import net.xp_framework.build.Version;
 import net.xp_framework.build.Release;
 import net.xp_framework.build.ChangeLog;
+import net.xp_framework.build.ChangeLogParser;
 import util.Date;
 import util.Properties;
 
@@ -66,57 +67,6 @@ public class FetchRepository extends AbstractSubscriber {
   public void useCheckout(Properties $prop) {
     $this.target= new Folder($prop.readString('storage', 'folder', 'checkout'));
     $this.target.exists() || $this.target.create(0755);
-  }
-
-  /**
-   * Download ChangeLog from github
-   */
-  protected ChangeLog changeLogAt(string $url) throws IllegalStateException {
-    $response= $this.connectionTo($url).get();
-    if (HttpConstants::STATUS_OK !== $response.getStatusCode()) {
-      throw new IllegalStateException('Cannot find changelog @ ' ~ $url ~ ': ' ~ $response.toString());
-    }
-    
-    $log= new ChangeLog();
-    try ($reader= new TextReader($response.getInputStream(), 'utf-8')) {
-      $separator= 'Version %[0-9?.], released %[0-9?-]';
-
-      // Seek for first separator
-      $version= $date= null;
-      do {
-        if (null === ($l= $reader.readLine())) {
-          throw new IllegalStateException('ChangeLog malformed');
-        }
-      } while (2 !== sscanf($l, $separator, $version, $date));
-
-      // Parse rest of file
-      do {
-        $release= new Release();
-        $release.setVersion('?.?.?' === $version ? null : new Version($version));
-        $release.setDate('????-??-??' === $date ? Date::now() : new Date($date));
-
-        // Skip over "----" line
-        $reader.readLine();
-
-        // Extract revision (either: SVN version: 12345 or GIT commit: 12345)
-        $rev= null;
-        sscanf($reader.readLine(), '%*[^:]: %s', $rev);
-        $release.setRevision($rev);
-
-        // Read notes      
-        $notes= '';
-        $version= $date= null;
-        while (null !== ($l= $reader.readLine())) {
-          if (2 === sscanf($l, $separator, $version, $date)) break;
-          $notes~= $l ~ "\n";
-        }
-
-        $release.setNotes(rtrim($notes, "\r\n"));
-        $log.addRelease($release);
-      } while (null !== $l);
-    }
-
-    return $log;
   }
 
   /**
@@ -187,7 +137,11 @@ public class FetchRepository extends AbstractSubscriber {
     $this.out.writeLine('===> ', $version);
 
     // Process changelog
-    $log= $this.changeLogAt(sprintf(self::CHANGELOG, $build['owner'], $build['repo'], $build['tag']));
+    $response= $this.connectionTo(sprintf(self::CHANGELOG, $build['owner'], $build['repo'], $build['tag'])).get();
+    if (HttpConstants::STATUS_OK !== $response.getStatusCode()) {
+      throw new IllegalStateException('Cannot find changelog: ' ~ $response.toString());
+    }
+    $log= new ChangeLogParser().parse($response.getInputStream());
     if ($version.isReleaseCandidate()) {
       $release= $log.getRelease(null);         // Use not yet named release
       $release.setVersion($version);
