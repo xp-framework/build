@@ -66,10 +66,14 @@ sscanf($tag,'r%[0-9A-Za-z.~]',$version);
 
 
 
-$message=RestFormat::$JSON->serializer()->serialize(array('owner' => $payload->repository->owner->name,'repo' => $payload->repository->name,'tag' => $tag,'version' => $version,'user' => $payload->pusher->name,));
-$this->cat&&$this->cat->info($message);
-$r=$this->queue->send($this->destination,$message);
-$this->cat&&$this->cat->info($r);}else {
+
+
+
+
+
+
+
+$serializer=RestFormat::$JSON->serializer();$message=$serializer->serialize(array('owner' => $payload->repository->owner->name,'repo' => $payload->repository->name,'tag' => $tag,'version' => $version,'user' => $payload->pusher->name,));$this->cat&&$this->cat->info($this->destination,$message);$this->queue->send($this->destination,$message,array('content-type' => $serializer->contentType(),));;}else {
 
 $this->cat&&$this->cat->debug('Ignore',$payload);};
 
