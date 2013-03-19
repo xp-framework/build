@@ -123,6 +123,7 @@ Use the xpcli utility provided:
 $ xpcli -c etc/dev/ net.xp_framework.build.subscriber.TriggerBuild thekid/xp-framework r5.9.0RC5
 ```
 
+### Building steps
 Create repo checkout:
 
 ```sh
