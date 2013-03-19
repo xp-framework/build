@@ -5,7 +5,8 @@
  */
 
   define('VERSION',    '@@VERSION@@');
-  define('BASE_URL',   'http://xp-framework.net/downloads/releases/xp-framework/xp-framework/');
+  define('BASE_URL',   'http://xp-framework.net/downloads/releases/');
+  define('MODULE',     'xp-framework/xp-framework');
   define('TARGET_DIR', getcwd().DIRECTORY_SEPARATOR);
 
   // {{{ println(string* args)
@@ -504,7 +505,7 @@
   }
 
   // Download dependencies
-  ardl($proxy, BASE_URL.VERSION.'/depend', TARGET_DIR) || exit(1);
+  ardl($proxy, BASE_URL.MODULE.'/'.VERSION.'/depend', TARGET_DIR) || exit(1);
   $depend= parse_ini_file(TARGET_DIR.'depend.ini', TRUE);
   
   // Found it, execute
@@ -600,13 +601,13 @@
   // * META-INF (boot.pth, ChangeLog)
   // * Libraries (xp-rt, xp-test XAR files)
   println('===> Tools');
-  ardl($proxy, BASE_URL.VERSION.'/tools', $target) || exit(2);
+  ardl($proxy, BASE_URL.MODULE.'/'.VERSION.'/tools', $target) || exit(2);
   
   println('===> META-INF');
-  ardl($proxy, BASE_URL.VERSION.'/meta-inf', $target) || exit(2);
+  ardl($proxy, BASE_URL.MODULE.'/'.VERSION.'/meta-inf', $target) || exit(2);
   
   println('===> Libraries');  
-  ardl($proxy, BASE_URL.VERSION.'/lib', $target) || exit(2);
+  ardl($proxy, BASE_URL.MODULE.'/'.VERSION.'/lib', $target) || exit(2);
   
   // Download runners
   ardl($proxy, BASE_URL.'bin/'.$runners, $bin, 0700) || exit(3);
