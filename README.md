@@ -42,11 +42,11 @@ The payload is as follows:
 
 ```json
 { 
-  "owner" 	: "thekid",
-  "repo"  	: "xp-experiments", 
-  "tag"   	: "r5.9.0RC3",
+  "owner"   : "thekid",
+  "repo"    : "xp-experiments", 
+  "tag"     : "r5.9.0RC3",
   "version" : "5.9.0RC3",
-  "user"  	: "thekid" 
+  "user"    : "thekid" 
 }
 ```
 
@@ -57,14 +57,14 @@ build queue with the following payload:
 
 ```json
 { 
-	"module"   : "xp-framework\/xp-framework" , 
-	"release"  : { 
-		"version"  : { "number" : "5.9.0RC4" , "series" : "5.9" }, 
-		"revision" : "r5.9.0RC4", 
-		"date"     : "2013-03-19T14:55:42+01:00",
-		"notes"    : "\nHeads up!\n~~~~~~~~~\n- Removed ...",
-	},
-	"checkout" : "/tmp/checkout/xp-framework/xp-framework/r5.9.0RC4/" 
+  "module"   : "xp-framework\/xp-framework" , 
+  "release"  : { 
+    "version"  : { "number" : "5.9.0RC4" , "series" : "5.9" }, 
+    "revision" : "r5.9.0RC4", 
+    "date"     : "2013-03-19T14:55:42+01:00",
+    "notes"    : "\nHeads up!\n~~~~~~~~~\n- Removed ...",
+  },
+  "checkout" : "/tmp/checkout/xp-framework/xp-framework/r5.9.0RC4/" 
 }
 ```
 
