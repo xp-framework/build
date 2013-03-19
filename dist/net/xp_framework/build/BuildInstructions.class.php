@@ -8,8 +8,9 @@
  class BuildInstructions extends Object{
 public static $DEFAULT;
 protected $base= '.';
-protected $names= array (
-);
+protected $naming= array (
+);protected $finalize= NULL;
+
 
 
 
@@ -27,15 +28,29 @@ return $this->base;}
 
 
 
-public function setNames($names){
-$this->names=$names;}
+public function setNaming($naming){
+$this->naming=$naming;}
 
 
 
 
 
-public function getNames(){
-return $this->names;}
+public function getNaming(){
+return $this->naming;}
+
+
+
+
+
+public function setFinalize($finalize){
+$this->finalize=$finalize;}
+
+
+
+
+
+public function getFinalize(){
+return $this->finalize;}
 
 
 
@@ -66,7 +81,8 @@ public function toString(){
 return 
 
 
-$this->getClassName().'@'.xp::stringOf(array('base' => $this->base,'names' => $this->names,));}static function __static() {BuildInstructions::$DEFAULT=new BuildInstructions();}}xp::$registry['class.BuildInstructions']= 'net.xp_framework.build.BuildInstructions';xp::$registry['details.net.xp_framework.build.BuildInstructions']= array (
+
+$this->getClassName().'@'.xp::stringOf(array('base' => $this->base,'naming' => $this->naming,'finalize' => $this->finalize,));}static function __static() {BuildInstructions::$DEFAULT=new BuildInstructions();}}xp::$registry['class.BuildInstructions']= 'net.xp_framework.build.BuildInstructions';xp::$registry['details.net.xp_framework.build.BuildInstructions']= array (
   0 => 
   array (
     'DEFAULT' => 
@@ -83,11 +99,18 @@ $this->getClassName().'@'.xp::stringOf(array('base' => $this->base,'names' => $t
         'type' => 'string',
       ),
     ),
-    'names' => 
+    'naming' => 
     array (
       5 => 
       array (
         'type' => '[:string]',
+      ),
+    ),
+    'finalize' => 
+    array (
+      5 => 
+      array (
+        'type' => 'string',
       ),
     ),
   ),
@@ -128,7 +151,7 @@ $this->getClassName().'@'.xp::stringOf(array('base' => $this->base,'names' => $t
       array (
       ),
     ),
-    'setNames' => 
+    'setNaming' => 
     array (
       1 => 
       array (
@@ -138,7 +161,7 @@ $this->getClassName().'@'.xp::stringOf(array('base' => $this->base,'names' => $t
       3 => 
       array (
       ),
-      4 => 'Sets names',
+      4 => 'Sets naming',
       5 => 
       array (
       ),
@@ -146,7 +169,7 @@ $this->getClassName().'@'.xp::stringOf(array('base' => $this->base,'names' => $t
       array (
       ),
     ),
-    'getNames' => 
+    'getNaming' => 
     array (
       1 => 
       array (
@@ -155,7 +178,42 @@ $this->getClassName().'@'.xp::stringOf(array('base' => $this->base,'names' => $t
       3 => 
       array (
       ),
-      4 => 'Returns names',
+      4 => 'Returns naming',
+      5 => 
+      array (
+      ),
+      6 => 
+      array (
+      ),
+    ),
+    'setFinalize' => 
+    array (
+      1 => 
+      array (
+        0 => 'string',
+      ),
+      2 => 'void',
+      3 => 
+      array (
+      ),
+      4 => 'Sets finalize',
+      5 => 
+      array (
+      ),
+      6 => 
+      array (
+      ),
+    ),
+    'getFinalize' => 
+    array (
+      1 => 
+      array (
+      ),
+      2 => 'string',
+      3 => 
+      array (
+      ),
+      4 => 'Returns finalize',
       5 => 
       array (
       ),
