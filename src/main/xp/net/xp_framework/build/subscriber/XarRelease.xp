@@ -107,7 +107,7 @@ public class XarRelease extends AbstractSubscriber {
     }
 
     // Finalize
-    $finalize= isset($build['build']['finalize']) ? $build['build']['finalize'] : '';
+    $finalize= isset($build['build']['finalize']) ? $build['build']['finalize'] : 'Default';
     $this.out.writeLine('---> ', $finalize, 'Finalizer');
     try {
       self::$finalizers.loadClass($finalize ~ 'Finalizer').newInstance().finalize($build, $archives, $targetDir);

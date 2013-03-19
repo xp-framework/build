@@ -107,7 +107,7 @@ $archives[$type]=$archive;};
 
 
 
-$finalize=isset($build['build']['finalize'])?$build['build']['finalize']:'';
+$finalize=isset($build['build']['finalize'])?$build['build']['finalize']:'Default';
 $this->out->writeLine('---> ',$finalize,'Finalizer');
 try {
 XarRelease::$finalizers->loadClass($finalize.'Finalizer')->newInstance()->finalize($build,$archives,$targetDir);} catch(TargetInvocationException $e) {
