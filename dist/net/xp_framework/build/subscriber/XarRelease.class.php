@@ -27,8 +27,13 @@
 
  class XarRelease extends net·xp_framework·build·subscriber·AbstractSubscriber{
 private static $finalizers;
-private $release;
 
+
+
+protected static $naming= array (
+  'main' => 'xp-{MODULE}-{VERSION}.xar',
+  'test' => 'xp-{MODULE}-test-{VERSION}.xar',
+);private $release;
 
 
 
@@ -93,7 +98,7 @@ $srcDir=new Folder($baseDir,'src',$type);
 
 
 
-$archive=new Archive(new File($tempDir,isset($build['build']['naming'][$type])?strtr($build['build']['naming'][$type],array('{VERSION}' => $version['number'],)).'.xar':'xp-'.$build['module'].'-'.$version['number'].'.xar'));
+$archive=new Archive(new File($tempDir,strtr(isset($build['build']['naming'][$type])?isset($build['build']['naming'][$type]):XarRelease::$naming[$type],array('{MODULE}' => $build['module'],'{VERSION}' => $version['number'],))));
 $archive->open(ARCHIVE_CREATE);
 $this->out->writeLine('---> ',$archive);
 foreach (new FilteredIOCollectionIterator(new FileCollection($srcDir),new CollectionFilter()) as $origin) {
@@ -130,6 +135,13 @@ $this->out->writeLine('===> Done');}static function __static() {XarRelease::$fin
       5 => 
       array (
         'type' => 'lang.reflect.Package',
+      ),
+    ),
+    'naming' => 
+    array (
+      5 => 
+      array (
+        'type' => '[:string]',
       ),
     ),
     'release' => 

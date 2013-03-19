@@ -27,6 +27,11 @@ import native pcre.preg_quote;
  */
 public class XarRelease extends AbstractSubscriber {
   private static var $finalizers= lang.reflect.Package::forName('net.xp_framework.build.subscriber');
+  protected static [:string] $naming= [
+    main : 'xp-{MODULE}-{VERSION}.xar',
+    test : 'xp-{MODULE}-test-{VERSION}.xar'
+  ];
+
   private Folder $release;
 
   /**
@@ -90,10 +95,10 @@ public class XarRelease extends AbstractSubscriber {
     $baseDir= new Folder($build['checkout'], $build['build']['base']);
     foreach ($type in ['main', 'test']) {
       $srcDir= new Folder($baseDir, 'src', $type);
-      $archive= new Archive(new File($tempDir, isset($build['build']['naming'][$type])
-        ? strtr($build['build']['naming'][$type], [ '{VERSION}' : $version['number'] ]) ~ '.xar'
-        : 'xp-' ~ $build['module'] ~ '-' ~ $version['number'] ~ '.xar'
-      ));
+      $archive= new Archive(new File($tempDir, strtr(
+        isset($build['build']['naming'][$type]) ? isset($build['build']['naming'][$type]) : self::$naming[$type],
+        [ '{MODULE}' : $build['module'], '{VERSION}' : $version['number'] ]
+      )));
       $archive.open(ARCHIVE_CREATE);
       $this.out.writeLine('---> ', $archive);
       foreach ($origin in new FilteredIOCollectionIterator(new FileCollection($srcDir), new CollectionFilter())) {
