@@ -587,7 +587,7 @@
   // Create directories
   $target= TARGET_DIR.DIRECTORY_SEPARATOR.VERSION.DIRECTORY_SEPARATOR;
   println('---> Target: ', $target);
-  foreach (array($target, $target.'tools', $target.'lib', $bin) as $dir) {
+  foreach (array($target, $target.'tools', $target.'lib', $target.'unittest', $bin) as $dir) {
     if (is_dir($dir)) continue;
     if (mkdir($dir)) continue;
     

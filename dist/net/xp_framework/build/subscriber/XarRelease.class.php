@@ -1,5 +1,6 @@
-<?php uses('peer.http.HttpConnection', 'peer.http.HttpConstants', 'io.Folder', 'io.File', 'io.FileUtil', 'io.archive.zip.ZipFile', 'io.archive.zip.ZipArchiveReader', 'io.streams.StreamTransfer', 'io.streams.MemoryInputStream', 'io.streams.TextReader', 'lang.archive.Archive', 'io.collections.IOCollection', 'io.collections.FileCollection', 'io.collections.iterate.FilteredIOCollectionIterator', 'io.collections.iterate.NegationOfFilter', 'io.collections.iterate.CollectionFilter', 'net.xp_framework.build.Version', 'net.xp_framework.build.Release', 'net.xp_framework.build.ChangeLog', 'util.Date', 'util.Properties', 'net.xp_framework.build.subscriber.AbstractSubscriber', 'peer.http.HttpResponse', 'io.streams.StringWriter', 'io.streams.FileOutputStream', 'io.streams.InputStream', 'io.collections.IOElement', 'io.archive.zip.ZipIterator', 'io.archive.zip.ZipDirEntry', 'io.archive.zip.ZipEntry');
+<?php uses('peer.http.HttpConnection', 'peer.http.HttpConstants', 'io.Folder', 'io.File', 'io.FileUtil', 'io.archive.zip.ZipFile', 'io.archive.zip.ZipArchiveReader', 'io.streams.StreamTransfer', 'io.streams.MemoryInputStream', 'io.streams.TextReader', 'lang.archive.Archive', 'io.collections.IOCollection', 'io.collections.FileCollection', 'io.collections.iterate.FilteredIOCollectionIterator', 'io.collections.iterate.NegationOfFilter', 'io.collections.iterate.CollectionFilter', 'io.collections.iterate.ExtensionEqualsFilter', 'net.xp_framework.build.Version', 'net.xp_framework.build.Release', 'net.xp_framework.build.ChangeLog', 'util.Date', 'util.Properties', 'net.xp_framework.build.subscriber.AbstractSubscriber', 'peer.http.HttpResponse', 'io.streams.StringWriter', 'io.streams.FileOutputStream', 'io.streams.InputStream', 'io.collections.IOElement', 'io.archive.zip.ZipIterator', 'io.archive.zip.ZipDirEntry', 'io.archive.zip.ZipEntry');
 
+;
 ;
 ;
 ;
@@ -305,12 +306,19 @@ $tsIndex=create(new File($targetDir,'tools.ar'))->getOutputStream();$··e= NULL; 
 $dpIndex=create(new File($targetDir,'depend.ar'))->getOutputStream();$··e= NULL; try {$this->out->writeLine('---> ',$dpIndex);$this->addIndex($dpIndex,new File('res',$version->getSeries().'-depend.ini'),'depend.ini');} catch (Exception $··e) {}try { $dpIndex->close(); } catch (Exception $··i) {}if ($··e) throw $··e;;
 
 
+$testCfg=new Folder($tempDir,'core','src','test','config','unittest');
+
+
+
+
+
+
 
 
 
 
 $miIndex=create(new File($targetDir,'meta-inf.ar'))->getOutputStream();$··e= NULL; try {$this->out->writeLine('---> ',$tsIndex);$this->addIndex($miIndex,$release->toString(),'ChangeLog');$this->addIndex($miIndex,'lib/'.$rtArchive->file->getFileName().'
-','boot.pth');} catch (Exception $··e) {}try { $miIndex->close(); } catch (Exception $··i) {}if ($··e) throw $··e;;
+','boot.pth');$config=new FilteredIOCollectionIterator(new FileCollection($testCfg),new ExtensionEqualsFilter('.ini'));foreach ($config as $ini) {$f=new File($ini->getURI());$this->addIndex($miIndex,$f,'unittest/'.$f->getFileName());$this->out->write('     >> ',$f->getFileName());};} catch (Exception $··e) {}try { $miIndex->close(); } catch (Exception $··i) {}if ($··e) throw $··e;;
 
 
 

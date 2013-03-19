@@ -16,6 +16,7 @@ import io.collections.FileCollection;
 import io.collections.iterate.FilteredIOCollectionIterator;
 import io.collections.iterate.NegationOfFilter;
 import io.collections.iterate.CollectionFilter;
+import io.collections.iterate.ExtensionEqualsFilter;
 import net.xp_framework.build.Version;
 import net.xp_framework.build.Release;
 import net.xp_framework.build.ChangeLog;
@@ -304,11 +305,18 @@ public class XarRelease extends AbstractSubscriber {
       $this.addIndex($dpIndex, new File('res', $version.getSeries() ~ '-depend.ini'), 'depend.ini');
     }
 
-    // Index: Meta information
+    // Index: Meta information and test config
+    $testCfg= new Folder($tempDir, 'core', 'src', 'test', 'config', 'unittest');
     try ($miIndex= new File($targetDir, 'meta-inf.ar').getOutputStream()) {
       $this.out.writeLine('---> ', $tsIndex);
       $this.addIndex($miIndex, $release.toString(), 'ChangeLog');
       $this.addIndex($miIndex, "lib/" ~ $rtArchive.file.getFileName() ~ "\n", 'boot.pth');
+      $config= new FilteredIOCollectionIterator(new FileCollection($testCfg), new ExtensionEqualsFilter('.ini'));
+      foreach ($ini in $config) {
+        $f= new File($ini.getURI());
+        $this.addIndex($miIndex, $f, 'unittest/' ~ $f.getFileName());
+        $this.out.writeLine('     >> ', $f.getFileName());
+      }
     }
 
     // Add setup script
