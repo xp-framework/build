@@ -30,9 +30,8 @@ public class MvnRelease {
     /**
      * Parses configuration
      *
-     * @param  file                  [description]
-     * @return                       [description]
-     * @throws FileNotFoundException [description]
+     * @param  file The "ini" file we should parse the configuration settings from
+     * @return Parsed configuration
      */
     protected Hashtable<String, Hashtable<String, String>> configurationFile(File file) throws IOException {
         if (!file.exists()) {
