@@ -8,6 +8,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Hashtable;
 
+import org.json.JSONObject;
+
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.Channel;
@@ -104,7 +106,8 @@ public class MvnRelease {
             QueueingConsumer.Delivery delivery = consumer.nextDelivery();
             System.out.println("<<< " + delivery.getEnvelope() + " " + delivery.getProperties());
 
-            String message = new String(delivery.getBody());
+            JSONObject payload = new JSONObject(new String(delivery.getBody()));
+            System.out.println(payload.toString(2));
             // TODO doWork(message); 
             // TODO System.out.println(" [x] Done" );
 
