@@ -18,9 +18,6 @@ public class MvnRelease extends AbstractSubscriber {
         File checkout = new File(payload.getString("checkout"), build.optString("base"));
         System.out.println("Checkout @" + checkout);
 
-        // DEBUG!
-        checkout = new File("C:\\cygwin\\home\\friebe\\devel\\xp.public\\core");
-
         // Invoke maven
         int exit = new MavenCli().doMain(
             new String[] { "package" }, 
