@@ -124,7 +124,7 @@ abstract class AbstractSubscriber {
                 System.err.println("*** " + e.toString());
             }
 
-            // channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
+            channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
         }
 
         return 0;
