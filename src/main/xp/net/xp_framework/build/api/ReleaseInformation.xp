@@ -1,0 +1,173 @@
+package net.xp_framework.build.api;
+
+import util.Properties;
+import io.collections.FileCollection;
+import io.collections.IOElement;
+import io.collections.iterate.FilteredIOCollectionIterator;
+import io.collections.iterate.IOCollectionIterator;
+import io.collections.iterate.CollectionFilter;
+import io.collections.iterate.AllOfFilter;
+import io.collections.iterate.IterationFilter;
+import io.collections.iterate.NameMatchesFilter;
+import net.xp_framework.build.Version;
+import webservices.rest.srv.Response;
+import webservices.rest.RestFormat;
+import webservices.rest.RestSerializer;
+import security.checksum.SHA1;
+
+import native standard.basename;
+import native standard.array_filter;
+import native standard.strtr;
+import native pcre.preg_quote;
+
+[@webservice]
+public class ReleaseInformation {
+  private FileCollection $storage;
+
+  /**
+   * Use configuration to inject release storage
+   */
+  [@inject(name = 'xarrelease')]
+  public void useStorage(Properties $prop) {
+    $this.storage= new FileCollection($prop.readString('storage', 'folder', 'releases'));
+  }
+
+  /**
+   * Gets a list of all releases for a given vendor and module, 
+   * applying a given filter for finding them.
+   */
+  protected var[] releasesOf(string? $vendor, string? $module, IterationFilter $filter= null) {
+    $releases= [];
+    $target= $this.storage.getCollection($vendor).getCollection($module);
+    $find= new AllOfFilter(array_filter([new CollectionFilter(), $filter]));
+    foreach ($release in new FilteredIOCollectionIterator($target, $find)) {
+      $releases[]= [
+        vendor    : $vendor,
+        module    : $module,
+        version   : new Version(basename($release.getURI())),
+        published : $release.createdAt()
+      ];
+    }
+    return $releases;
+  }
+
+  /**
+   * Calculates a checksum for the given file
+   */
+  protected string checksumOf(io.collections.IOElement $element) {
+    $checksum= SHA1::digest();
+    try ($in = $element.getInputStream()) {
+      while ($in.available()) {
+        $checksum.update($in.read());
+      }
+    }
+    return $checksum.digest();
+  }
+
+  /**
+   * Gets a list of all releases for a given vendor and module
+   *
+   * @param  vendor The module's vendor (the GitHub user or organization)
+   * @param  module The module's name (the GitHub repository)
+   * @param  filter The version to filter on. May use "*" as wildcards
+   */
+  [@webmethod(verb = 'GET', path = '/{vendor}/{module}'), @$filter: param('filter')]
+  public var[] allReleases(string $vendor, string $module, string $filter= null) {
+    if ($filter) {
+      $restrict= new NameMatchesFilter('/^' ~ strtr(preg_quote($filter, '/'), [ '\*' : '.+' ]) ~ '$/');
+    } else {
+      $restrict= null;
+    }
+
+    return $this.releasesOf($vendor, $module, $restrict);
+  }
+
+  /**
+   * Gets a specific release
+   *
+   * @param  vendor The module's vendor (the GitHub user or organization)
+   * @param  module The module's name (the GitHub repository)
+   * @param  release The release version
+   */
+  [@webmethod(verb = 'HEAD', path = '/{vendor}/{module}/{release}')]
+  public Response hasRelease(string $vendor, string $module, string $release) {
+    if ($this.storage.getCollection($vendor).getCollection($module).findCollection($release)) {
+      return Response::ok();
+    } else {
+      return Response::notFound();
+    }
+  }
+
+  /**
+   * Gets a specific release
+   *
+   * @param  vendor The module's vendor (the GitHub user or organization)
+   * @param  module The module's name (the GitHub repository)
+   * @param  release The release version
+   */
+  [@webmethod(verb = 'GET', path = '/{vendor}/{module}/{release}')]
+  public var getRelease(string $vendor, string $module, string $release) {
+    $target= $this.storage.getCollection($vendor).getCollection($module).findCollection($release);
+    if (!$target) {
+      throw new ElementNotFoundException('No such release ' ~ $release ~ ' for ' ~ $vendor ~ '/' ~ $module);
+    }
+
+    // Aggregate all files
+    $files= new string[] {};
+    foreach ($file in new IOCollectionIterator($target)) {
+      $files[]= [ 
+        name : basename($file.getURI()),
+        size : $file.getSize(),
+        sha1 : $this.checksumOf($file)
+      ];
+    }
+
+    // Return release meta information and files
+    return [
+      vendor    : $vendor,
+      module    : $module,
+      version   : new Version($release),
+      published : $target.createdAt(),
+      files     : $files
+    ];
+  }
+
+  /**
+   * Gets a specific release file
+   *
+   * @param  vendor The module's vendor (the GitHub user or organization)
+   * @param  module The module's name (the GitHub repository)
+   * @param  release The release version
+   */
+  [@webmethod(verb = 'GET', path = '/{vendor}/{module}/{release}/{file}', returns= 'application/octet-stream')]
+  public Response downloadFile(string $vendor, string $module, string $release, string $file) {
+    $target= $this.storage
+      .getCollection($vendor)
+      .getCollection($module)
+      .getCollection($release)
+      .findElement($file)
+    ;
+    if (!$target) {
+      throw new ElementNotFoundException('No file ' ~ $file ~ ' in release ' ~ $release ~ ' for ' ~ $vendor ~ '/' ~ $module);
+    }
+
+    // FIXME: The REST API should support return streams. Until that is available,
+    // hack up the RestFormat enum and create a serializer which will simply read
+    // the stream contents and return them in one big chunk to the client!
+    $mime= util.MimeType::getByFileName($target.getURI());
+    RestFormat::$UNKNOWN= new RestFormat(
+      0, 
+      'UNKNOWN', 
+      new RestSerializer() {
+        public string contentType() { return $mime; }
+        public string serialize(var $payload) { return io.streams.Streams::readAll($payload.value); }
+      }, 
+      null
+    );
+    return Response::ok()
+      .withHeader('Content-Type', $mime)
+      .withHeader('Content-Length', $target.getSize())
+      .withPayload($target.getInputStream())
+    ;
+  }
+}
