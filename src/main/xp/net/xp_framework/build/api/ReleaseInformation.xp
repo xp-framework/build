@@ -140,7 +140,7 @@ public class ReleaseInformation {
    * @param  module The module's name (the GitHub repository)
    * @param  release The release version
    */
-  [@webmethod(verb = 'GET', path = '/{vendor}/{module}/{release}/{file}', returns= 'application/octet-stream')]
+  [@webmethod(verb = 'GET', path = '/{vendor}/{module}/{release}/{file}')]
   public StreamingOutput downloadFile(string $vendor, string $module, string $release, string $file) {
     $target= $this.storage
       .getCollection($vendor)

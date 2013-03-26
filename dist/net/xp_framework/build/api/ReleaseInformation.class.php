@@ -325,7 +325,6 @@ applying a given filter for finding them.',
         array (
           'verb' => 'GET',
           'path' => '/{vendor}/{module}/{release}/{file}',
-          'returns' => 'application/octet-stream',
         ),
       ),
       6 => 
