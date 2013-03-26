@@ -1,5 +1,6 @@
-<?php uses('util.Properties', 'io.collections.FileCollection', 'io.collections.IOElement', 'io.collections.iterate.FilteredIOCollectionIterator', 'io.collections.iterate.IOCollectionIterator', 'io.collections.iterate.CollectionFilter', 'io.collections.iterate.AllOfFilter', 'io.collections.iterate.IterationFilter', 'io.collections.iterate.NameMatchesFilter', 'net.xp_framework.build.Version', 'webservices.rest.srv.Response', 'webservices.rest.RestFormat', 'webservices.rest.RestSerializer', 'security.checksum.SHA1', 'io.collections.IOCollection', 'io.streams.InputStream', 'security.checksum.MessageDigestImpl', 'lang.ElementNotFoundException', 'util.MimeType', 'io.streams.Streams');
+<?php uses('util.Properties', 'io.collections.FileCollection', 'io.collections.IOElement', 'io.collections.iterate.FilteredIOCollectionIterator', 'io.collections.iterate.IOCollectionIterator', 'io.collections.iterate.CollectionFilter', 'io.collections.iterate.AllOfFilter', 'io.collections.iterate.IterationFilter', 'io.collections.iterate.NameMatchesFilter', 'net.xp_framework.build.Version', 'webservices.rest.srv.Response', 'webservices.rest.srv.StreamingOutput', 'webservices.rest.RestFormat', 'webservices.rest.RestSerializer', 'security.checksum.SHA1', 'io.collections.IOCollection', 'io.streams.InputStream', 'security.checksum.MessageDigestImpl', 'lang.ElementNotFoundException');
 
+;
 ;
 ;
 ;
@@ -151,23 +152,7 @@ if (!$target) {
 throw new ElementNotFoundException('No file '.$file.' in release '.$release.' for '.$vendor.'/'.$module);};
 
 
-
-
-
-$mime=MimeType::getByFileName($target->getURI());
-
-
-
-
-
-
-
-
-RestFormat::$UNKNOWN=new RestFormat(0,'UNKNOWN',new RestSerializer··514f301ddc03f(),NULL);
-return 
-
-
-Response::ok()->withHeader('Content-Type',$mime)->withHeader('Content-Length',$target->getSize())->withPayload($target->getInputStream());}}xp::$registry['class.ReleaseInformation']= 'net.xp_framework.build.api.ReleaseInformation';xp::$registry['details.net.xp_framework.build.api.ReleaseInformation']= array (
+return StreamingOutput::of($target);}}xp::$registry['class.ReleaseInformation']= 'net.xp_framework.build.api.ReleaseInformation';xp::$registry['details.net.xp_framework.build.api.ReleaseInformation']= array (
   0 => 
   array (
     'storage' => 
@@ -329,7 +314,7 @@ applying a given filter for finding them.',
         2 => 'string',
         3 => 'string',
       ),
-      2 => 'webservices.rest.srv.Response',
+      2 => 'webservices.rest.srv.StreamingOutput',
       3 => 
       array (
       ),
@@ -353,55 +338,6 @@ applying a given filter for finding them.',
     5 => 
     array (
       'webservice' => NULL,
-    ),
-    4 => NULL,
-  ),
-); class RestSerializer··514f301ddc03f extends RestSerializer{public function contentType(){return $mime;}public function serialize($payload){if (NULL !== $payload && !is("var", $payload)) throw new IllegalArgumentException("Argument 1 passed to ".__METHOD__." must be of var, ".xp::typeOf($payload)." given");return Streams::readAll($payload->value);}}xp::$registry['class.RestSerializer··514f301ddc03f']= 'net.xp_framework.build.api.RestSerializer··514f301ddc03f';xp::$registry['details.net.xp_framework.build.api.RestSerializer··514f301ddc03f']= array (
-  0 => 
-  array (
-  ),
-  1 => 
-  array (
-    'contentType' => 
-    array (
-      1 => 
-      array (
-      ),
-      2 => 'string',
-      3 => 
-      array (
-      ),
-      4 => NULL,
-      5 => 
-      array (
-      ),
-      6 => 
-      array (
-      ),
-    ),
-    'serialize' => 
-    array (
-      1 => 
-      array (
-        0 => 'var',
-      ),
-      2 => 'string',
-      3 => 
-      array (
-      ),
-      4 => NULL,
-      5 => 
-      array (
-      ),
-      6 => 
-      array (
-      ),
-    ),
-  ),
-  'class' => 
-  array (
-    5 => 
-    array (
     ),
     4 => NULL,
   ),
