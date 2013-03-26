@@ -11,6 +11,7 @@ import io.collections.iterate.IterationFilter;
 import io.collections.iterate.NameMatchesFilter;
 import net.xp_framework.build.Version;
 import webservices.rest.srv.Response;
+import webservices.rest.srv.StreamingOutput;
 import webservices.rest.RestFormat;
 import webservices.rest.RestSerializer;
 import security.checksum.SHA1;
@@ -140,7 +141,7 @@ public class ReleaseInformation {
    * @param  release The release version
    */
   [@webmethod(verb = 'GET', path = '/{vendor}/{module}/{release}/{file}', returns= 'application/octet-stream')]
-  public Response downloadFile(string $vendor, string $module, string $release, string $file) {
+  public StreamingOutput downloadFile(string $vendor, string $module, string $release, string $file) {
     $target= $this.storage
       .getCollection($vendor)
       .getCollection($module)
@@ -151,23 +152,6 @@ public class ReleaseInformation {
       throw new ElementNotFoundException('No file ' ~ $file ~ ' in release ' ~ $release ~ ' for ' ~ $vendor ~ '/' ~ $module);
     }
 
-    // FIXME: The REST API should support return streams. Until that is available,
-    // hack up the RestFormat enum and create a serializer which will simply read
-    // the stream contents and return them in one big chunk to the client!
-    $mime= util.MimeType::getByFileName($target.getURI());
-    RestFormat::$UNKNOWN= new RestFormat(
-      0, 
-      'UNKNOWN', 
-      new RestSerializer() {
-        public string contentType() { return $mime; }
-        public string serialize(var $payload) { return io.streams.Streams::readAll($payload.value); }
-      }, 
-      null
-    );
-    return Response::ok()
-      .withHeader('Content-Type', $mime)
-      .withHeader('Content-Length', $target.getSize())
-      .withPayload($target.getInputStream())
-    ;
+    return StreamingOutput::of($target);
   }
 }
