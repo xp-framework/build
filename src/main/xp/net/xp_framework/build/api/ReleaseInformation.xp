@@ -17,8 +17,6 @@ import security.checksum.SHA1;
 
 import native standard.basename;
 import native standard.array_filter;
-import native standard.strtr;
-import native pcre.preg_quote;
 
 [@webservice]
 public class ReleaseInformation extends AbstractBuildInformation {
@@ -63,9 +61,9 @@ public class ReleaseInformation extends AbstractBuildInformation {
    * @param  filter The version to filter on. May use "*" as wildcards
    */
   [@webmethod(verb = 'GET', path = '/{vendor}/{module}'), @$filter: param('filter')]
-  public var[] allReleases(string $vendor, string $module, string $filter= null) {
+  public var[] allReleases(string $vendor, string $module, Filter $filter= null) {
     if ($filter) {
-      $restrict= new NameMatchesFilter('/^' ~ strtr(preg_quote($filter, '/'), [ '\*' : '.+' ]) ~ '$/');
+      $restrict= new NameMatchesFilter($filter.pattern);
     } else {
       $restrict= null;
     }

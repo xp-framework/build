@@ -10,8 +10,6 @@ import io.collections.iterate.NameMatchesFilter;
 import webservices.rest.srv.Response;
 
 import native standard.basename;
-import native standard.strtr;
-import native pcre.preg_quote;
 
 [@webservice]
 public class VendorInformation extends AbstractBuildInformation {
@@ -39,11 +37,11 @@ public class VendorInformation extends AbstractBuildInformation {
    * @param  filter The module name to filter on. May use "*" as wildcards
    */
   [@webmethod(verb = 'GET', path = '/{vendor}'), @$filter: param('filter')]
-  public var[] modulesOf(string $vendor, string $filter= null) {
+  public var[] modulesOf(string $vendor, Filter $filter= null) {
     if ($filter) {
       $find= new AllOfFilter([
         new CollectionFilter(),
-        new NameMatchesFilter('/^' ~ strtr(preg_quote($filter, '/'), [ '\*' : '.+' ]) ~ '$/')
+        new NameMatchesFilter($filter.pattern)
       ]);
     } else {
       $find= new CollectionFilter();
