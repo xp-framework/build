@@ -3,6 +3,9 @@
 ;
 ;
 
+
+
+
 $package= 'net.xp_framework.build.api'; class net·xp_framework·build·api·Filter extends Object{
 public $pattern;
 
@@ -75,7 +78,7 @@ return new net·xp_framework·build·api·Filter('/^'.strtr(preg_quote($in,'/'),arra
     5 => 
     array (
     ),
-    4 => NULL,
+    4 => 'Represents a filter for searching entities - e.g. modules, releases',
   ),
 );
 ?>

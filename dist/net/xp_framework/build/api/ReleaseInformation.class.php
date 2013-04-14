@@ -1,4 +1,4 @@
-<?php uses('io.collections.FileCollection', 'io.collections.IOElement', 'io.collections.iterate.FilteredIOCollectionIterator', 'io.collections.iterate.IOCollectionIterator', 'io.collections.iterate.CollectionFilter', 'io.collections.iterate.AllOfFilter', 'io.collections.iterate.IterationFilter', 'io.collections.iterate.NameMatchesFilter', 'net.xp_framework.build.Version', 'webservices.rest.srv.Response', 'webservices.rest.srv.StreamingOutput', 'webservices.rest.RestFormat', 'webservices.rest.RestSerializer', 'security.checksum.SHA1', 'net.xp_framework.build.api.AbstractBuildInformation', 'io.collections.IOCollection', 'io.streams.InputStream', 'security.checksum.MessageDigestImpl', 'lang.ElementNotFoundException');
+<?php uses('io.collections.FileCollection', 'io.collections.IOElement', 'io.collections.iterate.FilteredIOCollectionIterator', 'io.collections.iterate.IOCollectionIterator', 'io.collections.iterate.CollectionFilter', 'io.collections.iterate.AllOfFilter', 'io.collections.iterate.IterationFilter', 'io.collections.iterate.NameMatchesFilter', 'net.xp_framework.build.Version', 'webservices.rest.srv.Response', 'webservices.rest.srv.StreamingOutput', 'webservices.rest.RestFormat', 'webservices.rest.RestSerializer', 'security.checksum.SHA1', 'net.xp_framework.build.api.AbstractBuildInformation', 'io.collections.IOCollection', 'io.streams.InputStream', 'security.checksum.MessageDigestImpl', 'net.xp_framework.build.api.Filter', 'lang.ElementNotFoundException');
 
 ;
 ;
@@ -15,8 +15,6 @@
 ;
 ;
 
-;
-;
 ;
 ;
 
@@ -63,9 +61,9 @@ return $checksum->digest();}
 
 
 
-public function allReleases($vendor,$module,$filter= NULL){if (NULL !== $vendor && !is("string", $vendor)) throw new IllegalArgumentException("Argument 1 passed to ".__METHOD__." must be of string, ".xp::typeOf($vendor)." given");if (NULL !== $module && !is("string", $module)) throw new IllegalArgumentException("Argument 2 passed to ".__METHOD__." must be of string, ".xp::typeOf($module)." given");if (NULL !== $filter && !is("string", $filter)) throw new IllegalArgumentException("Argument 3 passed to ".__METHOD__." must be of string, ".xp::typeOf($filter)." given");
+public function allReleases($vendor,$module,net·xp_framework·build·api·Filter $filter= NULL){if (NULL !== $vendor && !is("string", $vendor)) throw new IllegalArgumentException("Argument 1 passed to ".__METHOD__." must be of string, ".xp::typeOf($vendor)." given");if (NULL !== $module && !is("string", $module)) throw new IllegalArgumentException("Argument 2 passed to ".__METHOD__." must be of string, ".xp::typeOf($module)." given");
 if ($filter) {
-$restrict=new NameMatchesFilter('/^'.strtr(preg_quote($filter,'/'),array('\\*' => '.+',)).'$/');}else {
+$restrict=new NameMatchesFilter($filter->pattern);}else {
 
 $restrict=NULL;};
 
@@ -193,7 +191,7 @@ applying a given filter for finding them.',
       array (
         0 => 'string',
         1 => 'string',
-        2 => 'string',
+        2 => 'net.xp_framework.build.api.Filter',
       ),
       2 => 'var[]',
       3 => 

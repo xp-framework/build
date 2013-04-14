@@ -1,0 +1,20 @@
+package net.xp_framework.build.api;
+
+[@webservice]
+public class ApiInformation {
+
+  /**
+   * Shows API information
+   */
+  [@webmethod(verb = 'GET', path = '/', returns = 'application/hal+json')]
+  public var welcome() {
+    return [
+      message : 'Welcome to the XP Framework Build API',
+      version : '1.0.0',
+      _links  : [
+        self    : [ href : '/' ],
+        vendors : [ href : '/{vendor}', templated : true ]
+      ]
+    ];
+  }
+}
