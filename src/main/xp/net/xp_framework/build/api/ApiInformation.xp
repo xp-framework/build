@@ -4,7 +4,9 @@ package net.xp_framework.build.api;
 public class ApiInformation {
 
   /**
-   * Shows API information
+   * Shows API information using Hypertext Application Language
+   *
+   * @see  http://stateless.co/hal_specification.html
    */
   [@webmethod(verb = 'GET', path = '/', returns = 'application/hal+json')]
   public var welcome() {
