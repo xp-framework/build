@@ -1,0 +1,72 @@
+package net.xp_framework.build.api;
+
+import util.Properties;
+import io.collections.FileCollection;
+import io.collections.iterate.FilteredIOCollectionIterator;
+import io.collections.iterate.IOCollectionIterator;
+import io.collections.iterate.CollectionFilter;
+import io.collections.iterate.AllOfFilter;
+import io.collections.iterate.IterationFilter;
+import io.collections.iterate.NameMatchesFilter;
+import webservices.rest.srv.Response;
+
+import native standard.basename;
+import native standard.strtr;
+import native pcre.preg_quote;
+
+[@webservice]
+public class VendorInformation {
+  private FileCollection $storage;
+
+  /**
+   * Use configuration to inject release storage
+   */
+  [@inject(name = 'xarrelease')]
+  public void useStorage(Properties $prop) {
+    $this.storage= new FileCollection($prop.readString('storage', 'folder', 'releases'));
+  }
+
+  /**
+   * Gets a specific release
+   *
+   * @param  vendor The module's vendor (the GitHub user or organization)
+   * @param  module The module's name (the GitHub repository)
+   * @param  release The release version
+   */
+  [@webmethod(verb = 'HEAD', path = '/{vendor}')]
+  public Response vendorExists(string $vendor) {
+    if ($this.storage.findCollection($vendor)) {
+      return Response::ok();
+    } else {
+      return Response::notFound();
+    }
+  }
+
+  /**
+   * Gets a list of all modules for a given vendor
+   *
+   * @param  vendor The module's vendor (the GitHub user or organization)
+   * @param  filter The module name to filter on. May use "*" as wildcards
+   */
+  [@webmethod(verb = 'GET', path = '/{vendor}'), @$filter: param('filter')]
+  public var[] modulesOf(string $vendor, string $filter= null) {
+    if ($filter) {
+      $find= new AllOfFilter([
+        new CollectionFilter(),
+        new NameMatchesFilter('/^' ~ strtr(preg_quote($filter, '/'), [ '\*' : '.+' ]) ~ '$/')
+      ]);
+    } else {
+      $find= new CollectionFilter();
+    }
+
+    $modules= [];
+    $target= $this.storage.getCollection($vendor);
+    foreach ($module in new FilteredIOCollectionIterator($target, $find)) {
+      $modules[]= [
+        vendor    : $vendor,
+        module    : basename($module.getURI())
+      ];
+    }
+    return $modules;
+  }
+}
