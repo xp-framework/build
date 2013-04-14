@@ -1,0 +1,15 @@
+package net.xp_framework.build.api;
+
+import io.collections.FileCollection;
+
+package class AbstractBuildInformation {
+  protected FileCollection $storage;
+
+  /**
+   * Use configuration to inject release storage
+   */
+  [@inject(name = 'xarrelease')]
+  public void useStorage(util.Properties $prop) {
+    $this.storage= new FileCollection($prop.readString('storage', 'folder', 'releases'));
+  }
+}

@@ -1,4 +1,4 @@
-<?php uses('util.Properties', 'io.collections.FileCollection', 'io.collections.iterate.FilteredIOCollectionIterator', 'io.collections.iterate.IOCollectionIterator', 'io.collections.iterate.CollectionFilter', 'io.collections.iterate.AllOfFilter', 'io.collections.iterate.IterationFilter', 'io.collections.iterate.NameMatchesFilter', 'webservices.rest.srv.Response');
+<?php uses('io.collections.FileCollection', 'io.collections.iterate.FilteredIOCollectionIterator', 'io.collections.iterate.IOCollectionIterator', 'io.collections.iterate.CollectionFilter', 'io.collections.iterate.AllOfFilter', 'io.collections.iterate.IterationFilter', 'io.collections.iterate.NameMatchesFilter', 'webservices.rest.srv.Response', 'net.xp_framework.build.api.AbstractBuildInformation');
 
 ;
 ;
@@ -8,23 +8,13 @@
 ;
 ;
 ;
-;
 
 ;
 ;
 ;
 
 
- class VendorInformation extends Object{
-private $storage;
-
-
-
-
-
-public function useStorage(Properties $prop){
-$this->storage=new FileCollection($prop->readString('storage','folder','releases'));}
-
+ class VendorInformation extends net·xp_framework·build·api·AbstractBuildInformation{
 
 
 
@@ -70,38 +60,9 @@ $modules[]=array('vendor' => $vendor,'module' => basename($module->getURI()),);}
 return $modules;}}xp::$registry['class.VendorInformation']= 'net.xp_framework.build.api.VendorInformation';xp::$registry['details.net.xp_framework.build.api.VendorInformation']= array (
   0 => 
   array (
-    'storage' => 
-    array (
-      5 => 
-      array (
-        'type' => 'io.collections.FileCollection',
-      ),
-    ),
   ),
   1 => 
   array (
-    'useStorage' => 
-    array (
-      1 => 
-      array (
-        0 => 'util.Properties',
-      ),
-      2 => 'void',
-      3 => 
-      array (
-      ),
-      4 => 'Use configuration to inject release storage',
-      5 => 
-      array (
-        'inject' => 
-        array (
-          'name' => 'xarrelease',
-        ),
-      ),
-      6 => 
-      array (
-      ),
-    ),
     'vendorExists' => 
     array (
       1 => 

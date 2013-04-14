@@ -1,6 +1,5 @@
 package net.xp_framework.build.api;
 
-import util.Properties;
 import io.collections.FileCollection;
 import io.collections.iterate.FilteredIOCollectionIterator;
 import io.collections.iterate.IOCollectionIterator;
@@ -15,16 +14,7 @@ import native standard.strtr;
 import native pcre.preg_quote;
 
 [@webservice]
-public class VendorInformation {
-  private FileCollection $storage;
-
-  /**
-   * Use configuration to inject release storage
-   */
-  [@inject(name = 'xarrelease')]
-  public void useStorage(Properties $prop) {
-    $this.storage= new FileCollection($prop.readString('storage', 'folder', 'releases'));
-  }
+public class VendorInformation extends AbstractBuildInformation {
 
   /**
    * Gets a specific release

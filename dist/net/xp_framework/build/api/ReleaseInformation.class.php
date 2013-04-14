@@ -1,4 +1,4 @@
-<?php uses('util.Properties', 'io.collections.FileCollection', 'io.collections.IOElement', 'io.collections.iterate.FilteredIOCollectionIterator', 'io.collections.iterate.IOCollectionIterator', 'io.collections.iterate.CollectionFilter', 'io.collections.iterate.AllOfFilter', 'io.collections.iterate.IterationFilter', 'io.collections.iterate.NameMatchesFilter', 'net.xp_framework.build.Version', 'webservices.rest.srv.Response', 'webservices.rest.srv.StreamingOutput', 'webservices.rest.RestFormat', 'webservices.rest.RestSerializer', 'security.checksum.SHA1', 'io.collections.IOCollection', 'io.streams.InputStream', 'security.checksum.MessageDigestImpl', 'lang.ElementNotFoundException');
+<?php uses('io.collections.FileCollection', 'io.collections.IOElement', 'io.collections.iterate.FilteredIOCollectionIterator', 'io.collections.iterate.IOCollectionIterator', 'io.collections.iterate.CollectionFilter', 'io.collections.iterate.AllOfFilter', 'io.collections.iterate.IterationFilter', 'io.collections.iterate.NameMatchesFilter', 'net.xp_framework.build.Version', 'webservices.rest.srv.Response', 'webservices.rest.srv.StreamingOutput', 'webservices.rest.RestFormat', 'webservices.rest.RestSerializer', 'security.checksum.SHA1', 'net.xp_framework.build.api.AbstractBuildInformation', 'io.collections.IOCollection', 'io.streams.InputStream', 'security.checksum.MessageDigestImpl', 'lang.ElementNotFoundException');
 
 ;
 ;
@@ -14,7 +14,6 @@
 ;
 ;
 ;
-;
 
 ;
 ;
@@ -22,16 +21,7 @@
 ;
 
 
- class ReleaseInformation extends Object{
-private $storage;
-
-
-
-
-
-public function useStorage(Properties $prop){
-$this->storage=new FileCollection($prop->readString('storage','folder','releases'));}
-
+ class ReleaseInformation extends net·xp_framework·build·api·AbstractBuildInformation{
 
 
 
@@ -155,38 +145,9 @@ throw new ElementNotFoundException('No file '.$file.' in release '.$release.' fo
 return StreamingOutput::of($target);}}xp::$registry['class.ReleaseInformation']= 'net.xp_framework.build.api.ReleaseInformation';xp::$registry['details.net.xp_framework.build.api.ReleaseInformation']= array (
   0 => 
   array (
-    'storage' => 
-    array (
-      5 => 
-      array (
-        'type' => 'io.collections.FileCollection',
-      ),
-    ),
   ),
   1 => 
   array (
-    'useStorage' => 
-    array (
-      1 => 
-      array (
-        0 => 'util.Properties',
-      ),
-      2 => 'void',
-      3 => 
-      array (
-      ),
-      4 => 'Use configuration to inject release storage',
-      5 => 
-      array (
-        'inject' => 
-        array (
-          'name' => 'xarrelease',
-        ),
-      ),
-      6 => 
-      array (
-      ),
-    ),
     'releasesOf' => 
     array (
       1 => 
