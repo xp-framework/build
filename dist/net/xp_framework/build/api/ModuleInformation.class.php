@@ -67,7 +67,7 @@ foreach (new FilteredIOCollectionIterator($target,new CollectionFilter()) as $re
 
 $releases[]=array('version' => new Version(basename($release->getURI())),'published' => $release->createdAt(),);};
 
-return array('vendor' => $vendor,'modules' => $module,'releases' => $releases,);}}xp::$registry['class.ModuleInformation']= 'net.xp_framework.build.api.ModuleInformation';xp::$registry['details.net.xp_framework.build.api.ModuleInformation']= array (
+return array('vendor' => $vendor,'module' => $module,'releases' => $releases,);}}xp::$registry['class.ModuleInformation']= 'net.xp_framework.build.api.ModuleInformation';xp::$registry['details.net.xp_framework.build.api.ModuleInformation']= array (
   0 => 
   array (
   ),
