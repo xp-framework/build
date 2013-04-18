@@ -12,10 +12,11 @@ public class ApiInformation {
   public var welcome() {
     return [
       message : 'Welcome to the XP Framework Build API',
-      version : '1.0.0',
+      version : '2.0.0',
       _links  : [
         self    : [ href : '/' ],
-        vendors : [ href : '/{vendor}', templated : true ]
+        search  : [ href : '/search?q={query}', templated : true ],
+        vendors : [ href : '/vendors' ]
       ]
     ];
   }

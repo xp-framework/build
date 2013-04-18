@@ -7,13 +7,16 @@
 
 
 
+
+
 public function welcome(){
 return 
 
 
 
 
-array('message' => 'Welcome to the XP Framework Build API','version' => '1.0.0','_links' => array('self' => array('href' => '/',),'vendors' => array('href' => '/{vendor}','templated' => TRUE,),),);}}xp::$registry['class.ApiInformation']= 'net.xp_framework.build.api.ApiInformation';xp::$registry['details.net.xp_framework.build.api.ApiInformation']= array (
+
+array('message' => 'Welcome to the XP Framework Build API','version' => '2.0.0','_links' => array('self' => array('href' => '/',),'search' => array('href' => '/search?q={query}','templated' => TRUE,),'vendors' => array('href' => '/vendors',),),);}}xp::$registry['class.ApiInformation']= 'net.xp_framework.build.api.ApiInformation';xp::$registry['details.net.xp_framework.build.api.ApiInformation']= array (
   0 => 
   array (
   ),
@@ -28,7 +31,7 @@ array('message' => 'Welcome to the XP Framework Build API','version' => '1.0.0',
       3 => 
       array (
       ),
-      4 => 'Shows API information',
+      4 => 'Shows API information using Hypertext Application Language',
       5 => 
       array (
         'webmethod' => 
