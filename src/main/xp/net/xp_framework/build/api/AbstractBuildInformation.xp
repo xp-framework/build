@@ -1,6 +1,10 @@
 package net.xp_framework.build.api;
 
+import util.Properties;
+import util.NoSuchElementException;
 import io.collections.FileCollection;
+import webservices.rest.srv.RestContext;
+import webservices.rest.srv.DefaultExceptionMapper;
 
 package class AbstractBuildInformation {
   protected FileCollection $storage;
@@ -9,7 +13,15 @@ package class AbstractBuildInformation {
    * Use configuration to inject release storage
    */
   [@inject(name = 'xarrelease')]
-  public void useStorage(util.Properties $prop) {
+  public void useStorage(Properties $prop) {
     $this.storage= new FileCollection($prop.readString('storage', 'folder', 'releases'));
+  }
+
+  /**
+   * Map the util.NoSuchElementException class to 404
+   */
+  [@inject]
+  public void mapException(RestContext $ctx) {
+    $ctx.addExceptionMapping(NoSuchElementException::class, new DefaultExceptionMapper(404));
   }
 }

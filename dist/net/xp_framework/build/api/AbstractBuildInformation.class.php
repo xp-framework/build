@@ -1,5 +1,9 @@
-<?php uses('io.collections.FileCollection', 'util.Properties');
+<?php uses('util.Properties', 'util.NoSuchElementException', 'io.collections.FileCollection', 'webservices.rest.srv.RestContext', 'webservices.rest.srv.DefaultExceptionMapper');
 
+;
+;
+;
+;
 ;
 
 $package= 'net.xp_framework.build.api'; class net·xp_framework·build·api·AbstractBuildInformation extends Object{
@@ -10,7 +14,15 @@ protected $storage;
 
 
 public function useStorage(Properties $prop){
-$this->storage=new FileCollection($prop->readString('storage','folder','releases'));}}xp::$registry['class.net·xp_framework·build·api·AbstractBuildInformation']= 'net.xp_framework.build.api.AbstractBuildInformation';xp::$registry['details.net.xp_framework.build.api.AbstractBuildInformation']= array (
+$this->storage=new FileCollection($prop->readString('storage','folder','releases'));}
+
+
+
+
+
+
+public function mapException(RestContext $ctx){
+$ctx->addExceptionMapping(XPClass::forName('util.NoSuchElementException'),new DefaultExceptionMapper(404));}}xp::$registry['class.net·xp_framework·build·api·AbstractBuildInformation']= 'net.xp_framework.build.api.AbstractBuildInformation';xp::$registry['details.net.xp_framework.build.api.AbstractBuildInformation']= array (
   0 => 
   array (
     'storage' => 
@@ -40,6 +52,25 @@ $this->storage=new FileCollection($prop->readString('storage','folder','releases
         array (
           'name' => 'xarrelease',
         ),
+      ),
+      6 => 
+      array (
+      ),
+    ),
+    'mapException' => 
+    array (
+      1 => 
+      array (
+        0 => 'webservices.rest.srv.RestContext',
+      ),
+      2 => 'void',
+      3 => 
+      array (
+      ),
+      4 => 'Map the util.NoSuchElementException class to 404',
+      5 => 
+      array (
+        'inject' => NULL,
       ),
       6 => 
       array (
