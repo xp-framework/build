@@ -1,6 +1,5 @@
-<?php uses('io.collections.FileCollection', 'io.collections.iterate.FilteredIOCollectionIterator', 'io.collections.iterate.IOCollectionIterator', 'io.collections.iterate.CollectionFilter', 'io.collections.iterate.AllOfFilter', 'io.collections.iterate.IterationFilter', 'io.collections.iterate.NameMatchesFilter', 'webservices.rest.srv.Response', 'net.xp_framework.build.api.AbstractBuildInformation', 'net.xp_framework.build.api.Filter');
+<?php uses('io.collections.FileCollection', 'io.collections.iterate.FilteredIOCollectionIterator', 'io.collections.iterate.IOCollectionIterator', 'io.collections.iterate.CollectionFilter', 'io.collections.iterate.AllOfFilter', 'io.collections.iterate.NameMatchesFilter', 'webservices.rest.srv.Response', 'net.xp_framework.build.api.AbstractBuildInformation', 'net.xp_framework.build.api.Filter');
 
-;
 ;
 ;
 ;

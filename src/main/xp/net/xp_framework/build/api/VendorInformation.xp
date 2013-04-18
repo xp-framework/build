@@ -5,7 +5,6 @@ import io.collections.iterate.FilteredIOCollectionIterator;
 import io.collections.iterate.IOCollectionIterator;
 import io.collections.iterate.CollectionFilter;
 import io.collections.iterate.AllOfFilter;
-import io.collections.iterate.IterationFilter;
 import io.collections.iterate.NameMatchesFilter;
 import webservices.rest.srv.Response;
 
