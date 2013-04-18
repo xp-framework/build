@@ -11,18 +11,36 @@ import webservices.rest.srv.Response;
 
 import native standard.basename;
 
-[@webservice]
+[@webservice(path= '/vendors')]
 public class VendorInformation extends AbstractBuildInformation {
 
   /**
-   * Gets a specific release
+   * Lists all vendors
+   *
+   * @param  filter The vendor name to filter on. May use "*" as wildcards
+   */
+  [@webmethod(verb = 'GET')]
+  public var[] listVendors(Filter $filter= null) {
+    if ($filter) {
+      $find= new AllOfFilter([new CollectionFilter(), new NameMatchesFilter($filter.pattern)]);
+    } else {
+      $find= new CollectionFilter();
+    }
+
+    $vendors= [];
+    foreach ($vendor in new FilteredIOCollectionIterator($this.storage, $find)) {
+      $vendors[]= [ vendor : basename($vendor.getURI()) ];
+    }
+    return $vendors;
+  }
+
+  /**
+   * Tests whether a specific vendor exists
    *
    * @param  vendor The module's vendor (the GitHub user or organization)
-   * @param  module The module's name (the GitHub repository)
-   * @param  release The release version
    */
-  [@webmethod(verb = 'HEAD', path = '/{vendor}')]
-  public Response vendorExists(string $vendor) {
+  [@webmethod(verb = 'HEAD', path= '/{vendor}')]
+  public Response hasVendor(string $vendor) {
     if ($this.storage.findCollection($vendor)) {
       return Response::ok();
     } else {
@@ -31,30 +49,17 @@ public class VendorInformation extends AbstractBuildInformation {
   }
 
   /**
-   * Gets a list of all modules for a given vendor
+   * Gets a single vendor
    *
    * @param  vendor The module's vendor (the GitHub user or organization)
-   * @param  filter The module name to filter on. May use "*" as wildcards
    */
-  [@webmethod(verb = 'GET', path = '/{vendor}'), @$filter: param('filter')]
-  public var[] modulesOf(string $vendor, Filter $filter= null) {
-    if ($filter) {
-      $find= new AllOfFilter([
-        new CollectionFilter(),
-        new NameMatchesFilter($filter.pattern)
-      ]);
-    } else {
-      $find= new CollectionFilter();
-    }
-
+  [@webmethod(verb = 'GET', path= '/{vendor}')]
+  public var getVendor(string $vendor) {
     $modules= [];
     $target= $this.storage.getCollection($vendor);
-    foreach ($module in new FilteredIOCollectionIterator($target, $find)) {
-      $modules[]= [
-        vendor    : $vendor,
-        module    : basename($module.getURI())
-      ];
+    foreach ($module in new FilteredIOCollectionIterator($target, new CollectionFilter())) {
+      $modules[]= basename($module.getURI());
     }
-    return $modules;
+    return [ vendor : $vendor, modules : $modules ];
   }
 }
