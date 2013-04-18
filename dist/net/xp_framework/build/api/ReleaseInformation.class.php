@@ -1,4 +1,4 @@
-<?php uses('io.collections.FileCollection', 'io.collections.IOElement', 'io.collections.iterate.FilteredIOCollectionIterator', 'io.collections.iterate.IOCollectionIterator', 'io.collections.iterate.CollectionFilter', 'io.collections.iterate.AllOfFilter', 'io.collections.iterate.IterationFilter', 'io.collections.iterate.NameMatchesFilter', 'net.xp_framework.build.Version', 'webservices.rest.srv.Response', 'webservices.rest.srv.StreamingOutput', 'webservices.rest.RestFormat', 'webservices.rest.RestSerializer', 'security.checksum.SHA1', 'net.xp_framework.build.api.AbstractBuildInformation', 'io.collections.IOCollection', 'io.streams.InputStream', 'security.checksum.MessageDigestImpl', 'net.xp_framework.build.api.Filter', 'lang.ElementNotFoundException');
+<?php uses('io.collections.FileCollection', 'io.collections.IOElement', 'io.collections.iterate.FilteredIOCollectionIterator', 'io.collections.iterate.IOCollectionIterator', 'io.collections.iterate.CollectionFilter', 'io.collections.iterate.AllOfFilter', 'io.collections.iterate.IterationFilter', 'io.collections.iterate.NameMatchesFilter', 'net.xp_framework.build.Version', 'webservices.rest.srv.Response', 'webservices.rest.srv.StreamingOutput', 'webservices.rest.RestFormat', 'webservices.rest.RestSerializer', 'security.checksum.SHA1', 'net.xp_framework.build.api.AbstractBuildInformation', 'io.streams.InputStream', 'security.checksum.MessageDigestImpl', 'net.xp_framework.build.api.Filter', 'io.collections.IOCollection', 'lang.ElementNotFoundException');
 
 ;
 ;
@@ -24,25 +24,6 @@
 
 
 
-
-protected function releasesOf($vendor,$module,IterationFilter $filter= NULL){
-$releases=array();
-$target=$this->storage->getCollection($vendor)->getCollection($module);
-$find=new AllOfFilter(array_filter(array(new CollectionFilter(),$filter,)));
-foreach (new FilteredIOCollectionIterator($target,$find) as $release) {
-
-
-
-
-
-$releases[]=array('vendor' => $vendor,'module' => $module,'version' => new Version(basename($release->getURI())),'published' => $release->createdAt(),);};
-
-return $releases;}
-
-
-
-
-
 protected function checksumOf(IOElement $element){
 $checksum=SHA1::digest();
 
@@ -61,14 +42,25 @@ return $checksum->digest();}
 
 
 
-public function allReleases($vendor,$module,net·xp_framework·build·api·Filter $filter= NULL){if (NULL !== $vendor && !is("string", $vendor)) throw new IllegalArgumentException("Argument 1 passed to ".__METHOD__." must be of string, ".xp::typeOf($vendor)." given");if (NULL !== $module && !is("string", $module)) throw new IllegalArgumentException("Argument 2 passed to ".__METHOD__." must be of string, ".xp::typeOf($module)." given");
+public function listReleases($vendor,$module,net·xp_framework·build·api·Filter $filter= NULL){if (NULL !== $vendor && !is("string", $vendor)) throw new IllegalArgumentException("Argument 1 passed to ".__METHOD__." must be of string, ".xp::typeOf($vendor)." given");if (NULL !== $module && !is("string", $module)) throw new IllegalArgumentException("Argument 2 passed to ".__METHOD__." must be of string, ".xp::typeOf($module)." given");
+$target=$this->storage->getCollection($vendor)->getCollection($module);
+
 if ($filter) {
-$restrict=new NameMatchesFilter($filter->pattern);}else {
+$find=new AllOfFilter(array(new CollectionFilter(),new NameMatchesFilter($filter->pattern),));}else {
 
-$restrict=NULL;};
+$find=new CollectionFilter();};
 
 
-return $this->releasesOf($vendor,$module,$restrict);}
+$releases=array();
+foreach (new FilteredIOCollectionIterator($target,$find) as $release) {
+
+
+
+
+
+$releases[]=array('vendor' => $vendor,'module' => $module,'version' => new Version(basename($release->getURI())),'published' => $release->createdAt(),);};
+
+return $releases;}
 
 
 
@@ -146,27 +138,6 @@ return StreamingOutput::of($target);}}xp::$registry['class.ReleaseInformation']=
   ),
   1 => 
   array (
-    'releasesOf' => 
-    array (
-      1 => 
-      array (
-        0 => 'string',
-        1 => 'string',
-        2 => 'io.collections.iterate.IterationFilter',
-      ),
-      2 => 'var[]',
-      3 => 
-      array (
-      ),
-      4 => 'Gets a list of all releases for a given vendor and module, 
-applying a given filter for finding them.',
-      5 => 
-      array (
-      ),
-      6 => 
-      array (
-      ),
-    ),
     'checksumOf' => 
     array (
       1 => 
@@ -185,7 +156,7 @@ applying a given filter for finding them.',
       array (
       ),
     ),
-    'allReleases' => 
+    'listReleases' => 
     array (
       1 => 
       array (
@@ -203,7 +174,6 @@ applying a given filter for finding them.',
         'webmethod' => 
         array (
           'verb' => 'GET',
-          'path' => '/{vendor}/{module}',
         ),
       ),
       6 => 
@@ -232,7 +202,7 @@ applying a given filter for finding them.',
         'webmethod' => 
         array (
           'verb' => 'HEAD',
-          'path' => '/{vendor}/{module}/{release}',
+          'path' => '/{release}',
         ),
       ),
       6 => 
@@ -257,7 +227,7 @@ applying a given filter for finding them.',
         'webmethod' => 
         array (
           'verb' => 'GET',
-          'path' => '/{vendor}/{module}/{release}',
+          'path' => '/{release}',
         ),
       ),
       6 => 
@@ -283,7 +253,7 @@ applying a given filter for finding them.',
         'webmethod' => 
         array (
           'verb' => 'GET',
-          'path' => '/{vendor}/{module}/{release}/{file}',
+          'path' => '/{release}/{file}',
         ),
       ),
       6 => 
@@ -295,7 +265,10 @@ applying a given filter for finding them.',
   array (
     5 => 
     array (
-      'webservice' => NULL,
+      'webservice' => 
+      array (
+        'path' => '/vendors/{vendor}/modules/{module}/releases',
+      ),
     ),
     4 => NULL,
   ),

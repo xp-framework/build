@@ -18,27 +18,8 @@ import security.checksum.SHA1;
 import native standard.basename;
 import native standard.array_filter;
 
-[@webservice]
+[@webservice(path= '/vendors/{vendor}/modules/{module}/releases')]
 public class ReleaseInformation extends AbstractBuildInformation {
-
-  /**
-   * Gets a list of all releases for a given vendor and module, 
-   * applying a given filter for finding them.
-   */
-  protected var[] releasesOf(string? $vendor, string? $module, IterationFilter $filter= null) {
-    $releases= [];
-    $target= $this.storage.getCollection($vendor).getCollection($module);
-    $find= new AllOfFilter(array_filter([new CollectionFilter(), $filter]));
-    foreach ($release in new FilteredIOCollectionIterator($target, $find)) {
-      $releases[]= [
-        vendor    : $vendor,
-        module    : $module,
-        version   : new Version(basename($release.getURI())),
-        published : $release.createdAt()
-      ];
-    }
-    return $releases;
-  }
 
   /**
    * Calculates a checksum for the given file
@@ -60,15 +41,26 @@ public class ReleaseInformation extends AbstractBuildInformation {
    * @param  module The module's name (the GitHub repository)
    * @param  filter The version to filter on. May use "*" as wildcards
    */
-  [@webmethod(verb = 'GET', path = '/{vendor}/{module}'), @$filter: param('filter')]
-  public var[] allReleases(string $vendor, string $module, Filter $filter= null) {
+  [@webmethod(verb = 'GET'), @$filter: param('filter')]
+  public var[] listReleases(string $vendor, string $module, Filter $filter= null) {
+    $target= $this.storage.getCollection($vendor).getCollection($module);
+
     if ($filter) {
-      $restrict= new NameMatchesFilter($filter.pattern);
+      $find= new AllOfFilter([new CollectionFilter(), new NameMatchesFilter($filter.pattern)]);
     } else {
-      $restrict= null;
+      $find= new CollectionFilter();
     }
 
-    return $this.releasesOf($vendor, $module, $restrict);
+    $releases= [];
+    foreach ($release in new FilteredIOCollectionIterator($target, $find)) {
+      $releases[]= [
+        vendor    : $vendor,
+        module    : $module,
+        version   : new Version(basename($release.getURI())),
+        published : $release.createdAt()
+      ];
+    }
+    return $releases;
   }
 
   /**
@@ -78,7 +70,7 @@ public class ReleaseInformation extends AbstractBuildInformation {
    * @param  module The module's name (the GitHub repository)
    * @param  release The release version
    */
-  [@webmethod(verb = 'HEAD', path = '/{vendor}/{module}/{release}')]
+  [@webmethod(verb = 'HEAD', path = '/{release}')]
   public Response hasRelease(string $vendor, string $module, string $release) {
     if ($this.storage.getCollection($vendor).getCollection($module).findCollection($release)) {
       return Response::ok();
@@ -94,7 +86,7 @@ public class ReleaseInformation extends AbstractBuildInformation {
    * @param  module The module's name (the GitHub repository)
    * @param  release The release version
    */
-  [@webmethod(verb = 'GET', path = '/{vendor}/{module}/{release}')]
+  [@webmethod(verb = 'GET', path = '/{release}')]
   public var getRelease(string $vendor, string $module, string $release) {
     $target= $this.storage.getCollection($vendor).getCollection($module).findCollection($release);
     if (!$target) {
@@ -128,7 +120,7 @@ public class ReleaseInformation extends AbstractBuildInformation {
    * @param  module The module's name (the GitHub repository)
    * @param  release The release version
    */
-  [@webmethod(verb = 'GET', path = '/{vendor}/{module}/{release}/{file}')]
+  [@webmethod(verb = 'GET', path = '/{release}/{file}')]
   public StreamingOutput downloadFile(string $vendor, string $module, string $release, string $file) {
     $target= $this.storage
       .getCollection($vendor)
