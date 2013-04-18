@@ -1,0 +1,72 @@
+package net.xp_framework.build.api;
+
+import io.collections.FileCollection;
+import io.collections.iterate.FilteredIOCollectionIterator;
+import io.collections.iterate.IOCollectionIterator;
+import io.collections.iterate.CollectionFilter;
+import io.collections.iterate.AllOfFilter;
+import io.collections.iterate.NameMatchesFilter;
+import webservices.rest.srv.Response;
+import net.xp_framework.build.Version;
+
+import native standard.basename;
+
+[@webservice(path= '/vendors/{vendor}/modules')]
+public class ModuleInformation extends AbstractBuildInformation {
+
+  /**
+   * Lists all modules
+   *
+   * @param  vendor The module's vendor (the GitHub user or organization)
+   * @param  filter The vendor name to filter on. May use "*" as wildcards
+   */
+  [@webmethod(verb = 'GET')]
+  public var[] listModules(string $vendor, Filter $filter= null) {
+    $target= $this.storage.getCollection($vendor);
+
+    if ($filter) {
+      $find= new AllOfFilter([new CollectionFilter(), new NameMatchesFilter($filter.pattern)]);
+    } else {
+      $find= new CollectionFilter();
+    }
+
+    $modules= [];
+    foreach ($module in new FilteredIOCollectionIterator($target, $find)) {
+      $modules[]= [ vendor : $vendor, module : basename($module.getURI()) ];
+    }
+    return $modules;
+  }
+
+  /**
+   * Tests whether a specific module exists
+   *
+   * @param  vendor The module's vendor (the GitHub user or organization)
+   * @param  module The module name
+   */
+  [@webmethod(verb = 'HEAD', path= '/{module}')]
+  public Response hasModule(string $vendor, string $module) {
+    if ($this.storage.getCollection($vendor).findCollection($module)) {
+      return Response::ok();
+    } else {
+      return Response::notFound();
+    }
+  }
+
+  /**
+   * Gets a single module
+   *
+   * @param  vendor The module's vendor (the GitHub user or organization)
+   * @param  module The module name
+   */
+  [@webmethod(verb = 'GET', path= '/{module}')]
+  public var getModule(string $vendor, string $module) {
+    $target= $this.storage.getCollection($vendor).getCollection($module);
+    foreach ($release in new FilteredIOCollectionIterator($target, new CollectionFilter())) {
+      $releases[]= [
+        version   : new Version(basename($release.getURI())),
+        published : $release.createdAt()
+      ];
+    }
+    return [ vendor : $vendor, module : $module, releases: $releases ];
+  }
+}
