@@ -7,9 +7,11 @@ import util.Properties;
 import io.IOException;
 import io.streams.MemoryInputStream;
 import io.collections.FileCollection;
+import io.collections.IOElement;
 import org.codehaus.stomp.StompConnection;
 
 import native standard.sscanf;
+import native standard.chmod;
 
 /**
  * Web hook to capture tag creation
@@ -58,6 +60,14 @@ public class WebHook {
   }
 
   /**
+   * Change permissions
+   */
+  private IOElement create(IOElement $element, int? $permissions) {
+    chmod($element.getURI(), $permissions);
+    return $element;
+  }
+
+  /**
    * GitHub passes a JSON string as value for the "payload" form variable
    *
    * @see https://help.github.com/articles/post-receive-hooks
@@ -75,16 +85,16 @@ public class WebHook {
     try {
       if (!($vendor= $this.storage.findCollection($payload.repository.owner.name))) {
         $this.cat && $this.cat.info('New vendor', $payload.repository.owner);
-        $vendor= $this.storage.newCollection($payload.repository.owner.name);
+        $vendor= $this.create($this.storage.newCollection($payload.repository.owner.name), 0777);
       }
 
       if (!($module= $vendor.findCollection($payload.repository.name))) {
         $this.cat && $this.cat.info('New module', $payload.repository);
-        $module= $vendor.newCollection($payload.repository.name);
+        $module= $this.create($vendor.newCollection($payload.repository.name), 0777);
       }
 
       if (!($info= $module.findElement('module.json'))) {
-        $info= $module.newElement('module.json');
+        $info= $this.create($module.newElement('module.json'), 0777);
       }
 
       with ($out= $info.getOutputStream()) {

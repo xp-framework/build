@@ -1,4 +1,4 @@
-<?php uses('webservices.rest.srv.Response', 'webservices.rest.RestFormat', 'util.log.LogCategory', 'util.Properties', 'io.IOException', 'io.streams.MemoryInputStream', 'io.collections.FileCollection', 'org.codehaus.stomp.StompConnection', 'net.xp_framework.build.api.GitHubPayload', 'net.xp_framework.build.api.GitHubRepository', 'net.xp_framework.build.api.GitHubUserReference', 'io.collections.IOCollection');
+<?php uses('webservices.rest.srv.Response', 'webservices.rest.RestFormat', 'util.log.LogCategory', 'util.Properties', 'io.IOException', 'io.streams.MemoryInputStream', 'io.collections.FileCollection', 'io.collections.IOElement', 'org.codehaus.stomp.StompConnection', 'net.xp_framework.build.api.GitHubPayload', 'net.xp_framework.build.api.GitHubRepository', 'net.xp_framework.build.api.GitHubUserReference', 'io.collections.IOCollection', 'io.streams.OutputStream');
 
 ;
 ;
@@ -8,7 +8,9 @@
 ;
 ;
 ;
+;
 
+;
 ;
 
 
@@ -60,6 +62,14 @@ $this->queue->disconnect();}
 
 
 
+private function create(IOElement $element,$permissions){
+chmod($element->getURI(),$permissions);
+return $element;}
+
+
+
+
+
 
 
 
@@ -75,16 +85,16 @@ return Response::error(400)->withPayload('Malformed payload: '.$e->compoundMessa
 try {
 if (!($vendor=$this->storage->findCollection($payload->repository->owner->name))) {
 $this->cat&&$this->cat->info('New vendor',$payload->repository->owner);
-$vendor=$this->storage->newCollection($payload->repository->owner->name);};
+$vendor=$this->create($this->storage->newCollection($payload->repository->owner->name),511);};
 
 
 if (!($module=$vendor->findCollection($payload->repository->name))) {
 $this->cat&&$this->cat->info('New module',$payload->repository);
-$module=$vendor->newCollection($payload->repository->name);};
+$module=$this->create($vendor->newCollection($payload->repository->name),511);};
 
 
 if (!($info=$module->findElement('module.json'))) {
-$info=$module->newElement('module.json');};
+$info=$this->create($module->newElement('module.json'),511);};
 
 
 
@@ -236,6 +246,25 @@ return Response::created();}static function __static() {WebHook::$json=RestForma
       array (
       ),
       4 => 'Disconnects from queue',
+      5 => 
+      array (
+      ),
+      6 => 
+      array (
+      ),
+    ),
+    'create' => 
+    array (
+      1 => 
+      array (
+        0 => 'io.collections.IOElement',
+        1 => 'int',
+      ),
+      2 => 'io.collections.IOElement',
+      3 => 
+      array (
+      ),
+      4 => 'Change permissions',
       5 => 
       array (
       ),
