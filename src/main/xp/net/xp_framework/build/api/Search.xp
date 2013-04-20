@@ -1,0 +1,39 @@
+package net.xp_framework.build.api;
+
+import io.collections.FileCollection;
+import io.collections.iterate.FilteredIOCollectionIterator;
+import io.collections.iterate.CollectionFilter;
+import io.collections.iterate.AllOfFilter;
+import io.collections.iterate.NameMatchesFilter;
+import text.regex.Pattern;
+
+import native standard.basename;
+
+[@webservice(path= '/search')]
+public class Search extends AbstractBuildInformation {
+
+  /**
+   * Searches for modules
+   *
+   * @param  query the query string
+   * @return var[] results
+   */
+  [@webmethod(verb = 'GET'), @$query: param('q')]
+  public var[] forModules(string? $query) {
+    $find= new AllOfFilter([
+      new CollectionFilter(),
+      new NameMatchesFilter(new Pattern($query, Pattern::CASE_INSENSITIVE))
+    ]);
+
+    $found= [];
+    foreach ($vendor in new FilteredIOCollectionIterator($this.storage, new CollectionFilter())) {
+      foreach ($module in new FilteredIOCollectionIterator($vendor, $find)) {
+        $found[]= [
+          vendor    : basename($vendor.getURI()),
+          module    : basename($module.getURI())
+        ];
+      }
+    }
+    return $found;
+  }
+}
