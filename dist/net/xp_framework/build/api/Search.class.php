@@ -23,7 +23,7 @@ public function forModules($query){
 
 
 
-$find=new AllOfFilter(array(new CollectionFilter(),new NameMatchesFilter(new Pattern($query,Pattern::CASE_INSENSITIVE)),));
+$find=new AllOfFilter(array(new CollectionFilter(),new NameMatchesFilter(Pattern::compile($query,Pattern::CASE_INSENSITIVE)),));
 
 $found=array();
 foreach (new FilteredIOCollectionIterator($this->storage,new CollectionFilter()) as $vendor) {

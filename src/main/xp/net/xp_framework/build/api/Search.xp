@@ -22,15 +22,15 @@ public class Search extends AbstractBuildInformation {
   public var[] forModules(string? $query) {
     $find= new AllOfFilter([
       new CollectionFilter(),
-      new NameMatchesFilter(new Pattern($query, Pattern::CASE_INSENSITIVE))
+      new NameMatchesFilter(Pattern::compile($query, Pattern::CASE_INSENSITIVE))
     ]);
 
     $found= [];
     foreach ($vendor in new FilteredIOCollectionIterator($this.storage, new CollectionFilter())) {
       foreach ($module in new FilteredIOCollectionIterator($vendor, $find)) {
         $found[]= [
-          vendor    : basename($vendor.getURI()),
-          module    : basename($module.getURI())
+          vendor : basename($vendor.getURI()),
+          module : basename($module.getURI())
         ];
       }
     }
