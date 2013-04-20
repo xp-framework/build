@@ -1,0 +1,31 @@
+package net.xp_framework.build.api;
+
+/**
+ * Represents a link
+ *
+ */
+public class Link {
+  public string $url;
+
+  /**
+   * Constructor
+   */
+  public __construct(string? $url) {
+    $this.url= $url;
+  }
+
+  /**
+   * Deserialization
+   */
+  public static self valueOf(string? $in) {
+    return new self($in);
+  }
+
+  /**
+   * Creates a string representation
+   *
+   */
+  public string toString() {
+    return $this.getClassName() ~ '(-> ' ~ $this.url ~ ')';
+  }
+}

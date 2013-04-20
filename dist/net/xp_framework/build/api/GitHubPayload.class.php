@@ -1,4 +1,4 @@
-<?php uses('text.regex.Pattern', 'net.xp_framework.build.api.GitHubUserReference', 'net.xp_framework.build.api.GitHubRepository', 'peer.URL', 'net.xp_framework.build.api.GitHubCommit', 'text.regex.MatchResult');
+<?php uses('text.regex.Pattern', 'net.xp_framework.build.api.GitHubUserReference', 'net.xp_framework.build.api.GitHubRepository', 'net.xp_framework.build.api.Link', 'net.xp_framework.build.api.GitHubCommit');
 
 ;
 
@@ -106,7 +106,7 @@ $this->getClassName().'('.GitHubPayload::sha($this->before).'..'.GitHubPayload::
     array (
       5 => 
       array (
-        'type' => 'peer.URL',
+        'type' => 'net.xp_framework.build.api.Link',
       ),
     ),
     'ref' => 

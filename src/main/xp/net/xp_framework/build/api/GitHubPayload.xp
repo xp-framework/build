@@ -14,7 +14,7 @@ public class GitHubPayload {
   public string $before;
   public string $after;
   public GitHubRepository $repository;
-  public peer.URL $compare;
+  public Link $compare;
   public string $ref;
   public bool $forced;
   public bool $deleted;
