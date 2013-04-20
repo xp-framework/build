@@ -61,11 +61,14 @@ return Response::notFound();};}
 
 public function getModule($vendor,$module){if (NULL !== $vendor && !is("string", $vendor)) throw new IllegalArgumentException("Argument 1 passed to ".__METHOD__." must be of string, ".xp::typeOf($vendor)." given");if (NULL !== $module && !is("string", $module)) throw new IllegalArgumentException("Argument 2 passed to ".__METHOD__." must be of string, ".xp::typeOf($module)." given");
 $target=$this->storage->getCollection($vendor)->getCollection($module);
+$releases=array();
 foreach (new FilteredIOCollectionIterator($target,new CollectionFilter()) as $release) {
+$version=new Version(basename($release->getURI()));
 
 
 
-$releases[]=array('version' => new Version(basename($release->getURI())),'published' => $release->createdAt(),);};
+
+$releases[$version->getNumber()]=array('series' => $version->getSeries(),'rc' => $version->isReleaseCandidate(),'published' => $release->createdAt(),);};
 
 return array('vendor' => $vendor,'module' => $module,'releases' => $releases,);}}xp::$registry['class.ModuleInformation']= 'net.xp_framework.build.api.ModuleInformation';xp::$registry['details.net.xp_framework.build.api.ModuleInformation']= array (
   0 => 
