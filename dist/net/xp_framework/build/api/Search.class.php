@@ -1,5 +1,6 @@
-<?php uses('io.collections.FileCollection', 'io.collections.iterate.FilteredIOCollectionIterator', 'io.collections.iterate.CollectionFilter', 'io.collections.iterate.AllOfFilter', 'io.collections.iterate.NameMatchesFilter', 'text.regex.Pattern', 'net.xp_framework.build.api.AbstractBuildInformation');
+<?php uses('io.collections.FileCollection', 'io.collections.iterate.FilteredIOCollectionIterator', 'io.collections.iterate.CollectionFilter', 'io.collections.iterate.AllOfFilter', 'io.collections.iterate.NameEqualsFilter', 'io.collections.iterate.UriMatchesFilter', 'text.regex.Pattern', 'net.xp_framework.build.api.AbstractBuildInformation', 'webservices.rest.RestFormat');
 
+;
 ;
 ;
 ;
@@ -11,6 +12,7 @@
 
 
  class Search extends net·xp_framework·build·api·AbstractBuildInformation{
+private static $json;
 
 
 
@@ -23,20 +25,22 @@ public function forModules($query){
 
 
 
-$find=new AllOfFilter(array(new CollectionFilter(),new NameMatchesFilter(Pattern::compile($query,Pattern::CASE_INSENSITIVE)),));
+$find=new AllOfFilter(array(new NameEqualsFilter('module.json'),new UriMatchesFilter(Pattern::compile($query,Pattern::CASE_INSENSITIVE)),));
 
 $found=array();
-foreach (new FilteredIOCollectionIterator($this->storage,new CollectionFilter()) as $vendor) {
-foreach (new FilteredIOCollectionIterator($vendor,$find) as $module) {
+foreach (new FilteredIOCollectionIterator($this->storage,$find,TRUE) as $module) {
+$found[]=Search::$json->deserialize($module->getInputStream(),Type::forName('[:var]'));};
 
-
-
-$found[]=array('vendor' => basename($vendor->getURI()),'module' => basename($module->getURI()),);};};
-
-
-return $found;}}xp::$registry['class.Search']= 'net.xp_framework.build.api.Search';xp::$registry['details.net.xp_framework.build.api.Search']= array (
+return $found;}static function __static() {Search::$json=RestFormat::$JSON->deserializer();}}xp::$registry['class.Search']= 'net.xp_framework.build.api.Search';xp::$registry['details.net.xp_framework.build.api.Search']= array (
   0 => 
   array (
+    'json' => 
+    array (
+      5 => 
+      array (
+        'type' => 'var',
+      ),
+    ),
   ),
   1 => 
   array (

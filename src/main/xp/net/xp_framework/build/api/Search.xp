@@ -4,13 +4,15 @@ import io.collections.FileCollection;
 import io.collections.iterate.FilteredIOCollectionIterator;
 import io.collections.iterate.CollectionFilter;
 import io.collections.iterate.AllOfFilter;
-import io.collections.iterate.NameMatchesFilter;
+import io.collections.iterate.NameEqualsFilter;
+import io.collections.iterate.UriMatchesFilter;
 import text.regex.Pattern;
 
 import native standard.basename;
 
 [@webservice(path= '/search')]
 public class Search extends AbstractBuildInformation {
+  private static var $json= webservices.rest.RestFormat::$JSON.deserializer();
 
   /**
    * Searches for modules
@@ -21,18 +23,13 @@ public class Search extends AbstractBuildInformation {
   [@webmethod(verb = 'GET'), @$query: param('q')]
   public var[] forModules(string? $query) {
     $find= new AllOfFilter([
-      new CollectionFilter(),
-      new NameMatchesFilter(Pattern::compile($query, Pattern::CASE_INSENSITIVE))
+      new NameEqualsFilter('module.json'),
+      new UriMatchesFilter(Pattern::compile($query, Pattern::CASE_INSENSITIVE))
     ]);
 
     $found= [];
-    foreach ($vendor in new FilteredIOCollectionIterator($this.storage, new CollectionFilter())) {
-      foreach ($module in new FilteredIOCollectionIterator($vendor, $find)) {
-        $found[]= [
-          vendor : basename($vendor.getURI()),
-          module : basename($module.getURI())
-        ];
-      }
+    foreach ($module in new FilteredIOCollectionIterator($this.storage, $find, true)) {
+      $found[]= self::$json.deserialize($module.getInputStream(), Type::forName('[:var]'));
     }
     return $found;
   }
