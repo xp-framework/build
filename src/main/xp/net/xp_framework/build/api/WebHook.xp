@@ -4,7 +4,9 @@ import webservices.rest.srv.Response;
 import webservices.rest.RestFormat;
 import util.log.LogCategory;
 import util.Properties;
+import io.IOException;
 import io.streams.MemoryInputStream;
+import io.collections.FileCollection;
 import org.codehaus.stomp.StompConnection;
 
 import native standard.sscanf;
@@ -17,7 +19,10 @@ import native standard.sscanf;
 public class WebHook {
   private LogCategory $cat;
   private StompConnection $queue;
+  private FileCollection $storage;
   private string $destination;
+
+  private static var $json = RestFormat::$JSON.serializer();
 
   /**
    * Sets a logger category for debugging
@@ -38,6 +43,14 @@ public class WebHook {
   }
 
   /**
+   * Use configuration to inject release storage
+   */
+  [@inject(name = 'xarrelease')]
+  public void useStorage(Properties $prop) {
+    $this.storage= new FileCollection($prop.readString('storage', 'folder', 'releases'));
+  }
+
+  /**
    * Disconnects from queue
    */
   public void __destruct() {
@@ -54,26 +67,53 @@ public class WebHook {
     try {
       $payload= RestFormat::$JSON.read(new MemoryInputStream($in), GitHubPayload::class) as GitHubPayload;
     } catch (FormatException $e) {
+      $this.cat && $this.cat.warn('Malformed payload', $e);
       return Response::error(400).withPayload('Malformed payload: ' ~ $e.compoundMessage());
+    }
+
+    // Create vendor and module if not existant
+    try {
+      if (!$vendor= $this.storage.findCollection($payload.repository.owner.name)) {
+        $this.cat && $this.cat.info('New vendor', $payload.repository.owner);
+        $vendor= $this.storage.newCollection($payload.repository.owner.name);
+      }
+
+      if (!$module= $vendor.findCollection($payload.repository.name)) {
+        $this.cat && $this.cat.info('New module', $payload.repository);
+        $module= $vendor.newCollection($payload.repository.name);
+      }
+
+      if (!$info= $module.findElement('module.json')) {
+        $info= $module.newElement('module.json');
+      }
+
+      try ($out= $info.getOutputStream()) {
+        $out.write(self::$json.serialize([
+          vendor   : $payload.repository.owner.name,
+          module   : $payload.repository.name,
+          info     : $payload.repository.description,
+          link     : $payload.repository.url
+        ]));
+      }
+    } catch (IOException $e) {
+      $this.cat && $this.cat.warn('Storage error, continuing anyways', $e);
     }
 
     // Created a tag -> trigger
     if ($payload.created && ($tag= $payload.getTag())) {
       sscanf($tag, 'r%[0-9A-Za-z.~]', $version);
 
-      with ($serializer= RestFormat::$JSON.serializer()) {
-        $message= $serializer.serialize([
-          owner   : $payload.repository.owner.name,
-          repo    : $payload.repository.name,
-          tag     : $tag,
-          version : $version,
-          user    : $payload.pusher.name
-        ]);
-        $this.cat && $this.cat.info($this.destination, $message);
-        $this.queue.send($this.destination, $message, [
-          'content-type' : $serializer.contentType()
-        ]);
-      }
+      $message= self::$json.serialize([
+        owner   : $payload.repository.owner.name,
+        repo    : $payload.repository.name,
+        tag     : $tag,
+        version : $version,
+        user    : $payload.pusher.name
+      ]);
+      $this.cat && $this.cat.info($this.destination, $message);
+      $this.queue.send($this.destination, $message, [
+        'content-type' : self::$json.contentType()
+      ]);
     } else {
       $this.cat && $this.cat.debug('Ignore', $payload);
     }
