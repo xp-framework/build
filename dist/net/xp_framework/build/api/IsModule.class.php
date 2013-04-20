@@ -9,12 +9,13 @@
 
 
 $package= 'net.xp_framework.build.api'; class net·xp_framework·build·api·IsModule extends Object implements IterationFilter{
+const NAME='module.json';
 
 
 
 
 public function accept($e){
-return 'module.json' === basename($e->getURI());}}xp::$registry['class.net·xp_framework·build·api·IsModule']= 'net.xp_framework.build.api.IsModule';xp::$registry['details.net.xp_framework.build.api.IsModule']= array (
+return net·xp_framework·build·api·IsModule::NAME === basename($e->getURI());}}xp::$registry['class.net·xp_framework·build·api·IsModule']= 'net.xp_framework.build.api.IsModule';xp::$registry['details.net.xp_framework.build.api.IsModule']= array (
   0 => 
   array (
   ),

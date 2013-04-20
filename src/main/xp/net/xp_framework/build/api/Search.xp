@@ -2,7 +2,6 @@ package net.xp_framework.build.api;
 
 import io.collections.FileCollection;
 import io.collections.iterate.FilteredIOCollectionIterator;
-import io.collections.iterate.CollectionFilter;
 import io.collections.iterate.AllOfFilter;
 import io.collections.iterate.UriMatchesFilter;
 import text.regex.Pattern;
