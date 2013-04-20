@@ -4,7 +4,6 @@ import io.collections.FileCollection;
 import io.collections.iterate.FilteredIOCollectionIterator;
 import io.collections.iterate.CollectionFilter;
 import io.collections.iterate.AllOfFilter;
-import io.collections.iterate.NameEqualsFilter;
 import io.collections.iterate.UriMatchesFilter;
 import text.regex.Pattern;
 
@@ -23,7 +22,7 @@ public class Search extends AbstractBuildInformation {
   [@webmethod(verb = 'GET'), @$query: param('q')]
   public var[] forModules(string? $query) {
     $find= new AllOfFilter([
-      new NameEqualsFilter('module.json'),
+      new IsModule(),
       new UriMatchesFilter(Pattern::compile($query, Pattern::CASE_INSENSITIVE))
     ]);
 

@@ -1,0 +1,19 @@
+package net.xp_framework.build.api;
+
+import io.collections.iterate.IterationFilter;
+import io.collections.IOElement;
+
+import native standard.basename;
+
+/**
+ * Searches for modules
+ */
+package class IsModule implements IterationFilter {
+
+  /**
+   * Returns whether the given IOElement applies
+   */
+  public bool accept(IOElement? $e) {
+    return 'module.json' === basename($e.getURI());
+  }
+}

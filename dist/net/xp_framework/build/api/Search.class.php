@@ -1,6 +1,5 @@
-<?php uses('io.collections.FileCollection', 'io.collections.iterate.FilteredIOCollectionIterator', 'io.collections.iterate.CollectionFilter', 'io.collections.iterate.AllOfFilter', 'io.collections.iterate.NameEqualsFilter', 'io.collections.iterate.UriMatchesFilter', 'text.regex.Pattern', 'net.xp_framework.build.api.AbstractBuildInformation', 'webservices.rest.RestFormat');
+<?php uses('io.collections.FileCollection', 'io.collections.iterate.FilteredIOCollectionIterator', 'io.collections.iterate.CollectionFilter', 'io.collections.iterate.AllOfFilter', 'io.collections.iterate.UriMatchesFilter', 'text.regex.Pattern', 'net.xp_framework.build.api.AbstractBuildInformation', 'webservices.rest.RestFormat', 'net.xp_framework.build.api.IsModule');
 
-;
 ;
 ;
 ;
@@ -25,7 +24,7 @@ public function forModules($query){
 
 
 
-$find=new AllOfFilter(array(new NameEqualsFilter('module.json'),new UriMatchesFilter(Pattern::compile($query,Pattern::CASE_INSENSITIVE)),));
+$find=new AllOfFilter(array(new net·xp_framework·build·api·IsModule(),new UriMatchesFilter(Pattern::compile($query,Pattern::CASE_INSENSITIVE)),));
 
 $found=array();
 foreach (new FilteredIOCollectionIterator($this->storage,$find,TRUE) as $module) {
