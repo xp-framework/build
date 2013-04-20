@@ -1,4 +1,4 @@
-<?php uses('webservices.rest.srv.Response', 'webservices.rest.RestFormat', 'util.log.LogCategory', 'util.Properties', 'io.IOException', 'io.streams.MemoryInputStream', 'io.collections.FileCollection', 'org.codehaus.stomp.StompConnection', 'net.xp_framework.build.api.GitHubPayload', 'net.xp_framework.build.api.GitHubRepository', 'net.xp_framework.build.api.GitHubUserReference');
+<?php uses('webservices.rest.srv.Response', 'webservices.rest.RestFormat', 'util.log.LogCategory', 'util.Properties', 'io.IOException', 'io.streams.MemoryInputStream', 'io.collections.FileCollection', 'org.codehaus.stomp.StompConnection', 'net.xp_framework.build.api.GitHubPayload', 'net.xp_framework.build.api.GitHubRepository', 'net.xp_framework.build.api.GitHubUserReference', 'io.collections.IOCollection');
 
 ;
 ;
@@ -73,17 +73,17 @@ return Response::error(400)->withPayload('Malformed payload: '.$e->compoundMessa
 
 
 try {
-if (!$vendor=$this->storage->findCollection($payload->repository->owner->name)) {
+if (!($vendor=$this->storage->findCollection($payload->repository->owner->name))) {
 $this->cat&&$this->cat->info('New vendor',$payload->repository->owner);
 $vendor=$this->storage->newCollection($payload->repository->owner->name);};
 
 
-if (!$module=$vendor->findCollection($payload->repository->name)) {
+if (!($module=$vendor->findCollection($payload->repository->name))) {
 $this->cat&&$this->cat->info('New module',$payload->repository);
 $module=$vendor->newCollection($payload->repository->name);};
 
 
-if (!$info=$module->findElement('module.json')) {
+if (!($info=$module->findElement('module.json'))) {
 $info=$module->newElement('module.json');};
 
 
@@ -94,7 +94,8 @@ $info=$module->newElement('module.json');};
 
 
 
-$out=$info->getOutputStream();$··e= NULL; try {$out->write(WebHook::$json->serialize(array('vendor' => $payload->repository->owner->name,'module' => $payload->repository->name,'info' => $payload->repository->description,'link' => $payload->repository->url,)));} catch (Exception $··e) {}try { $out->close(); } catch (Exception $··i) {}if ($··e) throw $··e;;} catch(IOException $e) {
+
+$out=$info->getOutputStream();$out->write(WebHook::$json->serialize(array('vendor' => $payload->repository->owner->name,'module' => $payload->repository->name,'info' => $payload->repository->description,'link' => $payload->repository->url,)));$out->close();;} catch(IOException $e) {
 
 $this->cat&&$this->cat->warn('Storage error, continuing anyways',$e);};
 

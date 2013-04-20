@@ -1,4 +1,4 @@
-<?php uses('text.regex.Pattern', 'net.xp_framework.build.api.GitHubUserReference', 'net.xp_framework.build.api.GitHubRepository', 'net.xp_framework.build.api.Link', 'net.xp_framework.build.api.GitHubCommit');
+<?php uses('text.regex.Pattern', 'net.xp_framework.build.api.GitHubUserReference', 'net.xp_framework.build.api.GitHubRepository', 'net.xp_framework.build.api.Link', 'net.xp_framework.build.api.GitHubCommit', 'text.regex.MatchResult');
 
 ;
 
