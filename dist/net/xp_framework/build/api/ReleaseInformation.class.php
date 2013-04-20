@@ -17,6 +17,7 @@
 
 ;
 ;
+;
 
 
  class ReleaseInformation extends net·xp_framework·build·api·AbstractBuildInformation{
@@ -96,11 +97,13 @@ throw new ElementNotFoundException('No such release '.$release.' for '.$vendor.'
 
 $files=array();
 foreach (new IOCollectionIterator($target) as $file) {
+$name=basename($file->getURI());
 
 
 
 
-$files[]=array('name' => basename($file->getURI()),'size' => $file->getSize(),'sha1' => $this->checksumOf($file),);};
+
+$files[]=array('link' => sprintf('/vendors/%s/modules/%s/releases/%s/%s',$vendor,$module,$release,$name),'name' => $name,'size' => $file->getSize(),'sha1' => $this->checksumOf($file),);};
 
 
 
