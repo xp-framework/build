@@ -32,7 +32,7 @@ $find=new net·xp_framework·build·api·IsModule();};
 
 
 $modules=array();
-foreach (new FilteredIOCollectionIterator($target,$find) as $module) {
+foreach (new FilteredIOCollectionIterator($target,$find,TRUE) as $module) {
 $modules[]=ModuleInformation::$json->deserialize($module->getInputStream(),Type::forName('[:var]'));};
 
 return $modules;}

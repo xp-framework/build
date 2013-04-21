@@ -32,7 +32,7 @@ public class ModuleInformation extends AbstractBuildInformation {
     }
 
     $modules= [];
-    foreach ($module in new FilteredIOCollectionIterator($target, $find)) {
+    foreach ($module in new FilteredIOCollectionIterator($target, $find, true)) {
       $modules[]= self::$json.deserialize($module.getInputStream(), Type::forName('[:var]'));
     }
     return $modules;
