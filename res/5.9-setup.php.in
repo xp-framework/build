@@ -5,8 +5,9 @@
  */
 
   define('VERSION',    '@@VERSION@@');
-  define('BASE_URL',   'http://xp-framework.net/downloads/releases/');
-  define('RELEASE',    'vendors/xp-framework/modules/xp-framework/releases');
+  define('BASE_URL',   'http://xp-framework.net/downloads/');
+  define('BUILDS',     'builds/xp-framework/xp-framework');
+  define('RELEASES',   'releases');
   define('TARGET_DIR', getcwd().DIRECTORY_SEPARATOR);
 
   // {{{ println(string* args)
@@ -505,7 +506,7 @@
   }
 
   // Download dependencies
-  ardl($proxy, BASE_URL.RELEASE.'/'.VERSION.'/depend', TARGET_DIR) || exit(1);
+  ardl($proxy, BASE_URL.BUILDS.'/'.VERSION.'/depend', TARGET_DIR) || exit(1);
   $depend= parse_ini_file(TARGET_DIR.'depend.ini', TRUE);
   
   // Found it, execute
@@ -601,16 +602,16 @@
   // * META-INF (boot.pth, ChangeLog)
   // * Libraries (xp-rt, xp-test XAR files)
   println('===> Tools');
-  ardl($proxy, BASE_URL.RELEASE.'/'.VERSION.'/tools', $target) || exit(2);
+  ardl($proxy, BASE_URL.BUILDS.'/'.VERSION.'/tools', $target) || exit(2);
   
   println('===> META-INF');
-  ardl($proxy, BASE_URL.RELEASE.'/'.VERSION.'/meta-inf', $target) || exit(2);
+  ardl($proxy, BASE_URL.BUILDS.'/'.VERSION.'/meta-inf', $target) || exit(2);
   
   println('===> Libraries');  
-  ardl($proxy, BASE_URL.RELEASE.'/'.VERSION.'/lib', $target) || exit(2);
+  ardl($proxy, BASE_URL.BUILDS.'/'.VERSION.'/lib', $target) || exit(2);
   
   // Download runners
-  ardl($proxy, BASE_URL.'bin/'.$runners, $bin, 0700) || exit(3);
+  ardl($proxy, BASE_URL.RELEASES.'/bin/'.$runners, $bin, 0700) || exit(3);
   
   // Create xp.ini. Always use forward slashes!
   $config= $bin.DIRECTORY_SEPARATOR.'xp.ini';
