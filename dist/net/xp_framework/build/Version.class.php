@@ -106,7 +106,7 @@ return (
 
 
 
-$cmp instanceof Version&&$this->parts === $cmp->parts&&$this->rc === $cmp->rc&&$this->branch === $cmp->branch);}}xp::$registry['class.Version']= 'net.xp_framework.build.Version';xp::$registry['details.net.xp_framework.build.Version']= array (
+$cmp instanceof Version&&$this->parts === $cmp->parts&&$this->rc === $cmp->rc&&$this->branch === $cmp->branch);}}xp::$cn['Version']= 'net.xp_framework.build.Version';xp::$meta['net.xp_framework.build.Version']= array (
   0 => 
   array (
     'parts' => 

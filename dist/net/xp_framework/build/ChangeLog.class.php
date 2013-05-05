@@ -35,7 +35,7 @@ public function getRelease(Version $version= NULL){
 if (NULL === ($release=$this->findRelease($version))) {
 throw new ElementNotFoundException('No release with version '.xp::stringOf($version));};
 
-return $release;}}xp::$registry['class.ChangeLog']= 'net.xp_framework.build.ChangeLog';xp::$registry['details.net.xp_framework.build.ChangeLog']= array (
+return $release;}}xp::$cn['ChangeLog']= 'net.xp_framework.build.ChangeLog';xp::$meta['net.xp_framework.build.ChangeLog']= array (
   0 => 
   array (
     'releases' => 

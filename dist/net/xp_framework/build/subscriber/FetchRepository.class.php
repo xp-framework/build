@@ -187,7 +187,7 @@ $instructions,'vendor' =>
 $build['owner'],'module' => 
 $build['repo'],'release' => 
 $release,'checkout' => 
-$targetDir->getURI(),);}}xp::$registry['class.FetchRepository']= 'net.xp_framework.build.subscriber.FetchRepository';xp::$registry['details.net.xp_framework.build.subscriber.FetchRepository']= array (
+$targetDir->getURI(),);}}xp::$cn['FetchRepository']= 'net.xp_framework.build.subscriber.FetchRepository';xp::$meta['net.xp_framework.build.subscriber.FetchRepository']= array (
   0 => 
   array (
     'target' => 

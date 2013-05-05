@@ -64,7 +64,7 @@ $this->getClassName().'('.GitHubPayload::sha($this->before).'..'.GitHubPayload::
 '.'  [forced]     '.($this->forced?'yes':'no').'
 '.'  [commits]    '.xp::stringOf($this->commits,'  ').'
 '.'  [repository] '.xp::stringOf($this->repository,'  ').'
-'.'}';}static function __static() {GitHubPayload::$tag=new Pattern('refs/tags/(.+)');}static function __import($scope) {xp::$registry["ext"][$scope]["string"]= "GitHubPayload";}}xp::$registry['class.GitHubPayload']= 'net.xp_framework.build.api.GitHubPayload';xp::$registry['details.net.xp_framework.build.api.GitHubPayload']= array (
+'.'}';}static function __static() {GitHubPayload::$tag=new Pattern('refs/tags/(.+)');}static function __import($scope) {xp::$ext[$scope]["string"]= "GitHubPayload";}}xp::$cn['GitHubPayload']= 'net.xp_framework.build.api.GitHubPayload';xp::$meta['net.xp_framework.build.api.GitHubPayload']= array (
   0 => 
   array (
     'tag' => 

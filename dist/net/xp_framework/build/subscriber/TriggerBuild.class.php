@@ -80,7 +80,7 @@ return 0;}
 
 
 public function __destruct(){
-$this->queue->disconnect();}}xp::$registry['class.TriggerBuild']= 'net.xp_framework.build.subscriber.TriggerBuild';xp::$registry['details.net.xp_framework.build.subscriber.TriggerBuild']= array (
+$this->queue->disconnect();}}xp::$cn['TriggerBuild']= 'net.xp_framework.build.subscriber.TriggerBuild';xp::$meta['net.xp_framework.build.subscriber.TriggerBuild']= array (
   0 => 
   array (
     'queue' => 

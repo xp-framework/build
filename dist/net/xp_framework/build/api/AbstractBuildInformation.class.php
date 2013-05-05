@@ -6,6 +6,10 @@
 ;
 ;
 
+
+
+
+
 $package= 'net.xp_framework.build.api'; class net·xp_framework·build·api·AbstractBuildInformation extends Object{
 protected $storage;
 
@@ -22,7 +26,7 @@ $this->storage=new FileCollection($prop->readString('storage','folder','releases
 
 
 public function mapException(RestContext $ctx){
-$ctx->addExceptionMapping(XPClass::forName('util.NoSuchElementException'),new DefaultExceptionMapper(404));}}xp::$registry['class.net·xp_framework·build·api·AbstractBuildInformation']= 'net.xp_framework.build.api.AbstractBuildInformation';xp::$registry['details.net.xp_framework.build.api.AbstractBuildInformation']= array (
+$ctx->addExceptionMapping(XPClass::forName('util.NoSuchElementException'),new DefaultExceptionMapper(404));}}xp::$cn['net·xp_framework·build·api·AbstractBuildInformation']= 'net.xp_framework.build.api.AbstractBuildInformation';xp::$meta['net.xp_framework.build.api.AbstractBuildInformation']= array (
   0 => 
   array (
     'storage' => 
@@ -82,7 +86,8 @@ $ctx->addExceptionMapping(XPClass::forName('util.NoSuchElementException'),new De
     5 => 
     array (
     ),
-    4 => NULL,
+    4 => 'Base class for all entity information resources. Holds a reference to 
+the storage.',
   ),
 );
 ?>

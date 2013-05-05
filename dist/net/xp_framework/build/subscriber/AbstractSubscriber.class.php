@@ -108,7 +108,7 @@ return 0;}
 
 
 public function __destruct(){
-$this->queue->disconnect();}}xp::$registry['class.net·xp_framework·build·subscriber·AbstractSubscriber']= 'net.xp_framework.build.subscriber.AbstractSubscriber';xp::$registry['details.net.xp_framework.build.subscriber.AbstractSubscriber']= array (
+$this->queue->disconnect();}}xp::$cn['net·xp_framework·build·subscriber·AbstractSubscriber']= 'net.xp_framework.build.subscriber.AbstractSubscriber';xp::$meta['net.xp_framework.build.subscriber.AbstractSubscriber']= array (
   0 => 
   array (
     'queue' => 

@@ -19,6 +19,10 @@
 ;
 
 
+
+
+
+
  class ReleaseInformation extends net·xp_framework·build·api·AbstractBuildInformation{
 
 
@@ -132,7 +136,7 @@ if (!$target) {
 throw new ElementNotFoundException('No file '.$file.' in release '.$release.' for '.$vendor.'/'.$module);};
 
 
-return StreamingOutput::of($target);}}xp::$registry['class.ReleaseInformation']= 'net.xp_framework.build.api.ReleaseInformation';xp::$registry['details.net.xp_framework.build.api.ReleaseInformation']= array (
+return StreamingOutput::of($target);}}xp::$cn['ReleaseInformation']= 'net.xp_framework.build.api.ReleaseInformation';xp::$meta['net.xp_framework.build.api.ReleaseInformation']= array (
   0 => 
   array (
   ),
@@ -270,7 +274,8 @@ return StreamingOutput::of($target);}}xp::$registry['class.ReleaseInformation']=
         'path' => '/vendors/{vendor}/modules/{module}/releases',
       ),
     ),
-    4 => NULL,
+    4 => 'The "releases" resource supports listing, testing and fetching 
+information about releases for a given vendor\'s module.',
   ),
 );
 ?>

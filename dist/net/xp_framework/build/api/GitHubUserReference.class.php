@@ -7,7 +7,7 @@
  class GitHubUserReference extends Object{
 public $name= NULL;
 public $username;
-public $email;}xp::$registry['class.GitHubUserReference']= 'net.xp_framework.build.api.GitHubUserReference';xp::$registry['details.net.xp_framework.build.api.GitHubUserReference']= array (
+public $email;}xp::$cn['GitHubUserReference']= 'net.xp_framework.build.api.GitHubUserReference';xp::$meta['net.xp_framework.build.api.GitHubUserReference']= array (
   0 => 
   array (
     'name' => 

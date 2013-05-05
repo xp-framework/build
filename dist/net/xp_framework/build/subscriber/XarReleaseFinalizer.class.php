@@ -13,7 +13,7 @@
 
 
 
-public function finalize(array $build,array $archives,Folder $targetDir);}xp::$registry['class.XarReleaseFinalizer']= 'net.xp_framework.build.subscriber.XarReleaseFinalizer';xp::$registry['details.net.xp_framework.build.subscriber.XarReleaseFinalizer']= array (
+public function finalize(array $build,array $archives,Folder $targetDir);}xp::$cn['XarReleaseFinalizer']= 'net.xp_framework.build.subscriber.XarReleaseFinalizer';xp::$meta['net.xp_framework.build.subscriber.XarReleaseFinalizer']= array (
   0 => 
   array (
   ),

@@ -12,6 +12,10 @@
 ;
 
 
+
+
+
+
  class ModuleInformation extends net·xp_framework·build·api·AbstractBuildInformation{
 
 
@@ -61,13 +65,14 @@ return Response::notFound();};}
 
 public function getModule($vendor,$module){if (NULL !== $vendor && !is("string", $vendor)) throw new IllegalArgumentException("Argument 1 passed to ".__METHOD__." must be of string, ".xp::typeOf($vendor)." given");if (NULL !== $module && !is("string", $module)) throw new IllegalArgumentException("Argument 2 passed to ".__METHOD__." must be of string, ".xp::typeOf($module)." given");
 $target=$this->storage->getCollection($vendor)->getCollection($module);
+$releases=array();
 foreach (new FilteredIOCollectionIterator($target,new CollectionFilter()) as $release) {
 
 
 
 $releases[]=array('version' => new Version(basename($release->getURI())),'published' => $release->createdAt(),);};
 
-return array('vendor' => $vendor,'module' => $module,'releases' => $releases,);}}xp::$registry['class.ModuleInformation']= 'net.xp_framework.build.api.ModuleInformation';xp::$registry['details.net.xp_framework.build.api.ModuleInformation']= array (
+return array('vendor' => $vendor,'module' => $module,'releases' => $releases,);}}xp::$cn['ModuleInformation']= 'net.xp_framework.build.api.ModuleInformation';xp::$meta['net.xp_framework.build.api.ModuleInformation']= array (
   0 => 
   array (
   ),
@@ -154,7 +159,8 @@ return array('vendor' => $vendor,'module' => $module,'releases' => $releases,);}
         'path' => '/vendors/{vendor}/modules',
       ),
     ),
-    4 => NULL,
+    4 => 'The "modules" resource supports listing, testing and fetching 
+information about modules for a given vendor.',
   ),
 );
 ?>

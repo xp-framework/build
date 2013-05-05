@@ -11,6 +11,10 @@
 ;
 
 
+
+
+
+
  class VendorInformation extends net·xp_framework·build·api·AbstractBuildInformation{
 
 
@@ -59,7 +63,7 @@ $target=$this->storage->getCollection($vendor);
 foreach (new FilteredIOCollectionIterator($target,new CollectionFilter()) as $module) {
 $modules[]=basename($module->getURI());};
 
-return array('vendor' => $vendor,'modules' => $modules,);}}xp::$registry['class.VendorInformation']= 'net.xp_framework.build.api.VendorInformation';xp::$registry['details.net.xp_framework.build.api.VendorInformation']= array (
+return array('vendor' => $vendor,'modules' => $modules,);}}xp::$cn['VendorInformation']= 'net.xp_framework.build.api.VendorInformation';xp::$meta['net.xp_framework.build.api.VendorInformation']= array (
   0 => 
   array (
   ),
@@ -143,7 +147,8 @@ return array('vendor' => $vendor,'modules' => $modules,);}}xp::$registry['class.
         'path' => '/vendors',
       ),
     ),
-    4 => NULL,
+    4 => 'The "vendors" resource supports listing, testing and fetching 
+information about vendors.',
   ),
 );
 ?>

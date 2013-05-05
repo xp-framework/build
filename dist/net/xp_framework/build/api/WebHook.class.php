@@ -78,7 +78,7 @@ $serializer=RestFormat::$JSON->serializer();$message=$serializer->serialize(arra
 $this->cat&&$this->cat->debug('Ignore',$payload);};
 
 
-return Response::created();}}xp::$registry['class.WebHook']= 'net.xp_framework.build.api.WebHook';xp::$registry['details.net.xp_framework.build.api.WebHook']= array (
+return Response::created();}}xp::$cn['WebHook']= 'net.xp_framework.build.api.WebHook';xp::$meta['net.xp_framework.build.api.WebHook']= array (
   0 => 
   array (
     'cat' => 
