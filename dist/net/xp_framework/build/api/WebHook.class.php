@@ -84,8 +84,8 @@ return Response::error(400)->withPayload('Malformed payload: '.$e->compoundMessa
 
 try {
 if (!($vendor=$this->storage->findCollection($payload->repository->owner->name))) {
-$this->cat&&$this->cat->info('New vendor',$payload->repository->owner);
-$vendor=$this->create($this->storage->newCollection($payload->repository->owner->name),511);};
+$this->cat&&$this->cat->warn('Unrecognized vendor, ignoring',$payload->repository->owner);
+return Response::error(403)->withPayload('Not allowed here');};
 
 
 if (!($module=$vendor->findCollection($payload->repository->name))) {
