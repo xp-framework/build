@@ -16,6 +16,7 @@ import webservices.rest.RestSerializer;
 import security.checksum.SHA1;
 
 import native standard.basename;
+import native standard.sprintf;
 import native standard.array_filter;
 
 /**
@@ -98,10 +99,12 @@ public class ReleaseInformation extends AbstractBuildInformation {
     }
 
     // Aggregate all files
-    $files= new string[] {};
+    $files= [];
     foreach ($file in new IOCollectionIterator($target)) {
-      $files[]= [ 
-        name : basename($file.getURI()),
+      $name= basename($file.getURI());
+      $files[]= [
+        link : sprintf('/vendors/%s/modules/%s/releases/%s/%s', $vendor, $module, $release, $name),
+        name : $name,
         size : $file.getSize(),
         sha1 : $this.checksumOf($file)
       ];

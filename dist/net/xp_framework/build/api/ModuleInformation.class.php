@@ -1,4 +1,4 @@
-<?php uses('io.collections.FileCollection', 'io.collections.iterate.FilteredIOCollectionIterator', 'io.collections.iterate.IOCollectionIterator', 'io.collections.iterate.CollectionFilter', 'io.collections.iterate.AllOfFilter', 'io.collections.iterate.NameMatchesFilter', 'webservices.rest.srv.Response', 'net.xp_framework.build.Version', 'net.xp_framework.build.api.AbstractBuildInformation', 'net.xp_framework.build.api.Filter', 'io.collections.IOCollection');
+<?php uses('io.collections.FileCollection', 'io.collections.iterate.FilteredIOCollectionIterator', 'io.collections.iterate.IOCollectionIterator', 'io.collections.iterate.CollectionFilter', 'io.collections.iterate.UriMatchesFilter', 'io.collections.iterate.AllOfFilter', 'webservices.rest.srv.Response', 'net.xp_framework.build.Version', 'net.xp_framework.build.api.AbstractBuildInformation', 'webservices.rest.RestFormat', 'net.xp_framework.build.api.Filter', 'net.xp_framework.build.api.IsModule', 'io.collections.IOCollection');
 
 ;
 ;
@@ -17,6 +17,7 @@
 
 
  class ModuleInformation extends net·xp_framework·build·api·AbstractBuildInformation{
+private static $json;
 
 
 
@@ -29,14 +30,14 @@ public function listModules($vendor,net·xp_framework·build·api·Filter $filter= N
 $target=$this->storage->getCollection($vendor);
 
 if ($filter) {
-$find=new AllOfFilter(array(new CollectionFilter(),new NameMatchesFilter($filter->pattern),));}else {
+$find=new AllOfFilter(array(new net·xp_framework·build·api·IsModule(),new UriMatchesFilter($filter->pattern),));}else {
 
-$find=new CollectionFilter();};
+$find=new net·xp_framework·build·api·IsModule();};
 
 
 $modules=array();
-foreach (new FilteredIOCollectionIterator($target,$find) as $module) {
-$modules[]=array('vendor' => $vendor,'module' => basename($module->getURI()),);};
+foreach (new FilteredIOCollectionIterator($target,$find,TRUE) as $module) {
+$modules[]=ModuleInformation::$json->deserialize($module->getInputStream(),Type::forName('[:var]'));};
 
 return $modules;}
 
@@ -65,16 +66,26 @@ return Response::notFound();};}
 
 public function getModule($vendor,$module){if (NULL !== $vendor && !is("string", $vendor)) throw new IllegalArgumentException("Argument 1 passed to ".__METHOD__." must be of string, ".xp::typeOf($vendor)." given");if (NULL !== $module && !is("string", $module)) throw new IllegalArgumentException("Argument 2 passed to ".__METHOD__." must be of string, ".xp::typeOf($module)." given");
 $target=$this->storage->getCollection($vendor)->getCollection($module);
-$releases=array();
+$module=ModuleInformation::$json->deserialize($target->getElement(net·xp_framework·build·api·IsModule::NAME)->getInputStream(),Type::forName('[:var]'));
+$module['releases']=array();
 foreach (new FilteredIOCollectionIterator($target,new CollectionFilter()) as $release) {
+$version=new Version(basename($release->getURI()));
 
 
 
-$releases[]=array('version' => new Version(basename($release->getURI())),'published' => $release->createdAt(),);};
 
-return array('vendor' => $vendor,'module' => $module,'releases' => $releases,);}}xp::$cn['ModuleInformation']= 'net.xp_framework.build.api.ModuleInformation';xp::$meta['net.xp_framework.build.api.ModuleInformation']= array (
+$module['releases'][$version->getNumber()]=array('series' => $version->getSeries(),'rc' => $version->isReleaseCandidate(),'published' => $release->createdAt(),);};
+
+return $module;}static function __static() {ModuleInformation::$json=RestFormat::$JSON->deserializer();}}xp::$cn['ModuleInformation']= 'net.xp_framework.build.api.ModuleInformation';xp::$meta['net.xp_framework.build.api.ModuleInformation']= array (
   0 => 
   array (
+    'json' => 
+    array (
+      5 => 
+      array (
+        'type' => 'var',
+      ),
+    ),
   ),
   1 => 
   array (

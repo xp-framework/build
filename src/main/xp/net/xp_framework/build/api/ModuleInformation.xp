@@ -4,8 +4,8 @@ import io.collections.FileCollection;
 import io.collections.iterate.FilteredIOCollectionIterator;
 import io.collections.iterate.IOCollectionIterator;
 import io.collections.iterate.CollectionFilter;
+import io.collections.iterate.UriMatchesFilter;
 import io.collections.iterate.AllOfFilter;
-import io.collections.iterate.NameMatchesFilter;
 import webservices.rest.srv.Response;
 import net.xp_framework.build.Version;
 
@@ -17,6 +17,7 @@ import native standard.basename;
  */
 [@webservice(path= '/vendors/{vendor}/modules')]
 public class ModuleInformation extends AbstractBuildInformation {
+  private static var $json= webservices.rest.RestFormat::$JSON.deserializer();
 
   /**
    * Lists all modules
@@ -29,14 +30,14 @@ public class ModuleInformation extends AbstractBuildInformation {
     $target= $this.storage.getCollection($vendor);
 
     if ($filter) {
-      $find= new AllOfFilter([new CollectionFilter(), new NameMatchesFilter($filter.pattern)]);
+      $find= new AllOfFilter([new IsModule(), new UriMatchesFilter($filter.pattern)]);
     } else {
-      $find= new CollectionFilter();
+      $find= new IsModule();
     }
 
     $modules= [];
-    foreach ($module in new FilteredIOCollectionIterator($target, $find)) {
-      $modules[]= [ vendor : $vendor, module : basename($module.getURI()) ];
+    foreach ($module in new FilteredIOCollectionIterator($target, $find, true)) {
+      $modules[]= self::$json.deserialize($module.getInputStream(), Type::forName('[:var]'));
     }
     return $modules;
   }
@@ -65,13 +66,16 @@ public class ModuleInformation extends AbstractBuildInformation {
   [@webmethod(verb = 'GET', path= '/{module}')]
   public var getModule(string $vendor, string $module) {
     $target= $this.storage.getCollection($vendor).getCollection($module);
-    $releases= [];
+    $module= self::$json.deserialize($target.getElement(IsModule::NAME).getInputStream(), Type::forName('[:var]'));
+    $module['releases']= [:];
     foreach ($release in new FilteredIOCollectionIterator($target, new CollectionFilter())) {
-      $releases[]= [
-        version   : new Version(basename($release.getURI())),
+      $version= new Version(basename($release.getURI()));
+      $module['releases'][$version.getNumber()]= [
+        series    : $version.getSeries(),
+        rc        : $version.isReleaseCandidate(),
         published : $release.createdAt()
       ];
     }
-    return [ vendor : $vendor, module : $module, releases: $releases ];
+    return $module;
   }
 }

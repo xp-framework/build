@@ -1,4 +1,4 @@
-<?php uses('peer.URL', 'util.Date', 'net.xp_framework.build.api.GitHubUserReference');
+<?php uses('net.xp_framework.build.api.Link', 'util.Date', 'net.xp_framework.build.api.GitHubUserReference');
 
 ;
 
@@ -28,11 +28,13 @@ return
 
 
 
+
 $this->getClassName().'<'.$this->id.' @ '.$this->timestamp->toString().' by '.$this->committer->username.'>{
-'.' "'.$this->message.'"'.'
-'.' [added]    '.implode(', ',$this->added).'
-'.' [modified] '.implode(', ',$this->modified).'
-'.' [removed]  '.implode(', ',$this->removed).'
+'.'  "'.$this->message.'"'.'
+'.'  [url]      '.$this->url->toString().'
+'.'  [added]    '.implode(', ',$this->added).'
+'.'  [modified] '.implode(', ',$this->modified).'
+'.'  [removed]  '.implode(', ',$this->removed).'
 '.'}';}}xp::$cn['GitHubCommit']= 'net.xp_framework.build.api.GitHubCommit';xp::$meta['net.xp_framework.build.api.GitHubCommit']= array (
   0 => 
   array (
@@ -47,7 +49,7 @@ $this->getClassName().'<'.$this->id.' @ '.$this->timestamp->toString().' by '.$t
     array (
       5 => 
       array (
-        'type' => 'peer.URL',
+        'type' => 'net.xp_framework.build.api.Link',
       ),
     ),
     'distinct' => 

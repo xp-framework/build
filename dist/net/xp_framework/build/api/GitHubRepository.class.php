@@ -1,4 +1,4 @@
-<?php uses('util.Date', 'peer.URL', 'net.xp_framework.build.api.GitHubUserReference');
+<?php uses('util.Date', 'net.xp_framework.build.api.Link', 'net.xp_framework.build.api.GitHubUserReference');
 
 
 
@@ -34,8 +34,10 @@ return
 
 
 
+
 $this->getClassName().'<'.$this->name.' @ '.$this->master_branch.'>'.'{
 '.'  "'.$this->description.'"'.'
+'.'  [url]      '.$this->url->toString().'
 '.'  [owner]    '.$this->owner->name.'
 '.'  [size]     '.$this->size.'
 '.'  [created]  '.xp::stringOf($this->created_at).'
@@ -102,7 +104,7 @@ $this->getClassName().'<'.$this->name.' @ '.$this->master_branch.'>'.'{
     array (
       5 => 
       array (
-        'type' => 'peer.URL',
+        'type' => 'net.xp_framework.build.api.Link',
       ),
     ),
     'id' => 

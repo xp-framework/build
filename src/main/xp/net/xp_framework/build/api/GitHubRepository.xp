@@ -13,7 +13,7 @@ public class GitHubRepository {
   public bool $private;
   public int $watchers;
   public bool $fork;
-  public peer.URL $url;
+  public Link $url;
   public int $id;
   public bool $has_downloads;
   public int $open_issues;
@@ -31,6 +31,7 @@ public class GitHubRepository {
   public string toString() {
     return $this.getClassName() ~ '<' ~ $this.name ~ ' @ ' ~ $this.master_branch ~ '>' ~ "{\n" ~
       '  "' ~ $this.description ~ '"' ~ "\n" ~
+      '  [url]      ' ~ $this.url.toString() ~ "\n" ~
       '  [owner]    ' ~ $this.owner.name ~ "\n" ~
       '  [size]     ' ~ $this.size ~ "\n" ~
       '  [created]  ' ~ xp::stringOf($this.created_at) ~ "\n" ~
