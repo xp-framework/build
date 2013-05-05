@@ -1,4 +1,4 @@
-<?php uses('webservices.rest.srv.Response', 'webservices.rest.RestFormat', 'util.log.LogCategory', 'util.Properties', 'io.IOException', 'io.streams.MemoryInputStream', 'io.collections.FileCollection', 'io.collections.IOElement', 'org.codehaus.stomp.StompConnection', 'net.xp_framework.build.api.GitHubPayload', 'net.xp_framework.build.api.GitHubRepository', 'net.xp_framework.build.api.GitHubUserReference', 'io.collections.IOCollection', 'io.streams.OutputStream');
+<?php uses('webservices.rest.srv.Response', 'webservices.rest.RestFormat', 'util.log.LogCategory', 'util.Properties', 'io.IOException', 'io.streams.MemoryInputStream', 'io.collections.FileCollection', 'io.collections.IOElement', 'org.codehaus.stomp.StompConnection', 'webservices.rest.RestSerializer', 'net.xp_framework.build.api.GitHubPayload', 'net.xp_framework.build.api.GitHubRepository', 'net.xp_framework.build.api.GitHubUserReference', 'io.collections.IOCollection', 'io.streams.OutputStream');
 
 ;
 ;
@@ -112,6 +112,7 @@ $this->cat&&$this->cat->warn('Storage error, continuing anyways',$e);};
 
 
 if ($payload->created&&($tag=$payload->getTag())) {
+$version=NULL;
 sscanf($tag,'r%[0-9A-Za-z.~]',$version);
 
 
@@ -164,7 +165,7 @@ return Response::created();}static function __static() {WebHook::$json=RestForma
     array (
       5 => 
       array (
-        'type' => 'var',
+        'type' => 'webservices.rest.RestSerializer',
       ),
     ),
   ),

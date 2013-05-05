@@ -1,4 +1,4 @@
-<?php uses('util.Properties', 'org.codehaus.stomp.StompConnection', 'io.streams.MemoryInputStream', 'webservices.rest.RestFormat', 'util.cmd.Command', 'io.streams.StringWriter', 'org.codehaus.stomp.frame.Frame');
+<?php uses('util.Properties', 'org.codehaus.stomp.StompConnection', 'io.streams.MemoryInputStream', 'webservices.rest.RestFormat', 'util.cmd.Command', 'io.streams.StringWriter', 'org.codehaus.stomp.frame.Frame', 'webservices.rest.RestSerializer');
 
 ;
 ;
@@ -91,7 +91,6 @@ $this->err->writeLine('+++');}else {
 
 $this->err->writeLine('>>> ',$response);
 $message=$serializer->serialize($response);
-$this->cat&&$this->cat->info($this->destination,$message);
 $this->queue->send($this->destination,$message,array('content-type' => 
 $serializer->contentType(),));};} catch(TargetInvocationException $e) {
 

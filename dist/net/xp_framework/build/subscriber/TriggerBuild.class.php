@@ -1,4 +1,4 @@
-<?php uses('util.Properties', 'org.codehaus.stomp.StompConnection', 'io.streams.MemoryInputStream', 'webservices.rest.RestFormat', 'util.cmd.Command', 'lang.System', 'io.streams.StringWriter');
+<?php uses('util.Properties', 'org.codehaus.stomp.StompConnection', 'io.streams.MemoryInputStream', 'webservices.rest.RestFormat', 'util.cmd.Command', 'webservices.rest.RestSerializer', 'lang.System', 'io.streams.StringWriter');
 
 ;
 ;

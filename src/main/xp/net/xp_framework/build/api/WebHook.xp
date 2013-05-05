@@ -112,6 +112,7 @@ public class WebHook {
 
     // Created a tag -> trigger
     if ($payload.created && ($tag= $payload.getTag())) {
+      $version= null;
       sscanf($tag, 'r%[0-9A-Za-z.~]', $version);
 
       $message= self::$json.serialize([

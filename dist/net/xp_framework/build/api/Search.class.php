@@ -1,4 +1,4 @@
-<?php uses('io.collections.FileCollection', 'io.collections.iterate.FilteredIOCollectionIterator', 'io.collections.iterate.AllOfFilter', 'io.collections.iterate.UriMatchesFilter', 'text.regex.Pattern', 'net.xp_framework.build.api.AbstractBuildInformation', 'webservices.rest.RestFormat', 'net.xp_framework.build.api.IsModule');
+<?php uses('io.collections.FileCollection', 'io.collections.iterate.FilteredIOCollectionIterator', 'io.collections.iterate.AllOfFilter', 'io.collections.iterate.UriMatchesFilter', 'text.regex.Pattern', 'net.xp_framework.build.api.AbstractBuildInformation', 'webservices.rest.RestFormat', 'webservices.rest.RestDeserializer', 'net.xp_framework.build.api.IsModule');
 
 ;
 ;
@@ -36,7 +36,7 @@ return $found;}static function __static() {Search::$json=RestFormat::$JSON->dese
     array (
       5 => 
       array (
-        'type' => 'var',
+        'type' => 'webservices.rest.RestDeserializer',
       ),
     ),
   ),

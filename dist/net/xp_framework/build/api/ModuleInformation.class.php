@@ -1,4 +1,4 @@
-<?php uses('io.collections.FileCollection', 'io.collections.iterate.FilteredIOCollectionIterator', 'io.collections.iterate.IOCollectionIterator', 'io.collections.iterate.CollectionFilter', 'io.collections.iterate.UriMatchesFilter', 'io.collections.iterate.AllOfFilter', 'webservices.rest.srv.Response', 'net.xp_framework.build.Version', 'net.xp_framework.build.api.AbstractBuildInformation', 'webservices.rest.RestFormat', 'net.xp_framework.build.api.Filter', 'net.xp_framework.build.api.IsModule', 'io.collections.IOCollection');
+<?php uses('io.collections.FileCollection', 'io.collections.iterate.FilteredIOCollectionIterator', 'io.collections.iterate.IOCollectionIterator', 'io.collections.iterate.CollectionFilter', 'io.collections.iterate.UriMatchesFilter', 'io.collections.iterate.AllOfFilter', 'webservices.rest.srv.Response', 'net.xp_framework.build.Version', 'net.xp_framework.build.api.AbstractBuildInformation', 'webservices.rest.RestFormat', 'webservices.rest.RestDeserializer', 'net.xp_framework.build.api.Filter', 'net.xp_framework.build.api.IsModule', 'io.collections.IOCollection');
 
 ;
 ;
@@ -83,7 +83,7 @@ return $module;}static function __static() {ModuleInformation::$json=RestFormat:
     array (
       5 => 
       array (
-        'type' => 'var',
+        'type' => 'webservices.rest.RestDeserializer',
       ),
     ),
   ),

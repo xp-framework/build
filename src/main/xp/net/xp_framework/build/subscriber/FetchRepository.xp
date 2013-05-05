@@ -145,7 +145,7 @@ public class FetchRepository extends AbstractSubscriber {
           $folder.exists() || $folder.create(0755);
         } else {
           $file= new File($targetDir, $relative);
-          try ($tran= new StreamTransfer($entry.getInputStream(), $file.getOutputStream())) {
+          try ($tran= new StreamTransfer(($entry as io.archive.zip.ZipFileEntry).getInputStream(), $file.getOutputStream())) {
             $tran.transferAll();
           }
         }
