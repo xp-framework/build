@@ -11,6 +11,10 @@ import net.xp_framework.build.Version;
 
 import native standard.basename;
 
+/**
+ * The "modules" resource supports listing, testing and fetching 
+ * information about modules for a given vendor.
+ */
 [@webservice(path= '/vendors/{vendor}/modules')]
 public class ModuleInformation extends AbstractBuildInformation {
 
@@ -61,6 +65,7 @@ public class ModuleInformation extends AbstractBuildInformation {
   [@webmethod(verb = 'GET', path= '/{module}')]
   public var getModule(string $vendor, string $module) {
     $target= $this.storage.getCollection($vendor).getCollection($module);
+    $releases= [];
     foreach ($release in new FilteredIOCollectionIterator($target, new CollectionFilter())) {
       $releases[]= [
         version   : new Version(basename($release.getURI())),

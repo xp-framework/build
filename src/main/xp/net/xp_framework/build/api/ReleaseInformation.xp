@@ -18,6 +18,10 @@ import security.checksum.SHA1;
 import native standard.basename;
 import native standard.array_filter;
 
+/**
+ * The "releases" resource supports listing, testing and fetching 
+ * information about releases for a given vendor's module.
+ */
 [@webservice(path= '/vendors/{vendor}/modules/{module}/releases')]
 public class ReleaseInformation extends AbstractBuildInformation {
 

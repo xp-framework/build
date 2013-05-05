@@ -1,5 +1,8 @@
 package net.xp_framework.build.api;
 
+/**
+ * The "/" resource shows information about the API
+ */
 [@webservice]
 public class ApiInformation {
 

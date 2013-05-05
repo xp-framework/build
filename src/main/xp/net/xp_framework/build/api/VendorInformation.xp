@@ -10,6 +10,10 @@ import webservices.rest.srv.Response;
 
 import native standard.basename;
 
+/**
+ * The "vendors" resource supports listing, testing and fetching 
+ * information about vendors.
+ */
 [@webservice(path= '/vendors')]
 public class VendorInformation extends AbstractBuildInformation {
 
