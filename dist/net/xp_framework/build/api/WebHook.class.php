@@ -1,4 +1,4 @@
-<?php uses('webservices.rest.srv.Response', 'webservices.rest.RestFormat', 'util.log.LogCategory', 'util.Properties', 'io.IOException', 'io.streams.MemoryInputStream', 'io.collections.FileCollection', 'io.collections.IOElement', 'org.codehaus.stomp.StompConnection', 'net.xp_framework.build.api.GitHubPayload', 'net.xp_framework.build.api.GitHubRepository', 'net.xp_framework.build.api.GitHubUserReference', 'io.collections.IOCollection', 'io.streams.OutputStream');
+<?php uses('webservices.rest.srv.Response', 'webservices.rest.RestFormat', 'util.log.LogCategory', 'util.Properties', 'io.IOException', 'io.streams.MemoryInputStream', 'io.collections.FileCollection', 'io.collections.IOElement', 'org.codehaus.stomp.StompConnection', 'webservices.rest.RestSerializer', 'net.xp_framework.build.api.GitHubPayload', 'net.xp_framework.build.api.GitHubRepository', 'net.xp_framework.build.api.GitHubUserReference', 'io.collections.IOCollection', 'io.streams.OutputStream');
 
 ;
 ;
@@ -75,10 +75,10 @@ return $element;}
 
 public function githubTrigger($in){
 try {
-$payload=cast(RestFormat::$JSON->read(new MemoryInputStream($in),XPClass::forName('net.xp_framework.build.api.GitHubPayload')), 'net.xp_framework.build.api.GitHubPayload');} catch(FormatException $e) {
+$payload=\cast(RestFormat::$JSON->read(new MemoryInputStream($in),XPClass::forName('net.xp_framework.build.api.GitHubPayload')), 'net.xp_framework.build.api.GitHubPayload');} catch(FormatException $e) {
 
 $this->cat&&$this->cat->warn('Malformed payload',$e);
-return Response::error(400)->withPayload('Malformed payload: '.$e->compoundMessage());};
+return create(Response::error(400))->withPayload('Malformed payload: '.$e->compoundMessage());};
 
 
 
@@ -129,7 +129,7 @@ array('content-type' => WebHook::$json->contentType(),));}else {
 $this->cat&&$this->cat->debug('Ignore',$payload);};
 
 
-return Response::created();}static function __static() {WebHook::$json=RestFormat::$JSON->serializer();}}xp::$registry['class.WebHook']= 'net.xp_framework.build.api.WebHook';xp::$registry['details.net.xp_framework.build.api.WebHook']= array (
+return Response::created();}static function __static() {WebHook::$json=RestFormat::$JSON->serializer();}}xp::$cn['WebHook']= 'net.xp_framework.build.api.WebHook';xp::$meta['net.xp_framework.build.api.WebHook']= array (
   0 => 
   array (
     'cat' => 
@@ -164,7 +164,7 @@ return Response::created();}static function __static() {WebHook::$json=RestForma
     array (
       5 => 
       array (
-        'type' => 'var',
+        'type' => 'webservices.rest.RestSerializer',
       ),
     ),
   ),

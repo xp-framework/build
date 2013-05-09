@@ -127,7 +127,7 @@ throw $e->getCause();};
 
 $this->out->writeLine('---> ',$targetDir);
 $tempDir->unlink();
-$this->out->writeLine('===> Done');}static function __static() {XarRelease::$finalizers=Package::forName('net.xp_framework.build.subscriber');}}xp::$registry['class.XarRelease']= 'net.xp_framework.build.subscriber.XarRelease';xp::$registry['details.net.xp_framework.build.subscriber.XarRelease']= array (
+$this->out->writeLine('===> Done');}static function __static() {XarRelease::$finalizers=Package::forName('net.xp_framework.build.subscriber');}}xp::$cn['XarRelease']= 'net.xp_framework.build.subscriber.XarRelease';xp::$meta['net.xp_framework.build.subscriber.XarRelease']= array (
   0 => 
   array (
     'finalizers' => 

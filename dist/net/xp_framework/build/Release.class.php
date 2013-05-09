@@ -86,7 +86,7 @@ $this->revision,
 xp::stringOf($this->date),
 str_replace('
 ','
-  ',$this->notes));}}xp::$registry['class.Release']= 'net.xp_framework.build.Release';xp::$registry['details.net.xp_framework.build.Release']= array (
+  ',$this->notes));}}xp::$cn['Release']= 'net.xp_framework.build.Release';xp::$meta['net.xp_framework.build.Release']= array (
   0 => 
   array (
     'version' => 

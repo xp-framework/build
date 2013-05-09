@@ -1,4 +1,4 @@
-<?php uses('util.Properties', 'org.codehaus.stomp.StompConnection', 'io.streams.MemoryInputStream', 'webservices.rest.RestFormat', 'util.cmd.Command', 'lang.System', 'io.streams.StringWriter');
+<?php uses('util.Properties', 'org.codehaus.stomp.StompConnection', 'io.streams.MemoryInputStream', 'webservices.rest.RestFormat', 'util.cmd.Command', 'webservices.rest.RestSerializer', 'lang.System', 'io.streams.StringWriter');
 
 ;
 ;
@@ -80,7 +80,7 @@ return 0;}
 
 
 public function __destruct(){
-$this->queue->disconnect();}}xp::$registry['class.TriggerBuild']= 'net.xp_framework.build.subscriber.TriggerBuild';xp::$registry['details.net.xp_framework.build.subscriber.TriggerBuild']= array (
+$this->queue->disconnect();}}xp::$cn['TriggerBuild']= 'net.xp_framework.build.subscriber.TriggerBuild';xp::$meta['net.xp_framework.build.subscriber.TriggerBuild']= array (
   0 => 
   array (
     'queue' => 

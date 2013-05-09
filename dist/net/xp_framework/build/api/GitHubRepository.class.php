@@ -41,7 +41,7 @@ $this->getClassName().'<'.$this->name.' @ '.$this->master_branch.'>'.'{
 '.'  [owner]    '.$this->owner->name.'
 '.'  [size]     '.$this->size.'
 '.'  [created]  '.xp::stringOf($this->created_at).'
-'.'}';}}xp::$registry['class.GitHubRepository']= 'net.xp_framework.build.api.GitHubRepository';xp::$registry['details.net.xp_framework.build.api.GitHubRepository']= array (
+'.'}';}}xp::$cn['GitHubRepository']= 'net.xp_framework.build.api.GitHubRepository';xp::$meta['net.xp_framework.build.api.GitHubRepository']= array (
   0 => 
   array (
     'name' => 

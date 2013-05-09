@@ -22,7 +22,7 @@ $this->storage=new FileCollection($prop->readString('storage','folder','releases
 
 
 public function mapException(RestContext $ctx){
-$ctx->addExceptionMapping(XPClass::forName('util.NoSuchElementException'),new DefaultExceptionMapper(404));}}xp::$registry['class.net·xp_framework·build·api·AbstractBuildInformation']= 'net.xp_framework.build.api.AbstractBuildInformation';xp::$registry['details.net.xp_framework.build.api.AbstractBuildInformation']= array (
+$ctx->addExceptionMapping(XPClass::forName('util.NoSuchElementException'),new DefaultExceptionMapper(404));}}xp::$cn['net·xp_framework·build·api·AbstractBuildInformation']= 'net.xp_framework.build.api.AbstractBuildInformation';xp::$meta['net.xp_framework.build.api.AbstractBuildInformation']= array (
   0 => 
   array (
     'storage' => 

@@ -1,4 +1,4 @@
-<?php uses('io.collections.FileCollection', 'io.collections.iterate.FilteredIOCollectionIterator', 'io.collections.iterate.IOCollectionIterator', 'io.collections.iterate.CollectionFilter', 'io.collections.iterate.UriMatchesFilter', 'io.collections.iterate.AllOfFilter', 'webservices.rest.srv.Response', 'net.xp_framework.build.Version', 'net.xp_framework.build.api.AbstractBuildInformation', 'webservices.rest.RestFormat', 'net.xp_framework.build.api.Filter', 'net.xp_framework.build.api.IsModule', 'io.collections.IOCollection');
+<?php uses('io.collections.FileCollection', 'io.collections.iterate.FilteredIOCollectionIterator', 'io.collections.iterate.IOCollectionIterator', 'io.collections.iterate.CollectionFilter', 'io.collections.iterate.UriMatchesFilter', 'io.collections.iterate.AllOfFilter', 'webservices.rest.srv.Response', 'net.xp_framework.build.Version', 'net.xp_framework.build.api.AbstractBuildInformation', 'webservices.rest.RestFormat', 'webservices.rest.RestDeserializer', 'net.xp_framework.build.api.Filter', 'net.xp_framework.build.api.IsModule', 'io.collections.IOCollection');
 
 ;
 ;
@@ -73,14 +73,14 @@ $version=new Version(basename($release->getURI()));
 
 $module['releases'][$version->getNumber()]=array('series' => $version->getSeries(),'rc' => $version->isReleaseCandidate(),'published' => $release->createdAt(),);};
 
-return $module;}static function __static() {ModuleInformation::$json=RestFormat::$JSON->deserializer();}}xp::$registry['class.ModuleInformation']= 'net.xp_framework.build.api.ModuleInformation';xp::$registry['details.net.xp_framework.build.api.ModuleInformation']= array (
+return $module;}static function __static() {ModuleInformation::$json=RestFormat::$JSON->deserializer();}}xp::$cn['ModuleInformation']= 'net.xp_framework.build.api.ModuleInformation';xp::$meta['net.xp_framework.build.api.ModuleInformation']= array (
   0 => 
   array (
     'json' => 
     array (
       5 => 
       array (
-        'type' => 'var',
+        'type' => 'webservices.rest.RestDeserializer',
       ),
     ),
   ),

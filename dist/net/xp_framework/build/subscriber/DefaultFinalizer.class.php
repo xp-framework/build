@@ -14,7 +14,7 @@
 
 public function finalize(array $build,array $archives,Folder $targetDir){
 foreach ($archives as $archive) {
-$archive->file->move($targetDir);};}}xp::$registry['class.DefaultFinalizer']= 'net.xp_framework.build.subscriber.DefaultFinalizer';xp::$registry['details.net.xp_framework.build.subscriber.DefaultFinalizer']= array (
+$archive->file->move($targetDir);};}}xp::$cn['DefaultFinalizer']= 'net.xp_framework.build.subscriber.DefaultFinalizer';xp::$meta['net.xp_framework.build.subscriber.DefaultFinalizer']= array (
   0 => 
   array (
   ),

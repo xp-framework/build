@@ -93,7 +93,7 @@ $miIndex=create(new File($targetDir,'meta-inf.ar'))->getOutputStream();$··e= NUL
 
 
 
-FileUtil::setContents(new File($targetDir,'setup'),str_replace('@@VERSION@@',$version['number'],FileUtil::getContents(new File('res',$version['series'].'-setup.php.in'))));}}xp::$registry['class.XpReleaseFinalizer']= 'net.xp_framework.build.subscriber.XpReleaseFinalizer';xp::$registry['details.net.xp_framework.build.subscriber.XpReleaseFinalizer']= array (
+FileUtil::setContents(new File($targetDir,'setup'),str_replace('@@VERSION@@',$version['number'],FileUtil::getContents(new File('res',$version['series'].'-setup.php.in'))));}}xp::$cn['XpReleaseFinalizer']= 'net.xp_framework.build.subscriber.XpReleaseFinalizer';xp::$meta['net.xp_framework.build.subscriber.XpReleaseFinalizer']= array (
   0 => 
   array (
   ),

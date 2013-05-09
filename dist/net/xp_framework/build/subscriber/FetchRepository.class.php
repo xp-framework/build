@@ -151,16 +151,16 @@ $i=0;
 
 
 
-$iter=$zip->iterator();$base=rtrim(create((cast($iter->next(), 'io.archive.zip.ZipDirEntry')))->getName().'/','/');while ($iter->hasNext()) {$entry=$iter->next();$relative=str_replace($base,'',$entry->getName());if ($entry->isDirectory()) {$folder=new Folder($targetDir,$relative);$folder->exists()||$folder->create(493);}else {$file=new File($targetDir,$relative);$tran=new StreamTransfer($entry->getInputStream(),$file->getOutputStream());$··e= NULL; try {$tran->transferAll();} catch (Exception $··e) {}try { $tran->close(); } catch (Exception $··i) {}if ($··e) throw $··e;;};$i++%100||$this->out->write('.');};;
+$iter=$zip->iterator();$base=rtrim(create((\cast($iter->next(), 'io.archive.zip.ZipDirEntry')))->getName().'/','/');while ($iter->hasNext()) {$entry=$iter->next();$relative=str_replace($base,'',$entry->getName());if ($entry->isDirectory()) {$folder=new Folder($targetDir,$relative);$folder->exists()||$folder->create(493);}else {$file=new File($targetDir,$relative);$tran=new StreamTransfer($entry->getInputStream(),$file->getOutputStream());$··e= NULL; try {$tran->transferAll();} catch (Exception $··e) {}try { $tran->close(); } catch (Exception $··i) {}if ($··e) throw $··e;;};$i++%100||$this->out->write('.');};;
 $zip->close();
 $this->out->writeLine(']');
 
 
 $f=new File($targetDir,'xpbuild.json');
 if ($f->exists()) {
-$instructions=cast(RestFormat::$JSON->read($f->getInputStream(),XPClass::forName('net.xp_framework.build.BuildInstructions')), 'net.xp_framework.build.BuildInstructions');}else {
+$instructions=\cast(RestFormat::$JSON->read($f->getInputStream(),XPClass::forName('net.xp_framework.build.BuildInstructions')), 'net.xp_framework.build.BuildInstructions');}else {
 
-$instructions=cast(BuildInstructions::$DEFAULT, 'net.xp_framework.build.BuildInstructions');};
+$instructions=\cast(BuildInstructions::$DEFAULT, 'net.xp_framework.build.BuildInstructions');};
 
 
 
@@ -187,7 +187,7 @@ $instructions,'vendor' =>
 $build['owner'],'module' => 
 $build['repo'],'release' => 
 $release,'checkout' => 
-$targetDir->getURI(),);}}xp::$registry['class.FetchRepository']= 'net.xp_framework.build.subscriber.FetchRepository';xp::$registry['details.net.xp_framework.build.subscriber.FetchRepository']= array (
+$targetDir->getURI(),);}}xp::$cn['FetchRepository']= 'net.xp_framework.build.subscriber.FetchRepository';xp::$meta['net.xp_framework.build.subscriber.FetchRepository']= array (
   0 => 
   array (
     'target' => 

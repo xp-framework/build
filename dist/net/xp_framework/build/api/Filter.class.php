@@ -20,7 +20,7 @@ $this->pattern=$pattern;}
 
 
 public static function valueOf($in){
-return new net·xp_framework·build·api·Filter('/^'.strtr(preg_quote($in,'/'),array('\\*' => '.+',)).'$/');}}xp::$registry['class.net·xp_framework·build·api·Filter']= 'net.xp_framework.build.api.Filter';xp::$registry['details.net.xp_framework.build.api.Filter']= array (
+return new net·xp_framework·build·api·Filter('/^'.strtr(preg_quote($in,'/'),array('\\*' => '.+',)).'$/');}}xp::$cn['net·xp_framework·build·api·Filter']= 'net.xp_framework.build.api.Filter';xp::$meta['net.xp_framework.build.api.Filter']= array (
   0 => 
   array (
     'pattern' => 

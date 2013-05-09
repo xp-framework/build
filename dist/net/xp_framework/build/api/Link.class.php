@@ -26,7 +26,7 @@ return new Link($in);}
 
 
 public function toString(){
-return $this->getClassName().'(-> '.$this->url.')';}}xp::$registry['class.Link']= 'net.xp_framework.build.api.Link';xp::$registry['details.net.xp_framework.build.api.Link']= array (
+return $this->getClassName().'(-> '.$this->url.')';}}xp::$cn['Link']= 'net.xp_framework.build.api.Link';xp::$meta['net.xp_framework.build.api.Link']= array (
   0 => 
   array (
     'url' => 

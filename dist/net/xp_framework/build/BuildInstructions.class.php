@@ -94,7 +94,7 @@ return
 
 
 
-$this->getClassName().'@'.xp::stringOf(array('base' => $this->base,'naming' => $this->naming,'finalize' => $this->finalize,));}static function __static() {BuildInstructions::$DEFAULT=new BuildInstructions();}}xp::$registry['class.BuildInstructions']= 'net.xp_framework.build.BuildInstructions';xp::$registry['details.net.xp_framework.build.BuildInstructions']= array (
+$this->getClassName().'@'.xp::stringOf(array('base' => $this->base,'naming' => $this->naming,'finalize' => $this->finalize,));}static function __static() {BuildInstructions::$DEFAULT=new BuildInstructions();}}xp::$cn['BuildInstructions']= 'net.xp_framework.build.BuildInstructions';xp::$meta['net.xp_framework.build.BuildInstructions']= array (
   0 => 
   array (
     'DEFAULT' => 

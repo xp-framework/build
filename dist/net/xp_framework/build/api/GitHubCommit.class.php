@@ -35,7 +35,7 @@ $this->getClassName().'<'.$this->id.' @ '.$this->timestamp->toString().' by '.$t
 '.'  [added]    '.implode(', ',$this->added).'
 '.'  [modified] '.implode(', ',$this->modified).'
 '.'  [removed]  '.implode(', ',$this->removed).'
-'.'}';}}xp::$registry['class.GitHubCommit']= 'net.xp_framework.build.api.GitHubCommit';xp::$registry['details.net.xp_framework.build.api.GitHubCommit']= array (
+'.'}';}}xp::$cn['GitHubCommit']= 'net.xp_framework.build.api.GitHubCommit';xp::$meta['net.xp_framework.build.api.GitHubCommit']= array (
   0 => 
   array (
     'id' => 
