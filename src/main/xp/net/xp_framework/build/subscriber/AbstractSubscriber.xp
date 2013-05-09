@@ -91,7 +91,6 @@ package abstract class AbstractSubscriber extends util.cmd.Command {
         } else {
           $this.err.writeLine('>>> ', $response);
           $message= $serializer.serialize($response);
-          $this.cat && $this.cat.info($this.destination, $message);
           $this.queue.send($this.destination, $message, [
             'content-type' : $serializer.contentType()
           ]);

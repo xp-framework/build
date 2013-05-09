@@ -75,17 +75,17 @@ return $element;}
 
 public function githubTrigger($in){
 try {
-$payload=\cast(RestFormat::$JSON->read(new MemoryInputStream($in),XPClass::forName('net.xp_framework.build.api.GitHubPayload')), 'net.xp_framework.build.api.GitHubPayload');} catch(FormatException $e) {
+$payload=cast(RestFormat::$JSON->read(new MemoryInputStream($in),XPClass::forName('net.xp_framework.build.api.GitHubPayload')), 'net.xp_framework.build.api.GitHubPayload');} catch(FormatException $e) {
 
 $this->cat&&$this->cat->warn('Malformed payload',$e);
-return create(Response::error(400))->withPayload('Malformed payload: '.$e->compoundMessage());};
+return Response::error(400)->withPayload('Malformed payload: '.$e->compoundMessage());};
 
 
 
 try {
 if (!($vendor=$this->storage->findCollection($payload->repository->owner->name))) {
-$this->cat&&$this->cat->info('New vendor',$payload->repository->owner);
-$vendor=$this->create($this->storage->newCollection($payload->repository->owner->name),511);};
+$this->cat&&$this->cat->warn('Unrecognized vendor, ignoring',$payload->repository->owner);
+return Response::error(403)->withPayload('Not allowed here');};
 
 
 if (!($module=$vendor->findCollection($payload->repository->name))) {
@@ -112,6 +112,7 @@ $this->cat&&$this->cat->warn('Storage error, continuing anyways',$e);};
 
 
 if ($payload->created&&($tag=$payload->getTag())) {
+$version=NULL;
 sscanf($tag,'r%[0-9A-Za-z.~]',$version);
 
 

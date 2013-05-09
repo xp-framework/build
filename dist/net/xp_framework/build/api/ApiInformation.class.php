@@ -1,6 +1,9 @@
 <?php 
 
 
+
+
+
  class ApiInformation extends Object{
 
 
@@ -52,7 +55,7 @@ array('message' => 'Welcome to the XP Framework Build API','version' => '2.0.0',
     array (
       'webservice' => NULL,
     ),
-    4 => NULL,
+    4 => 'The "/" resource shows information about the API',
   ),
 );
 ?>

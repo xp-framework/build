@@ -12,6 +12,10 @@
 ;
 
 
+
+
+
+
  class ModuleInformation extends net·xp_framework·build·api·AbstractBuildInformation{
 private static $json;
 
@@ -62,7 +66,6 @@ return Response::notFound();};}
 
 public function getModule($vendor,$module){if (NULL !== $vendor && !is("string", $vendor)) throw new IllegalArgumentException("Argument 1 passed to ".__METHOD__." must be of string, ".xp::typeOf($vendor)." given");if (NULL !== $module && !is("string", $module)) throw new IllegalArgumentException("Argument 2 passed to ".__METHOD__." must be of string, ".xp::typeOf($module)." given");
 $target=$this->storage->getCollection($vendor)->getCollection($module);
-
 $module=ModuleInformation::$json->deserialize($target->getElement(net·xp_framework·build·api·IsModule::NAME)->getInputStream(),Type::forName('[:var]'));
 $module['releases']=array();
 foreach (new FilteredIOCollectionIterator($target,new CollectionFilter()) as $release) {
@@ -167,7 +170,8 @@ return $module;}static function __static() {ModuleInformation::$json=RestFormat:
         'path' => '/vendors/{vendor}/modules',
       ),
     ),
-    4 => NULL,
+    4 => 'The "modules" resource supports listing, testing and fetching 
+information about modules for a given vendor.',
   ),
 );
 ?>

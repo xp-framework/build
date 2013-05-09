@@ -11,6 +11,10 @@
 ;
 
 
+
+
+
+
  class VendorInformation extends net·xp_framework·build·api·AbstractBuildInformation{
 
 
@@ -143,7 +147,8 @@ return array('vendor' => $vendor,'modules' => $modules,);}}xp::$cn['VendorInform
         'path' => '/vendors',
       ),
     ),
-    4 => NULL,
+    4 => 'The "vendors" resource supports listing, testing and fetching 
+information about vendors.',
   ),
 );
 ?>

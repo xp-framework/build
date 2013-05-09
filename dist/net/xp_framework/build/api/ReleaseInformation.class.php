@@ -20,6 +20,10 @@
 ;
 
 
+
+
+
+
  class ReleaseInformation extends net·xp_framework·build·api·AbstractBuildInformation{
 
 
@@ -273,7 +277,8 @@ return StreamingOutput::of($target);}}xp::$cn['ReleaseInformation']= 'net.xp_fra
         'path' => '/vendors/{vendor}/modules/{module}/releases',
       ),
     ),
-    4 => NULL,
+    4 => 'The "releases" resource supports listing, testing and fetching 
+information about releases for a given vendor\'s module.',
   ),
 );
 ?>

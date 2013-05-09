@@ -6,6 +6,10 @@
 ;
 ;
 
+
+
+
+
 $package= 'net.xp_framework.build.api'; class net·xp_framework·build·api·AbstractBuildInformation extends Object{
 protected $storage;
 
@@ -82,7 +86,8 @@ $ctx->addExceptionMapping(XPClass::forName('util.NoSuchElementException'),new De
     5 => 
     array (
     ),
-    4 => NULL,
+    4 => 'Base class for all entity information resources. Holds a reference to 
+the storage.',
   ),
 );
 ?>

@@ -6,6 +6,10 @@ import io.collections.FileCollection;
 import webservices.rest.srv.RestContext;
 import webservices.rest.srv.DefaultExceptionMapper;
 
+/**
+ * Base class for all entity information resources. Holds a reference to 
+ * the storage.
+ */
 package class AbstractBuildInformation {
   protected FileCollection $storage;
 
