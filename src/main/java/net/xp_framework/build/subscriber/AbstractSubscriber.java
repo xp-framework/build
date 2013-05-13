@@ -101,7 +101,7 @@ abstract class AbstractSubscriber {
         channel.basicQos(1);
 
         // Parse
-        String origin = configuration.get("queue").get("build.mvn");
+        String origin = configuration.get("destinations").get("build.mvn");
         String queue = null;
         if (origin.startsWith("/queue/")) {
             queue = channel.queueDeclarePassive(origin.substring("/queue/".length())).getQueue();
