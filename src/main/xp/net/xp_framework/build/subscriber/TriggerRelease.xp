@@ -1,0 +1,80 @@
+package net.xp_framework.build.subscriber;
+
+import util.Properties;
+import org.codehaus.stomp.StompConnection;
+import webservices.rest.RestFormat;
+
+import native standard.explode;
+import native standard.substr;
+
+/**
+ * Trigger a release build
+ */
+public class TriggerRelease extends util.cmd.Command {
+  private StompConnection $queue;
+  private [:string] $destinations;
+  private string $destination;
+  private io.Folder $target;
+
+  /**
+   * Injects message queue configuration
+   */
+  [@inject(name = 'mq')]
+  public void useMessageQueue(Properties $prop) {
+    $this.queue= new StompConnection($prop.readString('endpoint', 'host'), $prop.readInteger('endpoint', 'port'));
+    $this.queue.connect($prop.readString('endpoint', 'user'), $prop.readString('endpoint', 'pass'));
+    $this.destinations= $prop.readSection('destinations');
+  }
+
+  /**
+   * Sets target dir
+   */
+  [@arg(position = 0)]
+  public void setTarget(string? $dir) {
+    $this.target= new io.Folder($dir);
+  }
+
+  /**
+   * Sets which message queue to use
+   */
+  [@arg(position = 1)]
+  public void setQueue(string? $name) {
+    if (!isset($this.destinations[$name])) {
+      throw new lang.IllegalArgumentException('No such destination "' ~ $name ~ '", have: ' ~ xp::stringOf($this.destinations));
+    }
+    $this.destination= $this.destinations[$name];
+  }
+
+  /**
+   * Listens
+   */
+  public int run() {
+    $parts= explode(DIRECTORY_SEPARATOR, $this.target.getURI()) as string[]?;
+    $release= substr($parts[$parts.length - 2], 1);   // r5.9.0
+    $module= $parts[$parts.length - 3];
+    $vendor= $parts[$parts.length - 4];
+
+    with ($json= RestFormat::$JSON, $serializer= $json.serializer()) {
+      $message= $serializer.serialize([
+        build    : $json.deserializer().deserialize(new io.File($this.target, 'xpbuild.json').getInputStream()),
+        vendor   : $vendor,
+        module   : $module,
+        release  : $release,
+        checkout : $this.target.getURI()
+      ]);
+
+      $this.queue.send($this.destination, $message, [
+        'content-type' : $serializer.contentType()
+      ]);
+      $this.out.writeLine('Publish -> ', $this.destination, ': ', $message);
+    }
+    return 0;
+  }
+
+  /**
+   * Destructor. Closes connection to MQ
+   */
+  public void __destruct() {
+    $this.queue.disconnect();
+  }
+}
