@@ -1,7 +1,9 @@
-<?php uses('util.Date', 'net.xp_framework.build.Version');
+<?php uses('util.Date', 'util.Objects', 'net.xp_framework.build.Version');
 
 ;
+;
 
+;
 ;
 ;
 
@@ -17,61 +19,63 @@ protected $notes;
 
 
 
-public function setVersion(Version $version= NULL){
-$this->version=$version;}
+public function __construct($version= NULL,$date= NULL,$revision= NULL,$notes= NULL){$this->version= $version;$this->date= $date;$this->revision= $revision;
+$this->setNotes($notes);}
 
 
 
 
 
-public function getVersion(){
-return $this->version;}
+public function setVersion($version= NULL){$this->version= $version;}
+
+
+
+
+public function getVersion(){return $this->version;}
+
+
+
+
+public function setRevision($revision){$this->revision= $revision;}
+
+
+
+
+public function getRevision(){return $this->revision;}
+
+
+
+
+public function setDate($date){$this->date= $date;}
+
+
+
+
+public function getDate(){return $this->date;}
+
+
+
+
+public function setNotes($notes){
+$this->notes=trim($notes);}
 
 
 
 
 
-public function setRevision($revision){if (NULL !== $revision && !is("string", $revision)) throw new IllegalArgumentException("Argument 1 passed to ".__METHOD__." must be of string, ".xp::typeOf($revision)." given");
-$this->revision=$revision;}
+public function getNotes(){return $this->notes;}
+
+
+
+
+public function equals($cmp){if (NULL !== $cmp && !is("var", $cmp)) throw new IllegalArgumentException("Argument 1 passed to ".__METHOD__." must be of var, ".xp::typeOf($cmp)." given");
+return (
 
 
 
 
 
-public function getRevision(){
-return $this->revision;}
-
-
-
-
-
-
-
-public function setDate(Date $date){
-$this->date=$date;}
-
-
-
-
-
-public function getDate(){
-return $this->date;}
-
-
-
-
-
-public function setNotes($notes){if (NULL !== $notes && !is("string", $notes)) throw new IllegalArgumentException("Argument 1 passed to ".__METHOD__." must be of string, ".xp::typeOf($notes)." given");
-$this->notes=$notes;}
-
-
-
-
-
-public function getNotes(){
-return $this->notes;}
-
-
+$this instanceof Release&&Objects::equal($this->version,$cmp->version)&&Objects::equal($this->revision,$cmp->revision)&&Objects::equal($this->date,$cmp->date)&&Objects::equal($this->notes,$cmp->notes));}
 
 
 
@@ -120,6 +124,30 @@ str_replace('
   ),
   1 => 
   array (
+    '__construct' => 
+    array (
+      1 => 
+      array (
+        0 => 'net.xp_framework.build.Version',
+        1 => 'util.Date',
+        2 => 'string',
+        3 => 'string',
+      ),
+      2 => NULL,
+      3 => 
+      array (
+      ),
+      4 => '
+  
+  Constructor
+  ',
+      5 => 
+      array (
+      ),
+      6 => 
+      array (
+      ),
+    ),
     'setVersion' => 
     array (
       1 => 
@@ -253,6 +281,24 @@ str_replace('
       array (
       ),
       4 => 'Get notes',
+      5 => 
+      array (
+      ),
+      6 => 
+      array (
+      ),
+    ),
+    'equals' => 
+    array (
+      1 => 
+      array (
+        0 => 'var',
+      ),
+      2 => 'bool',
+      3 => 
+      array (
+      ),
+      4 => 'Returns whether another object is equal to this release',
       5 => 
       array (
       ),

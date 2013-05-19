@@ -1,9 +1,11 @@
 package net.xp_framework.build;
 
 import util.Date;
+import util.Objects;
 
 import native standard.sprintf;
 import native standard.str_replace;
+import native standard.trim;
 
 /**
  * Represents a release
@@ -13,69 +15,71 @@ public class Release {
   protected string $revision;
   protected Date $date;
   protected string $notes;
+
+  /**
+   * Constructor
+   */
+  public __construct($this.version= null, $this.date= null, $this.revision= null, string? $notes= null) {
+    $this.setNotes($notes);
+  }
   
   /**
    * Set version
    */
-  public void setVersion(Version $version= null) {
-    $this.version= $version;
-  }
+  public void setVersion($this.version= null) { }
 
   /**
    * Get version
    */
-  public Version getVersion() {
-    return $this.version;
-  }
+  public Version getVersion() -> $this.version;
 
   /**
    * Set revision
    */
-  public void setRevision(string $revision) {
-    $this.revision= $revision;
-  }
+  public void setRevision($this.revision) { }
 
   /**
    * Get revision
    */
-  public string getRevision() {
-    return $this.revision;
-  }
+  public string getRevision() -> $this.revision;
 
   /**
    * Set date
-   *
-   * @param   util.Date date
    */
-  public void setDate(Date $date) {
-    $this.date= $date;
-  }
+  public void setDate($this.date) { }
 
   /**
    * Get date
    */
-  public Date getDate() {
-    return $this.date;
-  }
+  public Date getDate() -> $this.date;
 
   /**
    * Set notes
    */
-  public void setNotes(string $notes) {
-    $this.notes= $notes;
+  public void setNotes(string? $notes) {
+    $this.notes= trim($notes);
   }
 
   /**
    * Get notes
    */
-  public string getNotes() {
-    return $this.notes;
+  public string getNotes() -> $this.notes;
+
+  /**
+   * Returns whether another object is equal to this release
+   */
+  public bool equals(var $cmp) {
+    return (
+      $this instanceof self &&
+      Objects::equal($this.version, $cmp.version) &&
+      Objects::equal($this.revision, $cmp.revision) &&
+      Objects::equal($this.date, $cmp.date) &&
+      Objects::equal($this.notes, $cmp.notes)
+    );
   }
 
   /**
    * Returns a string representation
-   *
-   * @return  string
    */
   public string toString() {
     return sprintf(

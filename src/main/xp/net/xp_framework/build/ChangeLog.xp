@@ -1,5 +1,7 @@
 package net.xp_framework.build;
 
+import lang.ElementNotFoundException;
+
 /**
  * Represents the changelog
  */
@@ -12,6 +14,14 @@ public class ChangeLog {
   public Release addRelease(Release $release) {
     $this.releases[]= $release;
     return $release;
+  }
+
+  /**
+   * Adds a release
+   */
+  public self withRelease(Release $release) {
+    $this.addRelease($release);
+    return $this;
   }
   
   /**
@@ -31,10 +41,25 @@ public class ChangeLog {
   /**
    * Finds a release with a specific version
    */
-  public Release getRelease(Version $version= null) throws lang.ElementNotFoundException {
+  public Release getRelease(Version $version= null) throws lementNotFoundException {
     if (null === ($release= $this.findRelease($version))) {
       throw new ElementNotFoundException('No release with version ' ~ xp::stringOf($version));
     }
     return $release;
+  }
+
+  /**
+   * Returns whether another object is equal to this release
+   */
+  public bool equals(var $cmp) {
+    return $cmp instanceof self && util.Objects::equal($this.releases, $cmp.releases);
+  }
+
+
+  /**
+   * Returns a string representation
+   */
+  public string toString() {
+    return $this.getClassName() ~ '(releases= ' ~ xp::stringOf($this.releases) ~ ')';
   }
 }
