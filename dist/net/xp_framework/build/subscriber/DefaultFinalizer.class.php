@@ -18,7 +18,8 @@ public function finalize(array $build,array $archives,Folder $targetDir){
 foreach ($archives as $archive) {
 $archive->file->move($targetDir);};
 
-FileUtil::setContents(new File($targetDir,'ChangeLog'),$build['release']['notes']);}}xp::$cn['DefaultFinalizer']= 'net.xp_framework.build.subscriber.DefaultFinalizer';xp::$meta['net.xp_framework.build.subscriber.DefaultFinalizer']= array (
+FileUtil::setContents(new File($targetDir,'ChangeLog'),$build['release']['notes'].'
+');}}xp::$cn['DefaultFinalizer']= 'net.xp_framework.build.subscriber.DefaultFinalizer';xp::$meta['net.xp_framework.build.subscriber.DefaultFinalizer']= array (
   0 => 
   array (
   ),

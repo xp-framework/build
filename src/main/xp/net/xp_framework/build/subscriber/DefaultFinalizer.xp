@@ -18,6 +18,6 @@ public class DefaultFinalizer implements XarReleaseFinalizer {
     foreach ($archive in $archives) {
       $archive.file.move($targetDir);
     }
-    FileUtil::setContents(new File($targetDir, 'ChangeLog'), $build['release']['notes']);
+    FileUtil::setContents(new File($targetDir, 'ChangeLog'), $build['release']['notes'] ~ "\n");
   }
 }
