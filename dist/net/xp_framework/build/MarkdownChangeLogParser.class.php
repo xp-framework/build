@@ -1,4 +1,4 @@
-<?php uses('util.Date', 'io.streams.InputStream', 'io.streams.TextReader', 'net.xp_framework.build.ChangeLog', 'net.xp_framework.build.Release', 'net.xp_framework.build.Version');
+<?php uses('util.Date', 'io.streams.InputStream', 'io.streams.TextReader', 'net.xp_framework.build.ChangeLogParser', 'net.xp_framework.build.ChangeLog', 'net.xp_framework.build.Release', 'net.xp_framework.build.Version');
 
 ;
 ;
@@ -28,7 +28,7 @@
 
 
 
- class MarkdownChangeLogParser extends Object{
+ class MarkdownChangeLogParser extends Object implements ChangeLogParser{
 const SEPARATOR='## %[0-9?.] / %[0-9?-]';
 
 

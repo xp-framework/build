@@ -28,7 +28,7 @@ import native standard.rtrim;
  * ...
  * ```
  */
-public class MarkdownChangeLogParser {
+public class MarkdownChangeLogParser implements ChangeLogParser {
   const string SEPARATOR = '## %[0-9?.] / %[0-9?-]';
 
   /**

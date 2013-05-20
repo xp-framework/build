@@ -1,6 +1,11 @@
-<?php uses('unittest.TestCase', 'net.xp_framework.build.MarkdownChangeLogParser', 'io.streams.MemoryInputStream', 'net.xp_framework.build.ChangeLog', 'net.xp_framework.build.Release', 'util.Date', 'net.xp_framework.build.Version');
+<?php uses('net.xp_framework.build.ChangeLogParserTest', 'net.xp_framework.build.MarkdownChangeLogParser', 'net.xp_framework.build.ChangeLog', 'net.xp_framework.build.Release', 'util.Date', 'net.xp_framework.build.Version');
 
- class MarkdownChangeLogParserTest extends TestCase{
+ class MarkdownChangeLogParserTest extends ChangeLogParserTest{
+
+
+
+
+protected function newFixture(){return new MarkdownChangeLogParser();}
 
 public function one_release_and_dev_version(){
 
@@ -16,7 +21,7 @@ public function one_release_and_dev_version(){
 
 
 
-$changeLog=create(new MarkdownChangeLogParser())->parse(new MemoryInputStream('
+$changeLog=$this->parse('
 ## ?.?.? / ????-??-??
 
 ### RFCs
@@ -29,7 +34,7 @@ $changeLog=create(new MarkdownChangeLogParser())->parse(new MemoryInputStream('
 
 * Deprecated scriptlet.xml.workflow.casters.ToFloat in favor of ToDouble
   for the sake of consistency - (@thekid)
-    '));$this->assertEquals(create(new ChangeLog())->withRelease(new Release(NULL,Date::now(),NULL,'
+    ');$this->assertEquals(create(new ChangeLog())->withRelease(new Release(NULL,Date::now(),NULL,'
 ### RFCs
 
 * Implemented RFC 273: ChangeLog formatting - (@thekid)
@@ -44,6 +49,23 @@ $changeLog=create(new MarkdownChangeLogParser())->parse(new MemoryInputStream('
   ),
   1 => 
   array (
+    'newFixture' => 
+    array (
+      1 => 
+      array (
+      ),
+      2 => 'net.xp_framework.build.ChangeLogParser',
+      3 => 
+      array (
+      ),
+      4 => 'Creates a new fixture',
+      5 => 
+      array (
+      ),
+      6 => 
+      array (
+      ),
+    ),
     'one_release_and_dev_version' => 
     array (
       1 => 

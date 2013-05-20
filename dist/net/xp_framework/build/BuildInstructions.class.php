@@ -1,4 +1,4 @@
-<?php uses('io.File', 'io.Folder', 'net.xp_framework.build.MarkdownChangeLogParser', 'net.xp_framework.build.ChangeLogParser');
+<?php uses('io.File', 'io.Folder', 'net.xp_framework.build.MarkdownChangeLogParser', 'net.xp_framework.build.DefaultChangeLogParser', 'net.xp_framework.build.ChangeLogParser');
 
 ;
 ;
@@ -102,7 +102,7 @@ return
 
 
 
-$this->getClassName().'@'.xp::stringOf(array('base' => $this->base,'naming' => $this->naming,'finalize' => $this->finalize,));}static function __static() {BuildInstructions::$DEFAULT=new BuildInstructions();BuildInstructions::$changeLogs=array('ChangeLog.md' => new MarkdownChangeLogParser(),'ChangeLog' => new ChangeLogParser(),);}}xp::$cn['BuildInstructions']= 'net.xp_framework.build.BuildInstructions';xp::$meta['net.xp_framework.build.BuildInstructions']= array (
+$this->getClassName().'@'.xp::stringOf(array('base' => $this->base,'naming' => $this->naming,'finalize' => $this->finalize,));}static function __static() {BuildInstructions::$DEFAULT=new BuildInstructions();BuildInstructions::$changeLogs=array('ChangeLog.md' => new MarkdownChangeLogParser(),'ChangeLog' => new DefaultChangeLogParser(),);}}xp::$cn['BuildInstructions']= 'net.xp_framework.build.BuildInstructions';xp::$meta['net.xp_framework.build.BuildInstructions']= array (
   0 => 
   array (
     'DEFAULT' => 
@@ -116,7 +116,7 @@ $this->getClassName().'@'.xp::stringOf(array('base' => $this->base,'naming' => $
     array (
       5 => 
       array (
-        'type' => '[:var]',
+        'type' => '[:net.xp_framework.build.ChangeLogParser]',
       ),
     ),
     'base' => 

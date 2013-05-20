@@ -19,9 +19,9 @@ import io.Folder;
  */
 public class BuildInstructions {
   public static self $DEFAULT= new self();
-  public static [:var] $changeLogs= [
+  public static [:ChangeLogParser] $changeLogs= [
     'ChangeLog.md' : new MarkdownChangeLogParser(),
-    'ChangeLog'    : new ChangeLogParser()
+    'ChangeLog'    : new DefaultChangeLogParser()
   ];
   protected string $base= '.';
   protected [:string] $naming= [:];

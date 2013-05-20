@@ -1,9 +1,14 @@
 package net.xp_framework.build;
 
-class MarkdownChangeLogParserTest extends unittest.TestCase {
-  
+class MarkdownChangeLogParserTest extends ChangeLogParserTest {
+
+  /**
+   * Creates a new fixture
+   */
+  protected ChangeLogParser newFixture() -> new MarkdownChangeLogParser();
+
   [@test] void one_release_and_dev_version() {
-    $changeLog= new MarkdownChangeLogParser().parse(new io.streams.MemoryInputStream('
+    $changeLog= $this.parse('
 ## ?.?.? / ????-??-??
 
 ### RFCs
@@ -16,7 +21,7 @@ class MarkdownChangeLogParserTest extends unittest.TestCase {
 
 * Deprecated scriptlet.xml.workflow.casters.ToFloat in favor of ToDouble
   for the sake of consistency - (@thekid)
-    '));
+    ');
     $this.assertEquals(
       new ChangeLog()
         .withRelease(new Release(null, util.Date::now(), null, '
