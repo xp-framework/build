@@ -1,10 +1,8 @@
 package net.xp_framework.build;
 
-import native standard.trim;
-
 class ChangeLogParserTest extends unittest.TestCase {
   
-  [@test] void one_release() {
+  [@test] void one_release_and_dev_version() {
     $changeLog= new ChangeLogParser().parse(new io.streams.MemoryInputStream('
 Version ?.?.?, released ????-??-??
 ----------------------------------

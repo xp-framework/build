@@ -1,10 +1,8 @@
 <?php uses('unittest.TestCase', 'net.xp_framework.build.ChangeLogParser', 'io.streams.MemoryInputStream', 'net.xp_framework.build.ChangeLog', 'net.xp_framework.build.Release', 'util.Date', 'net.xp_framework.build.Version');
 
-;
-
  class ChangeLogParserTest extends TestCase{
 
-public function one_release(){
+public function one_release_and_dev_version(){
 
 
 
@@ -57,7 +55,7 @@ Features
   ),
   1 => 
   array (
-    'one_release' => 
+    'one_release_and_dev_version' => 
     array (
       1 => 
       array (
