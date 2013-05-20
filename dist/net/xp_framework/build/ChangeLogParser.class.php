@@ -106,22 +106,22 @@ $reader=new TextReader($in,'utf-8');$··e= NULL; try {$separator='Version %[0-9?.
     4 => 'Parses changelog from an input stream
 
 Example:
-<pre>
-  Version ?.?.?, released ????-??-??
-  ----------------------------------
-  Git commit: ?????
-  
-  Features
-  ~~~~~~~~
-  - Added support for "self" keyword in parameters and return types
-    (friebe)
-  
-  Version 1.2.0, released 2012-09-30
-  ----------------------------------
-  Git commit: 27e33c1b3a01127a4398f2e9a3884b6426bf4cff
+```
+Version ?.?.?, released ????-??-??
+----------------------------------
+Git commit: ?????
 
-  ...
-</pre>',
+Features
+~~~~~~~~
+- Added support for "self" keyword in parameters and return types
+  (friebe)
+
+Version 1.2.0, released 2012-09-30
+----------------------------------
+Git commit: 27e33c1b3a01127a4398f2e9a3884b6426bf4cff
+
+...
+```',
   ),
 );
 ?>

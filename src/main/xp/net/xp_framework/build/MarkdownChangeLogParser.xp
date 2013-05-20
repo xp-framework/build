@@ -8,27 +8,28 @@ import native standard.sscanf;
 import native standard.rtrim;
 
 /**
- * Parses changelog from an input stream
+ * Parses markdown changelog from an input stream
  *
  * Example:
- * ```
- * Version ?.?.?, released ????-??-??
- * ----------------------------------
- * Git commit: ?????
+ * ```markdown
+ * ## ?.?.? / ????-??-??
  * 
- * Features
- * ~~~~~~~~
- * - Added support for "self" keyword in parameters and return types
- *   (friebe)
+ * ### RFCs
  * 
- * Version 1.2.0, released 2012-09-30
- * ----------------------------------
- * Git commit: 27e33c1b3a01127a4398f2e9a3884b6426bf4cff
+ * * Implemented RFC 273: ChangeLog formatting - (@thekid)
+ * 
+ * ## 5.9.2 / 2013-05-16
+ * 
+ * ### Heads up!
+ * 
+ * * Deprecated scriptlet.xml.workflow.casters.ToFloat in favor of ToDouble
+ *   for the sake of consistency - (@thekid)
  *
  * ...
  * ```
  */
-public class ChangeLogParser {
+public class MarkdownChangeLogParser {
+  const string SEPARATOR = '## %[0-9?.] / %[0-9?-]';
 
   /**
    * Parse ChangeLog file
@@ -36,7 +37,6 @@ public class ChangeLogParser {
   public ChangeLog parse(InputStream $in) throws IllegalStateException {
     $log= new ChangeLog();
     try ($reader= new TextReader($in, 'utf-8')) {
-      $separator= 'Version %[0-9?.], released %[0-9?-]';
 
       // Seek for first separator
       $version= $date= null;
@@ -44,27 +44,20 @@ public class ChangeLogParser {
         if (null === ($l= $reader.readLine())) {
           throw new IllegalStateException('ChangeLog malformed');
         }
-      } while (2 !== sscanf($l, $separator, $version, $date));
+      } while (2 !== sscanf($l, self::SEPARATOR, $version, $date));
 
       // Parse rest of file
       do {
         $release= new Release();
         $release.setVersion('?.?.?' === $version ? null : new Version($version));
         $release.setDate('????-??-??' === $date ? Date::now() : new Date($date));
-
-        // Skip over "----" line
-        $reader.readLine();
-
-        // Extract revision (either: SVN version: 12345 or GIT commit: 12345)
-        $rev= null;
-        sscanf($reader.readLine(), '%*[^:]: %s', $rev);
-        $release.setRevision($rev);
+        $release.setRevision(null);
 
         // Read notes      
         $notes= '';
         $version= $date= null;
         while (null !== ($l= $reader.readLine())) {
-          if (2 === sscanf($l, $separator, $version, $date)) break;
+          if (2 === sscanf($l, self::SEPARATOR, $version, $date)) break;
           $notes~= $l ~ "\n";
         }
 
