@@ -166,19 +166,22 @@ public class FetchRepository extends AbstractSubscriber {
     // Process changelog
     try {
       $log= $instructions.changeLogIn($targetDir);
-      if ($version.isReleaseCandidate()) {
-        $release= $log.getRelease(null);         // Use not yet named release
-        $release.setVersion($version);
-        $release.setRevision($build['tag']);
-      } else {
-        $release= $log.getRelease($version);
-      }
     } catch (IllegalStateException $e) {
       $this.err.writeLine('Cannot read ChangeLog, using defaults ~ ', $e);
+      $log= null;
+    }
+
+    if (null === $log) {
       $release= new Release();
       $release.setVersion($version);
       $release.setRevision($build['tag']);
       $release.setDate(Date::now());
+    } else if ($version.isReleaseCandidate()) {
+      $release= $log.getRelease(null);         // Use not yet named release
+      $release.setVersion($version);
+      $release.setRevision($build['tag']);
+    } else {
+      $release= $log.getRelease($version);
     }
 
     // Republish for build process

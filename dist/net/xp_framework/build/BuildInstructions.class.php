@@ -1,4 +1,4 @@
-<?php uses('io.File', 'io.Folder', 'net.xp_framework.build.ChangeLogParser');
+<?php uses('io.File', 'io.Folder', 'net.xp_framework.build.MarkdownChangeLogParser', 'net.xp_framework.build.ChangeLogParser');
 
 ;
 ;
@@ -19,6 +19,10 @@
 
  class BuildInstructions extends Object{
 public static $DEFAULT;
+
+
+
+public static $changeLogs;
 protected $base= '.';
 protected $naming= array (
 );protected $finalize= NULL;
@@ -83,7 +87,11 @@ return new File($this->baseOf($base),$name);}
 
 
 public function changeLogIn(Folder $base){
-return create(new ChangeLogParser())->parse($this->file($base,'ChangeLog')->getInputStream());}
+foreach (BuildInstructions::$changeLogs as $name => $parser) {
+$f=$this->file($base,$name);
+if ($f->exists()) {return $parser->parse($f->getInputStream());};};
+
+return NULL;}
 
 
 
@@ -94,7 +102,7 @@ return
 
 
 
-$this->getClassName().'@'.xp::stringOf(array('base' => $this->base,'naming' => $this->naming,'finalize' => $this->finalize,));}static function __static() {BuildInstructions::$DEFAULT=new BuildInstructions();}}xp::$cn['BuildInstructions']= 'net.xp_framework.build.BuildInstructions';xp::$meta['net.xp_framework.build.BuildInstructions']= array (
+$this->getClassName().'@'.xp::stringOf(array('base' => $this->base,'naming' => $this->naming,'finalize' => $this->finalize,));}static function __static() {BuildInstructions::$DEFAULT=new BuildInstructions();BuildInstructions::$changeLogs=array('ChangeLog.md' => new MarkdownChangeLogParser(),'ChangeLog' => new ChangeLogParser(),);}}xp::$cn['BuildInstructions']= 'net.xp_framework.build.BuildInstructions';xp::$meta['net.xp_framework.build.BuildInstructions']= array (
   0 => 
   array (
     'DEFAULT' => 
@@ -102,6 +110,13 @@ $this->getClassName().'@'.xp::stringOf(array('base' => $this->base,'naming' => $
       5 => 
       array (
         'type' => 'net.xp_framework.build.BuildInstructions',
+      ),
+    ),
+    'changeLogs' => 
+    array (
+      5 => 
+      array (
+        'type' => '[:var]',
       ),
     ),
     'base' => 
@@ -280,7 +295,7 @@ $this->getClassName().'@'.xp::stringOf(array('base' => $this->base,'naming' => $
       3 => 
       array (
       ),
-      4 => 'Returns the ChangeLog',
+      4 => 'Returns the ChangeLog or NULL if no ChangeLog exists',
       5 => 
       array (
       ),

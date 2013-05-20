@@ -19,6 +19,10 @@ import io.Folder;
  */
 public class BuildInstructions {
   public static self $DEFAULT= new self();
+  public static [:var] $changeLogs= [
+    'ChangeLog.md' : new MarkdownChangeLogParser(),
+    'ChangeLog'    : new ChangeLogParser()
+  ];
   protected string $base= '.';
   protected [:string] $naming= [:];
   protected string $finalize= null;
@@ -80,10 +84,14 @@ public class BuildInstructions {
   }
 
   /**
-   * Returns the ChangeLog
+   * Returns the ChangeLog or NULL if no ChangeLog exists
    */
   public ChangeLog changeLogIn(Folder $base) {
-    return new ChangeLogParser().parse($this.file($base, 'ChangeLog').getInputStream());
+    foreach ($name, $parser in self::$changeLogs) {
+      $f= $this.file($base, $name);
+      if ($f.exists()) return $parser.parse($f.getInputStream());
+    }
+    return null;
   }
 
   /**
