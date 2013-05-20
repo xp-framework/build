@@ -1,0 +1,48 @@
+package net.xp_framework.build;
+
+class DefaultChangeLogParserTest extends ChangeLogParserTest {
+
+  /**
+   * Creates a new fixture
+   */
+  protected ChangeLogParser newFixture() -> new DefaultChangeLogParser();
+
+  [@test] void one_release_and_dev_version() {
+    $changeLog= $this.parse('
+Version ?.?.?, released ????-??-??
+----------------------------------
+Git commit: ?????
+
+Features
+~~~~~~~~
+- Added support for "self" keyword in parameters and return types
+  (friebe)
+
+Version 1.2.0, released 2012-09-30
+----------------------------------
+Git commit: 27e33c1b3a01127a4398f2e9a3884b6426bf4cff
+
+Features
+~~~~~~~~
+- Fix issue #302
+  (friebe)
+    ');
+    $this.assertEquals(
+      new ChangeLog()
+        .withRelease(new Release(null, util.Date::now(), '?????', '
+Features
+~~~~~~~~
+- Added support for "self" keyword in parameters and return types
+  (friebe)
+        '))
+        .withRelease(new Release(new Version('1.2.0'), new util.Date('2012-09-30'), '27e33c1b3a01127a4398f2e9a3884b6426bf4cff', '
+Features
+~~~~~~~~
+- Fix issue #302
+  (friebe)
+        '))
+      ,
+      $changeLog
+    );
+  }
+}

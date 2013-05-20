@@ -1,0 +1,78 @@
+package net.xp_framework.build;
+
+import util.Date;
+import io.streams.InputStream;
+import io.streams.TextReader;
+
+import native standard.sscanf;
+import native standard.rtrim;
+
+/**
+ * Parses changelog from an input stream
+ *
+ * Example:
+ * ```
+ * Version ?.?.?, released ????-??-??
+ * ----------------------------------
+ * Git commit: ?????
+ * 
+ * Features
+ * ~~~~~~~~
+ * - Added support for "self" keyword in parameters and return types
+ *   (friebe)
+ * 
+ * Version 1.2.0, released 2012-09-30
+ * ----------------------------------
+ * Git commit: 27e33c1b3a01127a4398f2e9a3884b6426bf4cff
+ *
+ * ...
+ * ```
+ */
+public class DefaultChangeLogParser implements ChangeLogParser {
+
+  /**
+   * Parse ChangeLog file
+   */
+  public ChangeLog parse(InputStream $in) throws IllegalStateException {
+    $log= new ChangeLog();
+    try ($reader= new TextReader($in, 'utf-8')) {
+      $separator= 'Version %[0-9?.], released %[0-9?-]';
+
+      // Seek for first separator
+      $version= $date= null;
+      do {
+        if (null === ($l= $reader.readLine())) {
+          throw new IllegalStateException('ChangeLog malformed');
+        }
+      } while (2 !== sscanf($l, $separator, $version, $date));
+
+      // Parse rest of file
+      do {
+        $release= new Release();
+        $release.setVersion('?.?.?' === $version ? null : new Version($version));
+        $release.setDate('????-??-??' === $date ? Date::now() : new Date($date));
+
+        // Skip over "----" line
+        $reader.readLine();
+
+        // Extract revision (either: SVN version: 12345 or GIT commit: 12345)
+        $rev= null;
+        sscanf($reader.readLine(), '%*[^:]: %s', $rev);
+        $release.setRevision($rev);
+
+        // Read notes      
+        $notes= '';
+        $version= $date= null;
+        while (null !== ($l= $reader.readLine())) {
+          if (2 === sscanf($l, $separator, $version, $date)) break;
+          $notes~= $l ~ "\n";
+        }
+
+        $release.setNotes(rtrim($notes, "\r\n"));
+        $log.addRelease($release);
+      } while (null !== $l);
+    }
+
+    return $log;
+  }
+}
