@@ -1,5 +1,7 @@
-<?php uses('lang.archive.Archive', 'io.Folder', 'net.xp_framework.build.subscriber.XarReleaseFinalizer');
+<?php uses('lang.archive.Archive', 'io.Folder', 'io.File', 'io.FileUtil', 'net.xp_framework.build.subscriber.XarReleaseFinalizer');
 
+;
+;
 ;
 ;
 
@@ -14,7 +16,9 @@
 
 public function finalize(array $build,array $archives,Folder $targetDir){
 foreach ($archives as $archive) {
-$archive->file->move($targetDir);};}}xp::$cn['DefaultFinalizer']= 'net.xp_framework.build.subscriber.DefaultFinalizer';xp::$meta['net.xp_framework.build.subscriber.DefaultFinalizer']= array (
+$archive->file->move($targetDir);};
+
+FileUtil::setContents(new File($targetDir,'ChangeLog'),$build['release']['notes']);}}xp::$cn['DefaultFinalizer']= 'net.xp_framework.build.subscriber.DefaultFinalizer';xp::$meta['net.xp_framework.build.subscriber.DefaultFinalizer']= array (
   0 => 
   array (
   ),
