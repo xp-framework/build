@@ -6,16 +6,16 @@ import io.Folder;
 /**
  * Override build defaults via xpbuild.json:
  *
- * <pre>
- *  {
- *    "base"     : "core",
- *    "naming"   : {
- *      "main"     : "xp-rt-{VERSION}.xar",
- *      "test"     : "xp-test-{VERSION}.xar"
- *    },
- *    "finalize" : "XpRelease"
- *  }
- * </pre>
+ * ```json
+ * {
+ *   "base"     : "core",
+ *   "naming"   : {
+ *     "main"     : "xp-rt-{VERSION}.xar",
+ *     "test"     : "xp-test-{VERSION}.xar"
+ *   },
+ *   "finalize" : "XpRelease"
+ * }
+ * ```
  */
 public class BuildInstructions {
   public static self $DEFAULT= new self();

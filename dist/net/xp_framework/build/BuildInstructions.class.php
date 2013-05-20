@@ -313,16 +313,16 @@ $this->getClassName().'@'.xp::stringOf(array('base' => $this->base,'naming' => $
     ),
     4 => 'Override build defaults via xpbuild.json:
 
-<pre>
- {
-   "base"     : "core",
-   "naming"   : {
-     "main"     : "xp-rt-{VERSION}.xar",
-     "test"     : "xp-test-{VERSION}.xar"
-   },
-   "finalize" : "XpRelease"
- }
-</pre>',
+```json
+{
+  "base"     : "core",
+  "naming"   : {
+    "main"     : "xp-rt-{VERSION}.xar",
+    "test"     : "xp-test-{VERSION}.xar"
+  },
+  "finalize" : "XpRelease"
+}
+```',
   ),
 );
 ?>
