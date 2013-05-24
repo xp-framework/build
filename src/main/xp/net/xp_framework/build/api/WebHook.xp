@@ -96,7 +96,7 @@ public class WebHook {
       }
 
       if (!($info= $module.findElement('module.json'))) {
-        $info= $this.create($module.newElement('module.json'), 0777);
+        $info= $this.create($module.newElement('module.json'), 0666);
       }
 
       with ($out= $info.getOutputStream()) {
