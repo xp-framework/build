@@ -96,7 +96,7 @@ $module=$this->create($vendor->newCollection($payload->repository->name),511);};
 
 
 if (!($info=$module->findElement('module.json'))) {
-$info=$this->create($module->newElement('module.json'),511);};
+$info=$this->create($module->newElement('module.json'),438);};
 
 
 

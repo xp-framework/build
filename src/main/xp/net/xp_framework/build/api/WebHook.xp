@@ -83,7 +83,7 @@ public class WebHook {
       return Response::error(400).withPayload('Malformed payload: ' ~ $e.compoundMessage());
     }
 
-    // Create vendor and module if not existant
+    // Create module if not existant. Do not allow non-existant vendors though!
     try {
       if (!($vendor= $this.storage.findCollection($payload.repository.owner.name))) {
         $this.cat && $this.cat.warn('Unrecognized vendor, ignoring', $payload.repository.owner);
