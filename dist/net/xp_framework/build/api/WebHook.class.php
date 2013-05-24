@@ -63,7 +63,9 @@ $this->queue->disconnect();}
 
 
 private function create(IOElement $element,$permissions){
-chmod($element->getURI(),$permissions);
+if (FALSE === chmod($element->getURI(),$permissions)) {
+throw new IOException('Cannot change permissions for '.$element->getURI().' to '.$permissions);};
+
 return $element;}
 
 

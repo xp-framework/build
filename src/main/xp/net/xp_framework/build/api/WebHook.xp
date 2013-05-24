@@ -63,7 +63,9 @@ public class WebHook {
    * Change permissions
    */
   private IOElement create(IOElement $element, int? $permissions) {
-    chmod($element.getURI(), $permissions);
+    if (false === chmod($element.getURI(), $permissions)) {
+      throw new io.IOException('Cannot change permissions for ' ~ $element.getURI() ~ ' to ' ~ $permissions);
+    }
     return $element;
   }
 
