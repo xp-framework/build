@@ -62,7 +62,7 @@ public class ReleaseInformation extends AbstractBuildInformation {
         vendor    : $vendor,
         module    : $module,
         version   : new Version(basename($release.getURI())),
-        published : $release.createdAt()
+        published : $release.lastModified()
       ];
     }
     return $releases;
@@ -115,7 +115,7 @@ public class ReleaseInformation extends AbstractBuildInformation {
       vendor    : $vendor,
       module    : $module,
       version   : new Version($release),
-      published : $target.createdAt(),
+      published : $target.lastModified(),
       files     : $files
     ];
   }

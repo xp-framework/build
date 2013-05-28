@@ -63,7 +63,7 @@ foreach (new FilteredIOCollectionIterator($target,$find) as $release) {
 
 
 
-$releases[]=array('vendor' => $vendor,'module' => $module,'version' => new Version(basename($release->getURI())),'published' => $release->createdAt(),);};
+$releases[]=array('vendor' => $vendor,'module' => $module,'version' => new Version(basename($release->getURI())),'published' => $release->lastModified(),);};
 
 return $releases;}
 
@@ -115,7 +115,7 @@ return
 
 
 array('vendor' => $vendor,'module' => $module,'version' => new Version($release),'published' => 
-$target->createdAt(),'files' => 
+$target->lastModified(),'files' => 
 $files,);}
 
 

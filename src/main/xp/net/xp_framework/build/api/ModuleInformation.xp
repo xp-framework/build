@@ -73,7 +73,7 @@ public class ModuleInformation extends AbstractBuildInformation {
       $module['releases'][$version.getNumber()]= [
         series    : $version.getSeries(),
         rc        : $version.isReleaseCandidate(),
-        published : $release.createdAt()
+        published : $release.lastModified()
       ];
     }
     return $module;

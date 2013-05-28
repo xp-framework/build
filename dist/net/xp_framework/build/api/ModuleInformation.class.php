@@ -74,7 +74,7 @@ $version=new Version(basename($release->getURI()));
 
 
 
-$module['releases'][$version->getNumber()]=array('series' => $version->getSeries(),'rc' => $version->isReleaseCandidate(),'published' => $release->createdAt(),);};
+$module['releases'][$version->getNumber()]=array('series' => $version->getSeries(),'rc' => $version->isReleaseCandidate(),'published' => $release->lastModified(),);};
 
 return $module;}static function __static() {ModuleInformation::$json=RestFormat::$JSON->deserializer();}}xp::$cn['ModuleInformation']= 'net.xp_framework.build.api.ModuleInformation';xp::$meta['net.xp_framework.build.api.ModuleInformation']= array (
   0 => 
