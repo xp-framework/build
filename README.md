@@ -2,6 +2,10 @@ XP Build
 ========
 The XP Build system is based on GitHub commit hooks listening for tag creations.
 
+* * *
+To release the XP Framework, see [https://github.com/xp-framework/xp-framework/wiki/Building-a-release](here).
+* * *
+
 Usage
 -----
 Releasing a release candidate is as easy as:
