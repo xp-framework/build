@@ -2,28 +2,33 @@ package net.xp_framework.build;
 
 class BuildInstructionsTest extends unittest.TestCase {
 
+  /**
+   * Test accessors for a given member (getX and setX).
+   *
+   * @param  instance
+   * @param  member The member name
+   * @param  value The value which to use for the roundtrip
+   */
+  protected void assertAccessors(lang.Generic $instance, string? $member, var? $value) throws unittest.AssertionFailedError {
+    with ($class= $instance.getClass()) {
+      $class.getMethod('set' ~ $member).invoke($instance, [$value]);
+      $this.assertEquals($value, $class.getMethod('get' ~ $member).invoke($instance, []));
+    }
+  }
+
   [@test] void can_create() {
     new BuildInstructions();
   }
 
   [@test] void base_accessors() {
-    $base= '.';
-    $b= new BuildInstructions();
-    $b.setBase($base);
-    $this.assertEquals($base, $b.getBase());
+    $this.assertAccessors(new BuildInstructions(), 'base', '.');
   }
 
   [@test] void naming_accessors() {
-    $naming= [ name : 'test' ];
-    $b= new BuildInstructions();
-    $b.setNaming($naming);
-    $this.assertEquals($naming, $b.getNaming());
+    $this.assertAccessors(new BuildInstructions(), 'naming', [ name : 'test' ]);
   }
 
   [@test] void finalize_accessors() {
-    $finalize= 'test';
-    $b= new BuildInstructions();
-    $b.setFinalize($finalize);
-    $this.assertEquals($finalize, $b.getFinalize());
+    $this.assertAccessors(new BuildInstructions(), 'finalize', 'test');
   }
 }
