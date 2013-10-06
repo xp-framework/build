@@ -1,0 +1,29 @@
+package net.xp_framework.build;
+
+class BuildInstructionsTest extends unittest.TestCase {
+
+  [@test] void can_create() {
+    new BuildInstructions();
+  }
+
+  [@test] void base_accessors() {
+    $base= '.';
+    $b= new BuildInstructions();
+    $b.setBase($base);
+    $this.assertEquals($base, $b.getBase());
+  }
+
+  [@test] void naming_accessors() {
+    $naming= [ name : 'test' ];
+    $b= new BuildInstructions();
+    $b.setNaming($naming);
+    $this.assertEquals($naming, $b.getNaming());
+  }
+
+  [@test] void finalize_accessors() {
+    $finalize= 'test';
+    $b= new BuildInstructions();
+    $b.setFinalize($finalize);
+    $this.assertEquals($finalize, $b.getFinalize());
+  }
+}

@@ -30,44 +30,32 @@ protected $naming= array (
 
 
 
-public function setBase($base){
-$this->base=$base;}
+public function setBase($base){$this->base= $base;}
 
 
 
 
-
-public function getBase(){
-return $this->base;}
+public function getBase(){return $this->base;}
 
 
 
 
-
-public function setNaming($naming){
-$this->naming=$naming;}
+public function setNaming($naming){$this->naming= $naming;}
 
 
 
 
-
-public function getNaming(){
-return $this->naming;}
+public function getNaming(){return $this->naming;}
 
 
 
 
-
-public function setFinalize($finalize){
-$this->finalize=$finalize;}
+public function setFinalize($finalize){$this->finalize= $finalize;}
 
 
 
 
-
-public function getFinalize(){
-return $this->finalize;}
-
+public function getFinalize(){return $this->finalize;}
 
 
 

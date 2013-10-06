@@ -30,44 +30,32 @@ public class BuildInstructions {
   /**
    * Sets base
    */
-  public void setBase(string? $base) {
-    $this.base= $base;
-  }
+  public void setBase($this.base) { }
 
   /**
    * Returns base
    */
-  public string getBase() {
-    return $this.base;
-  }
+  public string getBase() -> $this.base;
 
   /**
    * Sets naming
    */
-  public void setNaming([:string]? $naming) {
-    $this.naming= $naming;
-  }
+  public void setNaming($this.naming) { }
 
   /**
    * Returns naming
    */
-  public [:string] getNaming() {
-    return $this.naming;
-  }
+  public [:string] getNaming() -> $this.naming;
 
   /**
    * Sets finalize
    */
-  public void setFinalize(string? $finalize) {
-    $this.finalize= $finalize;
-  }
+  public void setFinalize($this.finalize) { }
 
   /**
    * Returns finalize
    */
-  public string getFinalize() {
-    return $this.finalize;
-  }
+  public string getFinalize() -> $this.finalize;
 
   /**
    * Base folder
