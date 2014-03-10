@@ -28,7 +28,7 @@ public class ApiInformation {
       foreach ($method in $class.getMethods()) {
         if (!$method.hasAnnotation('webmethod')) continue;
         $webmethod= $method.getAnnotation('webmethod');
-        $path= implode('/', [trim($webservice['path'], '/'), trim($webmethod['path'], '/')]);
+        $path= implode('/', ['', trim($webservice['path'], '/'), trim($webmethod['path'], '/')]);
         $routing[$path][$webmethod['verb']]= [
           method           : $webmethod['verb'],
           nickname         : $method.getName(),
@@ -44,7 +44,7 @@ public class ApiInformation {
       foreach ($path, $operations in $routing) {
         $apis[]= [
           path        : $path,
-          description : $class.getComment(),
+          description : '' ~ $class.getComment(),
           operations  : array_values($operations)
         ];
       }
