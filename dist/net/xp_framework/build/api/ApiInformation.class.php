@@ -53,7 +53,8 @@ $apis[]=array('path' => $path,'description' => ''.$class->getComment(),'operatio
 return 
 array('apiVersion' => \net\xp_framework\build\api\ApiInformation::VERSION,'swaggerVersion' => 
 '1.2','basePath' => 
-'http://builds.planet-xp.net','apis' => 
+'http://builds.planet-xp.net','resourcePath' => 
+'/','apis' => 
 $apis,);}
 
 
