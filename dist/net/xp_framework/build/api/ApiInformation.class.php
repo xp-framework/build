@@ -1,10 +1,10 @@
-<?php 
+<?php namespace net\xp_framework\build\api;
 
 
 
 
 
- class ApiInformation extends Object{
+class ApiInformation extends \lang\Object{
 
 
 
@@ -19,43 +19,5 @@ return
 
 
 
-array('message' => 'Welcome to the XP Framework Build API','version' => '2.0.0','_links' => array('self' => array('href' => '/',),'search' => array('href' => '/search?q={query}','templated' => TRUE,),'vendors' => array('href' => '/vendors',),),);}}xp::$cn['ApiInformation']= 'net.xp_framework.build.api.ApiInformation';xp::$meta['net.xp_framework.build.api.ApiInformation']= array (
-  0 => 
-  array (
-  ),
-  1 => 
-  array (
-    'welcome' => 
-    array (
-      1 => 
-      array (
-      ),
-      2 => 'var',
-      3 => 
-      array (
-      ),
-      4 => 'Shows API information using Hypertext Application Language',
-      5 => 
-      array (
-        'webmethod' => 
-        array (
-          'verb' => 'GET',
-          'path' => '/',
-          'returns' => 'application/hal+json',
-        ),
-      ),
-      6 => 
-      array (
-      ),
-    ),
-  ),
-  'class' => 
-  array (
-    5 => 
-    array (
-      'webservice' => NULL,
-    ),
-    4 => 'The "/" resource shows information about the API',
-  ),
-);
+array('message' => 'Welcome to the XP Framework Build API','version' => '2.0.0','_links' => array('self' => array('href' => '/',),'search' => array('href' => '/search?q={query}','templated' => TRUE,),'vendors' => array('href' => '/vendors',),),);}}\xp::$cn['net\xp_framework\build\api\ApiInformation']= 'net.xp_framework.build.api.ApiInformation';\xp::$meta['net.xp_framework.build.api.ApiInformation']= array(0 => array(), 1 => array('welcome' => array(1 => array(), 2 => 'var', 3 => array(), 4 => 'Shows API information using Hypertext Application Language', 5 => array('webmethod' => array('verb' => 'GET', 'path' => '/', 'returns' => 'application/hal+json')), 6 => array())), 'class' => array(4 => 'The "/" resource shows information about the API', 5 => array('webservice' => NULL), 6 => array()));
 ?>
