@@ -28,7 +28,7 @@ $routing=array();
 foreach ($class->getMethods() as $method) {
 if (!$method->hasAnnotation('webmethod')) {continue;};
 $webmethod=$method->getAnnotation('webmethod');
-$path=implode('/',array(trim($webservice['path'],'/'),trim($webmethod['path'],'/'),));
+$path=implode('/',array('',trim($webservice['path'],'/'),trim($webmethod['path'],'/'),));
 
 
 
@@ -46,7 +46,7 @@ foreach ($routing as $path => $operations) {
 
 
 
-$apis[]=array('path' => $path,'description' => $class->getComment(),'operations' => array_values($operations),);};};
+$apis[]=array('path' => $path,'description' => ''.$class->getComment(),'operations' => array_values($operations),);};};
 
 
 
