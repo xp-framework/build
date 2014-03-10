@@ -8,6 +8,9 @@ import text.regex.Pattern;
 
 import native standard.basename;
 
+/**
+ * Use the "/search" action to search for modules.
+ */
 [@webservice(path= '/search')]
 public class Search extends AbstractBuildInformation {
   private static var $json= webservices.rest.RestFormat::$JSON.deserializer();
