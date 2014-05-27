@@ -1,14 +1,12 @@
 package net.xp_framework.build.api;
 
 import webservices.rest.srv.Response;
-import webservices.rest.RestFormat;
 import util.log.LogCategory;
 import util.Properties;
 import io.IOException;
-import io.streams.MemoryInputStream;
 import io.collections.FileCollection;
 import io.collections.IOElement;
-import org.codehaus.stomp.StompConnection;
+import peer.stomp.Connection;
 
 import native standard.sscanf;
 import native standard.chmod;
@@ -20,11 +18,11 @@ import native standard.chmod;
 [@webservice(path= '/hook')]
 public class WebHook {
   private LogCategory $cat;
-  private StompConnection $queue;
+  private Connection $queue = null;
   private FileCollection $storage;
   private string $destination;
 
-  private static var $json = RestFormat::$JSON.serializer();
+  protected static var $json= new net.xp_framework.build.Json();
 
   /**
    * Sets a logger category for debugging
@@ -39,8 +37,8 @@ public class WebHook {
    */
   [@inject(name = 'mq')]
   public void useMessageQueue(Properties $prop) {
-    $this.queue= new StompConnection($prop.readString('endpoint', 'host'), $prop.readInteger('endpoint', 'port'));
-    $this.queue.connect($prop.readString('endpoint', 'user'), $prop.readString('endpoint', 'pass'));
+    $this.queue= new Connection($prop.readString('endpoint', 'url'));
+    $this.queue.connect();
     $this.destination= $prop.readString('destinations', 'trigger');
   }
 
@@ -56,7 +54,7 @@ public class WebHook {
    * Disconnects from queue
    */
   public void __destruct() {
-    $this.queue.disconnect();
+    if (null !== $this.queue) $this.queue.disconnect();
   }
 
   /**
@@ -75,13 +73,25 @@ public class WebHook {
    * @see https://help.github.com/articles/post-receive-hooks
    */
   [@webmethod(verb= 'POST', accepts= 'application/x-www-form-urlencoded'), @$in: param('payload')]
-  public Response githubTrigger(string? $in) {
+  public Response urlEncodedGithubTrigger(string? $in) {
     try {
-      $payload= RestFormat::$JSON.read(new MemoryInputStream($in), GitHubPayload::class) as GitHubPayload;
+      $payload= self::$json.read(GitHubPayload::class, $in) as GitHubPayload;
     } catch (FormatException $e) {
       $this.cat && $this.cat.warn('Malformed payload', $e);
       return Response::error(400).withPayload('Malformed payload: ' ~ $e.compoundMessage());
     }
+
+    return $this.githubTrigger($payload);
+  }
+
+  /**
+   * In newer versions, GitHub also allows you to pass json
+   *
+   * @see https://developer.github.com/webhooks/
+   */
+  [@webmethod(verb= 'POST')]
+  public Response githubTrigger(GitHubPayload $payload) {
+    $this.cat && $this.cat.info($payload);
 
     // Create module if not existant. Do not allow non-existant vendors though!
     try {
@@ -100,7 +110,7 @@ public class WebHook {
       }
 
       with ($out= $info.getOutputStream()) {
-        $out.write(self::$json.serialize([
+        $out.write(self::$json.write([
           vendor   : $payload.repository.owner.name,
           module   : $payload.repository.name,
           info     : $payload.repository.description,
@@ -117,7 +127,7 @@ public class WebHook {
       $version= null;
       sscanf($tag, 'r%[0-9A-Za-z.~]', $version);
 
-      $message= self::$json.serialize([
+      $message= self::$json.write([
         owner   : $payload.repository.owner.name,
         repo    : $payload.repository.name,
         tag     : $tag,
@@ -125,9 +135,11 @@ public class WebHook {
         user    : $payload.pusher.name
       ]);
       $this.cat && $this.cat.info($this.destination, $message);
-      $this.queue.send($this.destination, $message, [
-        'content-type' : self::$json.contentType()
-      ]);
+
+      $this.queue.getDestination($this.destination).send(new peer.stomp.SendableMessage(
+        $message,
+        self::$json.contentType()
+      ));
     } else {
       $this.cat && $this.cat.debug('Ignore', $payload);
     }

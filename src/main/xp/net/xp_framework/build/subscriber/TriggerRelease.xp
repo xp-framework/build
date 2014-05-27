@@ -1,8 +1,7 @@
 package net.xp_framework.build.subscriber;
 
 import util.Properties;
-import org.codehaus.stomp.StompConnection;
-import webservices.rest.RestFormat;
+import peer.stomp.Connection;
 
 import native standard.explode;
 import native standard.substr;
@@ -11,18 +10,20 @@ import native standard.substr;
  * Trigger a release build
  */
 public class TriggerRelease extends util.cmd.Command {
-  private StompConnection $queue;
+  private Connection $queue = null;
   private [:string] $destinations;
   private string $destination;
   private io.Folder $target;
+
+  protected static var $json= new net.xp_framework.build.Json();
 
   /**
    * Injects message queue configuration
    */
   [@inject(name = 'mq')]
   public void useMessageQueue(Properties $prop) {
-    $this.queue= new StompConnection($prop.readString('endpoint', 'host'), $prop.readInteger('endpoint', 'port'));
-    $this.queue.connect($prop.readString('endpoint', 'user'), $prop.readString('endpoint', 'pass'));
+    $this.queue= new Connection($prop.readString('endpoint', 'url'));
+    $this.queue.connect();
     $this.destinations= $prop.readSection('destinations');
   }
 
@@ -54,8 +55,8 @@ public class TriggerRelease extends util.cmd.Command {
     $module= $parts[$parts.length - 3];
     $vendor= $parts[$parts.length - 4];
 
-    with ($json= RestFormat::$JSON, $serializer= $json.serializer()) {
-      $message= $serializer.serialize([
+    with ($dest= $this.queue.getDestination($this.destination)) {
+      $message= self::$json.write([
         build    : $json.deserializer().deserialize(new io.File($this.target, 'xpbuild.json').getInputStream()),
         vendor   : $vendor,
         module   : $module,
@@ -63,9 +64,7 @@ public class TriggerRelease extends util.cmd.Command {
         checkout : $this.target.getURI()
       ]);
 
-      $this.queue.send($this.destination, $message, [
-        'content-type' : $serializer.contentType()
-      ]);
+      $dest.send(new peer.stomp.SendableMessage($message, self::$json.contentType()));
       $this.out.writeLine('Publish -> ', $this.destination, ': ', $message);
     }
     return 0;
@@ -75,6 +74,6 @@ public class TriggerRelease extends util.cmd.Command {
    * Destructor. Closes connection to MQ
    */
   public void __destruct() {
-    $this.queue.disconnect();
+    if (null !== $this.queue) $this.queue.disconnect();
   }
 }

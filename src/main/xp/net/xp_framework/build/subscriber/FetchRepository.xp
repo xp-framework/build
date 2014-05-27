@@ -158,9 +158,9 @@ public class FetchRepository extends AbstractSubscriber {
     // Check for special build instructions
     $f= new File($targetDir, 'xpbuild.json');
     if ($f.exists()) {
-      $instructions= webservices.rest.RestFormat::$JSON.read($f.getInputStream(), BuildInstructions::class) as BuildInstructions;
+      $instructions= self::$json.read(BuildInstructions::class, FileUtil::getContents($f));
     } else {
-      $instructions= BuildInstructions::$DEFAULT as BuildInstructions;
+      $instructions= BuildInstructions::$DEFAULT;
     }
 
     // Process changelog

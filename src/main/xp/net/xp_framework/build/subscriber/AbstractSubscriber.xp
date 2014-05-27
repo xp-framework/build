@@ -1,18 +1,21 @@
 package net.xp_framework.build.subscriber;
 
 import util.Properties;
-import org.codehaus.stomp.StompConnection;
-import io.streams.MemoryInputStream;
-import webservices.rest.RestFormat;
+import peer.stomp.Connection;
+import peer.stomp.Subscription;
+import peer.stomp.ReceivedMessage;
+import peer.stomp.SendableMessage;
 
 /**
  * Abstract base class for all subscribers
  */
 package abstract class AbstractSubscriber extends util.cmd.Command {
-  private StompConnection $queue;
+  private Connection $queue = null;
   private double $timeout;
   private string $origin;
   private string $destination;
+
+  protected static var $json= new net.xp_framework.build.Json();
 
   /**
    * Returns origin to use for messages
@@ -29,8 +32,8 @@ package abstract class AbstractSubscriber extends util.cmd.Command {
    */
   [@inject(name = 'mq')]
   public void useMessageQueue(Properties $prop) {
-    $this.queue= new StompConnection($prop.readString('endpoint', 'host'), $prop.readInteger('endpoint', 'port'));
-    $this.queue.connect($prop.readString('endpoint', 'user'), $prop.readString('endpoint', 'pass'));
+    $this.queue= new Connection($prop.readString('endpoint', 'url'));
+    $this.queue.connect();
     $this.origin= $prop.readString('destinations', $this.origin());
     $this.destination= $prop.readString('destinations', $this.destination());
   }
@@ -59,7 +62,6 @@ package abstract class AbstractSubscriber extends util.cmd.Command {
    * Listens
    */
   public int run() {
-    $serializer= RestFormat::$JSON.serializer();
 
     // Create handler mapping
     if (!($handler= $this.findHandler())) {
@@ -68,36 +70,37 @@ package abstract class AbstractSubscriber extends util.cmd.Command {
     }
 
     // Subscribe and listen
-    $this.queue.subscribe($this.origin);
-    $this.out.writeLinef(
-      'Subscribed to %s using %s timeout',
-      $this.origin,
-      null === $this.timeout ? 'no' : $this.timeout ~ ' second(s)'
-    );
-    while ($message= $this.queue.receive($this.timeout)) {
+    $this.queue.subscribeTo(new Subscription($this.origin, #{ ReceivedMessage $message -> {
       $this.err.writeLine('<<< ', $message);
 
-      // Break on errors
-      if ('MESSAGE' !== $message.command()) break;
-
-      // Handle
       try {
-        $response= $handler.invoke($this, [RestFormat::$JSON.read(
-          new MemoryInputStream($message.getBody()),
-          $handler.getParameter(0).getType()
+        $response= $handler.invoke($this, [self::$json.read(
+          $handler.getParameter(0).getType(),
+          $message.getBody()
         )]);
         if (null === $response) {
           $this.err.writeLine('+++');
         } else {
           $this.err.writeLine('>>> ', $response);
-          $message= $serializer.serialize($response);
-          $this.queue.send($this.destination, $message, [
-            'content-type' : $serializer.contentType()
-          ]);
+          $this.queue.getDestination($this.destination).send(new SendableMessage(
+            self::$json.write($response),
+            self::$json.contentType()
+          ));
         }
+
+        $message.ack();
       } catch (lang.reflect.TargetInvocationException $e) {
         $this.err.writeLine('*** ', $e);
       }
+    }}));
+    $this.out.writeLinef(
+      'Subscribed to %s using %s timeout',
+      $this.origin,
+      null === $this.timeout ? 'no' : $this.timeout ~ ' second(s)'
+    );
+
+    while ($this.queue.consume($this.timeout)) {
+      // ...
     }
     $this.out.writeLine('Finished listening');
     return 0;
@@ -107,6 +110,6 @@ package abstract class AbstractSubscriber extends util.cmd.Command {
    * Destructor. Closes connection to MQ
    */
   public void __destruct() {
-    $this.queue.disconnect();
+     if (null !== $this.queue) $this.queue.disconnect();
   }
 }

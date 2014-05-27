@@ -1,7 +1,8 @@
 package net.xp_framework.build.subscriber;
 
 import util.Properties;
-import org.codehaus.stomp.StompConnection;
+import peer.stomp.Connection;
+import peer.stomp.SendableMessage;
 import io.streams.MemoryInputStream;
 import webservices.rest.RestFormat;
 
@@ -11,20 +12,22 @@ import native standard.sscanf;
  * Trigger a build
  */
 public class TriggerBuild extends util.cmd.Command {
-  private StompConnection $queue;
+  private Connection $queue = null;
   private string $destination;
   private string $repository;
   private string $owner;
   private string $tag;
   private string $version;
 
+  protected static var $json= new net.xp_framework.build.Json();
+
   /**
    * Injects message queue configuration
    */
   [@inject(name = 'mq')]
   public void useMessageQueue(Properties $prop) {
-    $this.queue= new StompConnection($prop.readString('endpoint', 'host'), $prop.readInteger('endpoint', 'port'));
-    $this.queue.connect($prop.readString('endpoint', 'user'), $prop.readString('endpoint', 'pass'));
+    $this.queue= new Connection($prop.readString('endpoint', 'url'));
+    $this.queue.connect();
     $this.destination= $prop.readString('destinations', 'trigger');
   }
 
@@ -59,8 +62,8 @@ public class TriggerBuild extends util.cmd.Command {
    * Listens
    */
   public int run() {
-    with ($serializer= RestFormat::$JSON.serializer()) {
-      $message= $serializer.serialize([
+    with ($dest= $this.queue.getDestination($this.destination)) {
+      $message= self::$json.write([
         owner   : $this.owner,
         repo    : $this.repository,
         tag     : $this.tag,
@@ -68,9 +71,7 @@ public class TriggerBuild extends util.cmd.Command {
         user    : System::getProperty('user.name')
       ]);
 
-      $this.queue.send($this.destination, $message, [
-        'content-type' : $serializer.contentType()
-      ]);
+      $dest.send(new peer.stomp.SendableMessage($message, self::$json.contentType()));
       $this.out.writeLine('Publish -> ', $this.destination, ': ', $message);
     }
     return 0;
@@ -80,6 +81,6 @@ public class TriggerBuild extends util.cmd.Command {
    * Destructor. Closes connection to MQ
    */
   public void __destruct() {
-    $this.queue.disconnect();
+    if (null !== $this.queue) $this.queue.disconnect();
   }
 }
