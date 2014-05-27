@@ -71,7 +71,7 @@ $i=0;
 while ($iterator->hasNext()) {
 $uri=$iterator->next()->getURI();
 $urn=strtr(preg_replace('#^('.preg_quote($base,'#').'|/)#','',$uri),DIRECTORY_SEPARATOR,'/');
-$archive->add(new \io\File($uri),$urn);
+$archive->addFile($urn,new \io\File($uri));
 $i++%10||$this->out->write('.');};}
 
 

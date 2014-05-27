@@ -158,9 +158,9 @@ $this->out->writeLine(']');
 
 $f=new \io\File($targetDir,'xpbuild.json');
 if ($f->exists()) {
-$instructions=cast(\webservices\rest\RestFormat::$JSON->read($f->getInputStream(),\lang\XPClass::forName('net.xp_framework.build.BuildInstructions')), 'net.xp_framework.build.BuildInstructions');}else {
+$instructions=\net\xp_framework\build\subscriber\FetchRepository::$json->read(\lang\XPClass::forName('net.xp_framework.build.BuildInstructions'),\io\FileUtil::getContents($f));}else {
 
-$instructions=cast(\net\xp_framework\build\BuildInstructions::$DEFAULT, 'net.xp_framework.build.BuildInstructions');};
+$instructions=\net\xp_framework\build\BuildInstructions::$DEFAULT;};
 
 
 
