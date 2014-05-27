@@ -71,7 +71,7 @@ public class XarRelease extends AbstractSubscriber {
     while ($iterator.hasNext()) {
       $uri= $iterator.next().getURI();
       $urn= strtr(preg_replace('#^(' ~ preg_quote($base, '#') ~ '|/)#', '', $uri), DIRECTORY_SEPARATOR, '/');
-      $archive.add(new File($uri), $urn);
+      $archive.addFile($urn, new File($uri));
       $i++ % 10 || $this.out.write('.');
     }
   }
