@@ -1,0 +1,67 @@
+{
+  "ref": "refs/tags/r6.0.2",
+  "after": "21c98f80f696129e48b42a69efaa7befa48a92c6",
+  "before": "0000000000000000000000000000000000000000",
+  "created": true,
+  "deleted": false,
+  "forced": true,
+  "compare": "https://github.com/xp-forge/stomp/compare/r6.0.2",
+  "commits": [
+
+  ],
+  "head_commit": {
+    "id": "aa29118055798366c82e6741f8a381344144f404",
+    "distinct": true,
+    "message": "Release 6.0.2",
+    "timestamp": "2014-05-25T19:18:45+02:00",
+    "url": "https://github.com/xp-forge/stomp/commit/aa29118055798366c82e6741f8a381344144f404",
+    "author": {
+      "name": "Timm Friebe",
+      "email": "thekid@thekid.de",
+      "username": "thekid"
+    },
+    "committer": {
+      "name": "Timm Friebe",
+      "email": "thekid@thekid.de",
+      "username": "thekid"
+    },
+    "added": [
+
+    ],
+    "removed": [
+
+    ],
+    "modified": [
+      "ChangeLog.md"
+    ]
+  },
+  "repository": {
+    "id": 6565734,
+    "name": "stomp",
+    "url": "https://github.com/xp-forge/stomp",
+    "description": "STOMP client classes for XP Framework: Publish and subscribe",
+    "watchers": 0,
+    "stargazers": 0,
+    "forks": 2,
+    "fork": false,
+    "size": 447,
+    "owner": {
+      "name": "xp-forge",
+      "email": null
+    },
+    "private": false,
+    "open_issues": 1,
+    "has_issues": true,
+    "has_downloads": true,
+    "has_wiki": true,
+    "language": "PHP",
+    "created_at": 1352221254,
+    "pushed_at": 1401038354,
+    "master_branch": "master",
+    "organization": "xp-forge"
+  },
+  "pusher": {
+    "name": "thekid",
+    "email": "thekid@users.noreply.github.com"
+  }
+}
