@@ -116,8 +116,8 @@ return
 
 array('vendor' => $vendor,'module' => $module,'version' => new \net\xp_framework\build\Version($release),'published' => 
 $target->lastModified(),'files' => 
-$files,);}
 
+$files,);}
 
 
 

@@ -55,8 +55,8 @@ array('apiVersion' => \net\xp_framework\build\api\ApiInformation::VERSION,'swagg
 '1.2','basePath' => 
 'http://builds.planet-xp.net','resourcePath' => 
 '/','apis' => 
-$apis,);}
 
+$apis,);}
 
 
 

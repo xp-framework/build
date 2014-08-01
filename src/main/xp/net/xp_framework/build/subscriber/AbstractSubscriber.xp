@@ -70,7 +70,7 @@ package abstract class AbstractSubscriber extends util.cmd.Command {
     }
 
     // Subscribe and listen
-    $this.queue.subscribeTo(new Subscription($this.origin, #{ ReceivedMessage $message -> {
+    $this.queue.subscribeTo(new Subscription($this.origin, (ReceivedMessage $message) -> {
       $this.err.writeLine('<<< ', $message);
 
       try {
@@ -92,7 +92,7 @@ package abstract class AbstractSubscriber extends util.cmd.Command {
       } catch (lang.reflect.TargetInvocationException $e) {
         $this.err.writeLine('*** ', $e);
       }
-    }}));
+    }));
     $this.out.writeLinef(
       'Subscribed to %s using %s timeout',
       $this.origin,

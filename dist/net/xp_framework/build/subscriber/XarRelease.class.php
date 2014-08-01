@@ -118,8 +118,8 @@ try {
 \net\xp_framework\build\subscriber\XarRelease::$finalizers->loadClass($finalize.'Finalizer')->newInstance()->finalize(
 $build,
 $archives,
-$targetDir);} catch(\lang\reflect\TargetInvocationException $e) {
 
+$targetDir);} catch(\lang\reflect\TargetInvocationException $e) {
 
 throw $e->getCause();};
 
