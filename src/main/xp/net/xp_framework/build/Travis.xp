@@ -72,12 +72,13 @@ public class Travis {
       $xar.create();
     }
 
+    $glue= preg_replace(
+      '/("version"\s*:\s*)"([^"])+"/',
+      '$1"' ~ $version.getNumber() ~ '"',
+      Streams::readAll(new File($base, 'glue.json').getInputStream())
+    );
+
     try ($out= new File($target, 'glue.json').getOutputStream()) {
-      $glue= preg_replace(
-        '/("version"\s*:\s*)"([^"])+"/',
-        '$1"' ~ $version.getNumber() ~ '"',
-        Streams::readAll(new File($base, 'glue.json').getInputStream())
-      );
       writeLine('---> ', $out, ': ', $glue);
       $out.write($glue);
     }
