@@ -13,8 +13,6 @@ import lang.archive.Archive;
 import static util.cmd.Console::write;
 import static util.cmd.Console::writeLine;
 
-import native standard.ltrim;
-import native standard.sscanf;
 import native standard.strtr;
 import native pcre.preg_replace;
 import native pcre.preg_quote;
@@ -23,7 +21,7 @@ import native pcre.preg_quote;
  * Usage
  *
  * ```sh
- * $ xp net.xp_framework.build.Travis . $TRAVIS_REPO_SLUG $TRAVIS_TAG
+ * $ xp net.xp_framework.build.Travis . "sequence" "1.2.8"
  * ```
  */
 public class Travis {
@@ -59,11 +57,11 @@ public class Travis {
    */
   public static void main(string[] $args) {
     $base= new Folder($args[0]);
-    sscanf($args[1], '%[^/]/%s', $vendor, $module);
-    $version= new Version(ltrim($args[2], 'rv'));
+    $module= $args[1];
+    $version= new Version($args[2]);
     $target= new Folder('.');
 
-    writeLine('===> Building ', $vendor, '/', $module, ' ', $version, ' from ', $base);
+    writeLine('===> Building ', $module, ' ', $version, ' from ', $base);
 
     foreach ($type in ['main', 'test']) {
       $xar= self::xar(new Folder($base, 'src', $type), new Archive(new File($target, strtr(self::$naming[$type], [

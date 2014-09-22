@@ -38,10 +38,10 @@ Setup
 
 ```yml
 before_deploy:
-  - wget https://github.com/xp-framework/build/releases/v3.0.0alpha1/travis.xar
-  - ./xp -cp travis.xar xp net.xp_framework.build.Travis . $TRAVIS_REPO_SLUG $TRAVIS_TAG
   - export REL=`echo $TRAVIS_TAG | sed -e 's/^v//g'`
   - export MOD=`echo $TRAVIS_REPO_SLUG | cut -d '/' -f 2`
+  - wget https://github.com/xp-framework/build/releases/v3.0.0alpha1/travis.xar
+  - ./xp -cp travis.xar xp net.xp_framework.build.Travis . $MOD $REL
 
 deploy:
   provider: releases
