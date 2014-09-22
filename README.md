@@ -1,71 +1,60 @@
 XP Build
 ========
-The XP Build system is based on GitHub commit hooks listening for tag creations.
-
-* * *
-To release the XP Framework, see [the XP Framework Wiki](https://github.com/xp-framework/xp-framework/wiki/Building-a-release).
-* * *
+The XP Build system is based on Travis-CI deploymenents. To release an XP Framework module, simply create a tag and push it.
 
 Usage
 -----
 Releasing a release candidate is as easy as:
 
 ```sh
-$ git tag -a r5.9.0RC3 -m "- Release 5.9.0RC3"
-$ git push origin r5.9.0RC3
+$ git tag -a v6.0.0RC1 -m "6.0.0, Release Candidate 1"
+$ git push origin v6.0.0RC1
 ```
 
-To release a final version, make sure you've edited the `ChangeLog` file before
-and have added a release marker as follows:
+To release a final version, make sure you've edited the `ChangeLog.md` file before
+and have added a release marker above the entries as follows:
 
-```
-Version 5.9.0, released 2013-03-18
-----------------------------------
-Git commit: ccfc987dcabfac36dab6d7544a22476d3b556231
-```
+```markdown
+## 6.0.0 / 2014-12-14
 
-If the ChangeLog is missing or unparseable, an empty ChangeLog will be used.
+* Added ...
+* Fixed ...
+* Implemented ...
+```
 
 Errors
 ------
 If an error occurs, you can undo by deleting and retagging:
 
 ```sh
- $ git tag -d r5.9.0RC3
- $ git push origin :refs/tags/r5.9.0RC3
+ $ git tag -d v6.0.0RC1
+ $ git push origin :refs/tags/v6.0.0RC1
 ```
 
 Setup
 -----
-Use `http://webservices.xp-framework.net/hook` as web hook for the repository.
+* Add xpbot to your repository
+* Add the following lines to your .travis.yml:
 
-Influencing the build
----------------------
-Per default, the build suite expects to find the source folder `src` 
-and the `ChangeLog` file in the top level of your repository. If you
-need to change this, add a file `xpbuild.json` to your repository
-containing the following:
+```yml
+before_deploy:
+  - wget https://github.com/xp-framework/build/releases/v3.0.0alpha1/travis.xar
+  - ./xp -cp travis.xar xp net.xp_framework.build.Travis . $TRAVIS_REPO_SLUG $TRAVIS_TAG
+  - export REL=`echo $TRAVIS_TAG | sed -e 's/^v//g'`
+  - export MOD=`echo $TRAVIS_REPO_SLUG | cut -d '/' -f 2`
 
-```json
-{
-  "base"     : "core"
-}
+deploy:
+  provider: releases
+  file:
+    - xp-$MODULE-$REL.xar
+    - xp-$MODULE-test-$REL.xar
+    - glue.json
+  skip_cleanup: true
+  on:
+    repo: $TRAVIS_REPO_SLUG
+    tags: true
+    all_branches: true
+    php: 5.4
+  api_key:
+    secure: "GPtSCuhiYHBwMk5WRa4tFhzr8d59igQN/IDp241qhOJ55vabJnD87dbX+                qUCO0eZTBfB2KFSPGKmzUCQtd+rzZqmlvTOrb4XGgi2GHVJeA9UK7UQcUvGctvAKGy8a0O                Kku9m45ar1JqTTtFZiXlv/bxbfT5wg0aKwPSWPWOe8vs="
 ```
-
-By default, the files will be called `xp-[REPO]-[VERSION].xar` and
-`xp-[REPO]-test-[VERSION].xar`. This can also be changed:
-
-```json
-{
-  "base"     : "core",
-  "naming"   : {
-    "main"     : "xp-rt-{VERSION}.xar",
-    "test"     : "xp-test-{VERSION}.xar"
-  }
-}
-```
-
-More information
------------------
-* [Internals](https://github.com/xp-framework/build/wiki/Internals)
-* [Testing](https://github.com/xp-framework/build/wiki/Testing)

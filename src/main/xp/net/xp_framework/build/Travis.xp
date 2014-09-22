@@ -2,6 +2,7 @@ package net.xp_framework.build;
 
 import io.Folder;
 import io.File;
+import io.streams.Streams;
 import io.collections.FileCollection;
 import io.collections.IOCollection;
 import io.collections.iterate.FilteredIOCollectionIterator;
@@ -71,6 +72,14 @@ public class Travis {
       ]))));
       $xar.addBytes('VERSION', $version.getNumber());
       $xar.create();
+    }
+
+    try ($out= new File($target, 'glue.json').getOutputStream()) {
+      $out.write(preg_replace(
+        '/("version"\s*:\s*)"([^"])+"/',
+        '$1"' ~ $version.getNumber() ~ '"',
+        Streams::readAll(new File($base, 'glue.json').getInputStream())
+      ));
     }
 
     writeLine('===> Done');
