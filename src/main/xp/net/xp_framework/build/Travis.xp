@@ -73,11 +73,13 @@ public class Travis {
     }
 
     try ($out= new File($target, 'glue.json').getOutputStream()) {
-      $out.write(preg_replace(
+      $glue= preg_replace(
         '/("version"\s*:\s*)"([^"])+"/',
         '$1"' ~ $version.getNumber() ~ '"',
         Streams::readAll(new File($base, 'glue.json').getInputStream())
-      ));
+      );
+      writeLine('---> ', $out, ': ', $glue);
+      $out.write($glue);
     }
 
     writeLine('===> Done');

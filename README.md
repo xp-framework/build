@@ -34,6 +34,7 @@ If an error occurs, you can undo by deleting and retagging:
 Setup
 -----
 * Add xpbot to your repository
+* [Encrypt](http://docs.travis-ci.com/user/encryption-keys/) the OAuth token with your repo
 * Add the following lines to your .travis.yml:
 
 ```yml
@@ -46,8 +47,8 @@ before_deploy:
 deploy:
   provider: releases
   file:
-    - xp-$MODULE-$REL.xar
-    - xp-$MODULE-test-$REL.xar
+    - xp-$MOD-$REL.xar
+    - xp-$MOD-test-$REL.xar
     - glue.json
   skip_cleanup: true
   on:
@@ -56,5 +57,5 @@ deploy:
     all_branches: true
     php: 5.4
   api_key:
-    secure: "GPtSCuhiYHBwMk5WRa4tFhzr8d59igQN/IDp241qhOJ55vabJnD87dbX+qUCO0eZTBfB2KFSPGKmzUCQtd+rzZqmlvTOrb4XGgi2GHVJeA9UK7UQcUvGctvAKGy8a0OKku9m45ar1JqTTtFZiXlv/bxbfT5wg0aKwPSWPWOe8vs="
+    secure: "... encrypted OAuth token here ..."
 ```
