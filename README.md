@@ -1,6 +1,6 @@
 XP Build
 ========
-The XP Build system is based on Travis-CI deploymenents. To release an XP Framework module, simply create a tag and push it.
+The XP Build system is based on Travis-CI deployments. To release an XP Framework module, simply create a tag and push it.
 
 Usage
 -----
@@ -56,5 +56,5 @@ deploy:
     all_branches: true
     php: 5.4
   api_key:
-    secure: "GPtSCuhiYHBwMk5WRa4tFhzr8d59igQN/IDp241qhOJ55vabJnD87dbX+                qUCO0eZTBfB2KFSPGKmzUCQtd+rzZqmlvTOrb4XGgi2GHVJeA9UK7UQcUvGctvAKGy8a0O                Kku9m45ar1JqTTtFZiXlv/bxbfT5wg0aKwPSWPWOe8vs="
+    secure: "GPtSCuhiYHBwMk5WRa4tFhzr8d59igQN/IDp241qhOJ55vabJnD87dbX+qUCO0eZTBfB2KFSPGKmzUCQtd+rzZqmlvTOrb4XGgi2GHVJeA9UK7UQcUvGctvAKGy8a0OKku9m45ar1JqTTtFZiXlv/bxbfT5wg0aKwPSWPWOe8vs="
 ```
