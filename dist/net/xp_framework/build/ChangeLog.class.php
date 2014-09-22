@@ -11,7 +11,7 @@ protected $releases= array (
 
 
 
-public function addRelease(\net\xp_framework\build\net\xp_framework\build\Release $release){
+public function addRelease(\net\xp_framework\build\Release $release){
 $this->releases[]=$release;
 return $release;}
 
@@ -19,7 +19,7 @@ return $release;}
 
 
 
-public function withRelease(\net\xp_framework\build\net\xp_framework\build\Release $release){
+public function withRelease(\net\xp_framework\build\Release $release){
 $this->addRelease($release);
 return $this;}
 
@@ -60,5 +60,5 @@ return $cmp instanceof \net\xp_framework\build\ChangeLog&&\util\Objects::equal($
 
 
 public function toString(){
-return $this->getClassName().'(releases= '.\xp::stringOf($this->releases).')';}}\xp::$cn['net\xp_framework\build\ChangeLog']= 'net.xp_framework.build.ChangeLog';\xp::$meta['net.xp_framework.build.ChangeLog']= array(0 => array('releases' => array(5 => array('type' => 'net.xp_framework.build.Release[]'), 4 => NULL, 6 => array())), 1 => array('addRelease' => array(1 => array(0 => 'net.xp_framework.build.Release'), 2 => 'net.xp_framework.build.Release', 3 => array(), 4 => 'Adds a release', 5 => array(), 6 => array()), 'withRelease' => array(1 => array(0 => 'net.xp_framework.build.Release'), 2 => 'net.xp_framework.build.ChangeLog', 3 => array(), 4 => 'Adds a release', 5 => array(), 6 => array()), 'findRelease' => array(1 => array(0 => 'net.xp_framework.build.Version'), 2 => 'net.xp_framework.build.Release', 3 => array(), 4 => 'Finds a release with a specific version', 5 => array(), 6 => array()), 'getRelease' => array(1 => array(0 => 'net.xp_framework.build.Version'), 2 => 'net.xp_framework.build.Release', 3 => array(), 4 => 'Finds a release with a specific version', 5 => array(), 6 => array()), 'equals' => array(1 => array(0 => 'var'), 2 => 'bool', 3 => array(), 4 => 'Returns whether another object is equal to this release', 5 => array(), 6 => array()), 'toString' => array(1 => array(), 2 => 'string', 3 => array(), 4 => 'Returns a string representation', 5 => array(), 6 => array())), 'class' => array());
+return $this->getClassName().'(releases= '.\xp::stringOf($this->releases).')';}}\xp::$cn['net\xp_framework\build\ChangeLog']= 'net.xp_framework.build.ChangeLog';\xp::$meta['net.xp_framework.build.ChangeLog']= array(0 => array('releases' => array(5 => array('type' => 'net.xp_framework.build.Release[]'), 4 => NULL, 6 => array())), 1 => array('addRelease' => array(1 => array(0 => 'net.xp_framework.build.Release'), 2 => 'net.xp_framework.build.Release', 3 => array(), 4 => 'Adds a release', 5 => array(), 6 => array()), 'withRelease' => array(1 => array(0 => 'net.xp_framework.build.Release'), 2 => 'net.xp_framework.build.ChangeLog', 3 => array(), 4 => 'Adds a release', 5 => array(), 6 => array()), 'findRelease' => array(1 => array(0 => 'net.xp_framework.build.Version'), 2 => 'net.xp_framework.build.Release', 3 => array(), 4 => 'Finds a release with a specific version', 5 => array(), 6 => array()), 'getRelease' => array(1 => array(0 => 'net.xp_framework.build.Version'), 2 => 'net.xp_framework.build.Release', 3 => array(), 4 => 'Finds a release with a specific version', 5 => array(), 6 => array()), 'equals' => array(1 => array(0 => 'var'), 2 => 'bool', 3 => array(), 4 => 'Returns whether another object is equal to this release', 5 => array(), 6 => array()), 'toString' => array(1 => array(), 2 => 'string', 3 => array(), 4 => 'Returns a string representation', 5 => array(), 6 => array())), 'class' => array(4 => 'Represents the changelog', 5 => array(), 6 => array()));
 ?>
